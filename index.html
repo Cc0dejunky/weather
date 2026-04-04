@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Severe Weather Ops - Neon Interface</title>
+    <title>Severe Weather Ops - Neon Master Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -26,7 +26,6 @@
             overflow-x: hidden;
             width: 100%;
             background-color: #ffffff;
-            /* Tech Squares Background Pattern */
             background-image: 
                 linear-gradient(var(--brand-aqua) 1px, transparent 1px),
                 linear-gradient(90deg, var(--brand-aqua) 1px, transparent 1px);
@@ -57,8 +56,8 @@
         }
 
         h1 {
-            font-size: 5rem; /* Extra Large */
-            font-weight: 950; /* Maximum Thickness */
+            font-size: 5rem;
+            font-weight: 950;
             line-height: 0.85;
             color: #ffffff;
             text-shadow: 
@@ -81,11 +80,6 @@
             font-size: 2rem;
             color: #ffffff;
             text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo);
-        }
-
-        h5, h6 {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-blue), 0 0 20px var(--brand-dark-blue);
         }
 
         .brand-border {
@@ -170,11 +164,30 @@
             cursor: pointer;
         }
 
-        .intelligence-box {
+        /* FAQ Accordion Styling */
+        .faq-item {
+            border-bottom: 1px solid var(--brand-aqua);
+        }
+        .faq-trigger {
+            width: 100%;
+            padding: 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--brand-indigo);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
             background: rgba(248, 250, 252, 0.95);
-            border-left: 8px solid var(--brand-pink);
-            padding: 25px;
-            font-size: 1rem;
+        }
+        .faq-content.open {
+            max-height: 500px;
+            padding: 15px;
         }
 
         .privacy-ribbon {
@@ -215,20 +228,6 @@
             <div class="flex justify-center mb-10">
                 <div class="status-pill">NEON SYSTEM: ACTIVE INTERCEPT</div>
             </div>
-
-            <div class="brand-border">
-                <h3>System Intelligence Overview</h3>
-                <div class="intelligence-box text-gray-700 space-y-6">
-                    <div>
-                        <p class="font-black uppercase text-pink-600 text-xs mb-1 text-center md:text-left">Intelligence Pipeline:</p>
-                        <p>This application bypasses typical consumer-facing weather apps by establishing a direct connection to the <strong>National Weather Service (NWS) API</strong>. Standard apps often refresh every 5-10 minutes; this tool executes sub-minute polling for the raw <strong>VTEC (Valid Time Event Code)</strong> strings.</p>
-                    </div>
-                    <div>
-                        <p class="font-black uppercase text-pink-600 text-xs mb-1 text-center md:text-left">Interception Logic:</p>
-                        <p>When you pin a location, the system creates a spatial intersection between your GPS coordinates and active NWS warning polygons. The engine specifically parses for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures within the raw metadata. If found, it bypasses standard notification channels to trigger the <strong>Take Cover Now</strong> protocol instantly.</p>
-                    </div>
-                </div>
-            </div>
         </header>
 
         <!-- Asset Entry Hub -->
@@ -260,12 +259,37 @@
             </div>
         </div>
 
-        <!-- Regional Sector Monitoring -->
+        <!-- Regional Sector Monitoring rebranded to C0dejunky -->
         <div class="brand-border">
-            <h3>Regional Sector Monitoring</h3>
-            <p class="text-center text-[10px] font-bold text-gray-500 uppercase mb-8 tracking-[0.4em]">Active Warning Polygon Scan</p>
+            <h3>C0dejunky</h3>
+            <p class="text-center text-[10px] font-bold text-gray-500 uppercase mb-8 tracking-[0.4em]">Stay safe friends</p>
             <div id="regionalFeed" class="space-y-6">
                 <p class="text-center italic text-gray-400 text-sm">Scanning regional high-frequency bands...</p>
+            </div>
+        </div>
+
+        <!-- Intelligence FAQ Accordion at Bottom -->
+        <div class="brand-border">
+            <h3>System Intelligence Hub</h3>
+            <div class="space-y-2 mt-4">
+                <div class="faq-item">
+                    <button class="faq-trigger" onclick="toggleFaq('pipeline')">
+                        <span>Intelligence Pipeline</span>
+                        <span>+</span>
+                    </button>
+                    <div id="faq-pipeline" class="faq-content text-sm text-gray-700">
+                        This application bypasses typical consumer-facing weather apps by establishing a direct connection to the <strong>National Weather Service (NWS) API</strong>. Standard apps often refresh every 5-10 minutes; this tool executes sub-minute polling for the raw <strong>VTEC (Valid Time Event Code)</strong> strings.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-trigger" onclick="toggleFaq('logic')">
+                        <span>Interception Logic</span>
+                        <span>+</span>
+                    </button>
+                    <div id="faq-logic" class="faq-content text-sm text-gray-700">
+                        When you pin a location, the system creates a spatial intersection between your GPS coordinates and active NWS warning polygons. The engine specifically parses for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures within the raw metadata. If found, it bypasses standard notification channels to trigger the <strong>Take Cover Now</strong> protocol instantly.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -285,6 +309,11 @@
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function toggleFaq(id) {
+            const content = document.getElementById('faq-' + id);
+            content.classList.toggle('open');
         }
 
         async function linkAsset() {
@@ -317,7 +346,7 @@
         async function runIntelligenceCycle() {
             if (!currentLat || !currentLon) return;
 
-            // 1. Asset Intercept: Scanning for Tornado Warnings and Rotation Signatures
+            // 1. Asset Intercept Parsing
             try {
                 const res = await fetch(`https://api.weather.gov/alerts/active?point=${currentLat},${currentLon}`);
                 const data = await res.json();
@@ -335,7 +364,7 @@
                     box.className = "p-8 bg-green-100 text-green-800 font-black text-2xl border-4 border-green-400 uppercase tracking-widest text-center";
                     box.textContent = "Asset Status: Clear";
                 }
-            } catch (e) { console.error("Local Telemetry Sync Error", e); }
+            } catch (e) { console.error("Telemetry Processing Error", e); }
 
             // 2. Regional Feed Update
             try {
@@ -363,8 +392,8 @@
                         </div>
                         ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION CONFIRMED BY TELEMETRY</span></div>' : ''}
                         <div class="warning-box bg-white">
-                            <p class="text-red-700 font-black text-5xl underline mb-4 uppercase tracking-tighter italic">TAKE COVER NOW</p>
-                            <p class="text-xs font-bold text-red-950 leading-relaxed">${p.instruction ? p.instruction.substring(0, 450) : 'IMMEDIATE THREAT. SEEK SHELTER IN AN INTERIOR ROOM ON THE LOWEST FLOOR.'}...</p>
+                            <p class="text-red-700 font-black text-5xl underline mb-4 uppercase tracking-tighter italic text-center">TAKE COVER NOW</p>
+                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 450) : 'IMMEDIATE THREAT. SEEK SHELTER IN AN INTERIOR ROOM ON THE LOWEST FLOOR.'}...</p>
                         </div>
                     `;
                     feed.appendChild(card);
@@ -375,10 +404,7 @@
         window.onload = function() {
             updateClock();
             setInterval(updateClock, 1000);
-            
-            // Automatic Telemetry Refresh (60s)
             setInterval(runIntelligenceCycle, 60000);
-
             document.getElementById('targetInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') linkAsset();
             });
