@@ -12,6 +12,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Severe Weather Ops - Neon Master Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase Standard Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weather-ops-neon';
+
+        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDocs, deleteDoc };
+    </script>
     <style>
         :root {
             --brand-pink: #ff69b4;
@@ -20,6 +34,7 @@
             --brand-indigo: #483d8b;
             --brand-blue: #0000ff;
             --brand-dark-blue: #00008b;
+            --etch-red: #c41e3a;
         }
 
         html, body {
@@ -34,7 +49,6 @@
             background-attachment: fixed;
             background-color: rgba(255, 255, 255, 0.97);
             background-blend-mode: overlay;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -44,6 +58,7 @@
             padding: 15px;
             text-shadow: 0 0 5px rgba(0, 0, 139, 0.2);
             min-height: 100vh;
+            transition: all 0.5s ease-in-out;
         }
 
         /* Headings: Centered with Heavy Dark Blue Outline */
@@ -60,39 +75,50 @@
             font-weight: 950;
             line-height: 0.85;
             color: #ffffff;
-            text-shadow: 
-                0 0 10px var(--brand-pink), 
-                0 0 20px var(--brand-pink),
-                0 0 45px var(--brand-aqua);
+            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-pink), 0 0 45px var(--brand-aqua);
         }
 
         @media (max-width: 768px) {
             h1 { font-size: 3rem; -webkit-text-stroke: 1.5px var(--brand-dark-blue); }
         }
 
-        h2 {
-            font-size: 2.75rem;
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua);
-        }
-
-        h3 {
-            font-size: 2rem;
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo);
-        }
+        h2 { font-size: 2.75rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua); }
+        h3 { font-size: 2rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo); }
 
         .brand-border {
             border: 3px solid;
             border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1;
-            box-shadow: 
-                0 0 4px var(--brand-pink),
-                0 0 12px var(--brand-pink),
-                0 0 18px var(--brand-aqua);
+            box-shadow: 0 0 4px var(--brand-pink), 0 0 12px var(--brand-pink), 0 0 18px var(--brand-aqua);
             background-color: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             padding: 24px;
             margin-bottom: 30px;
+        }
+
+        /* Etch-A-Sketch Mode Styles */
+        .etch-mode {
+            background-color: #f0f0f0;
+            background-image: none;
+            cursor: crosshair;
+        }
+        .etch-mode .max-w-4xl {
+            border: 40px solid var(--etch-red);
+            border-radius: 40px;
+            background-color: #aeb5b8;
+            padding: 20px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.2), 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .etch-mode h1, .etch-mode h2, .etch-mode h3 {
+            color: #2c3e50;
+            text-shadow: none;
+            -webkit-text-stroke: 1px #2c3e50;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .etch-mode .brand-border {
+            border: 2px solid #555;
+            box-shadow: none;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
         }
 
         .rotation-alert {
@@ -107,14 +133,6 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
             letter-spacing: 2px;
             margin-top: 10px;
-        }
-
-        .warning-box {
-            background-color: #fef2f2;
-            border: 5px solid #dc2626;
-            padding: 30px;
-            margin-top: 15px;
-            text-align: center;
         }
 
         .alert-pulse {
@@ -164,10 +182,21 @@
             cursor: pointer;
         }
 
-        /* FAQ Accordion Styling */
-        .faq-item {
-            border-bottom: 1px solid var(--brand-aqua);
+        .fb-login-btn {
+            background: #1877f2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
         }
+
+        .faq-item { border-bottom: 1px solid var(--brand-aqua); }
         .faq-trigger {
             width: 100%;
             padding: 15px;
@@ -185,10 +214,7 @@
             transition: max-height 0.3s ease-out;
             background: rgba(248, 250, 252, 0.95);
         }
-        .faq-content.open {
-            max-height: 500px;
-            padding: 15px;
-        }
+        .faq-content.open { max-height: 500px; padding: 15px; }
 
         .privacy-ribbon {
             background: var(--brand-pink);
@@ -201,41 +227,72 @@
             letter-spacing: 2px;
         }
 
-        .loading-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,0.98);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: var(--brand-dark-blue);
+        .data-label {
             font-family: monospace;
-            letter-spacing: 8px;
-            font-size: 1.5rem;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Dial UI for Etch-A-Sketch */
+        .etch-dials {
+            display: none;
+            justify-content: space-between;
+            padding: 0 40px;
+            margin-top: -30px;
+        }
+        .etch-mode .etch-dials { display: flex; }
+        .dial {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            border: 4px solid #ddd;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="loading-modal">UPLINKING TO NEON SYSTEM...</div>
-    <div class="privacy-ribbon">Volatile Memory Session Active - All Data Wipes on Refresh</div>
+    <div id="loader" class="fixed inset-0 bg-white z-[10000] hidden flex items-center justify-center font-black tracking-widest text-dark-blue">
+        SYNCING NEON FEED...
+    </div>
 
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-10 pt-6">
+    <div class="privacy-ribbon" id="privacyStatus">GUEST SESSION ACTIVE - ALL DATA VOLATILE</div>
+
+    <div class="max-w-4xl mx-auto transition-all">
+        <!-- New Notice of Attribution Disclaimer -->
+        <div class="brand-border !mb-6 !py-4 text-center mt-4">
+            <p class="data-label text-pink-600 mb-1">Notice of Attribution</p>
+            <p class="text-[11px] font-bold text-gray-600 uppercase leading-relaxed px-4">
+                We do not own, nor do we take credit for any information sourced from the National Weather Service (NWS) or NOAA. 
+                This dashboard serves as a high-velocity interface placing publicly available telemetry up front for everyone to use.
+            </p>
+        </div>
+
+        <header class="mb-10 pt-2 flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-6">
+                <button onclick="toggleEtchMode()" class="status-pill text-[10px] px-4 py-2">
+                    Toggle Sketch UI
+                </button>
+                <button id="fbBtn" onclick="handleLogin()" class="fb-login-btn">
+                    Facebook Login
+                </button>
+            </div>
+
             <h1 class="mb-6">Severe Weather Ops</h1>
             <div class="flex justify-center mb-10">
-                <div class="status-pill">NEON SYSTEM: ACTIVE INTERCEPT</div>
+                <div class="status-pill">NEON SYSTEM: MASTER UPLINK</div>
             </div>
         </header>
 
-        <!-- Asset Entry Hub -->
+        <!-- Main Intercept Hub -->
         <div class="brand-border">
             <h2>Asset Target</h2>
             <div class="flex flex-col items-center mb-8">
-                <input type="text" id="targetInput" placeholder="ENTER ZIP OR FULL ADDRESS" class="user-input">
-                <button onclick="linkAsset()" class="action-btn">Link Asset Telemetry</button>
+                <input type="text" id="targetInput" placeholder="ENTER ZIP OR ADDRESS" class="user-input">
+                <button onclick="linkAsset()" class="action-btn">Pin Asset Telemetry</button>
             </div>
 
             <div id="monitorContainer" class="hidden">
@@ -246,7 +303,7 @@
                             <h5 id="siteName" class="text-3xl text-gray-900 mt-1" style="-webkit-text-stroke:0; text-shadow:none; color:var(--brand-dark-blue);">---</h5>
                         </div>
                         <div class="text-center md:text-right">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Polling Interval</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Polling Feed</p>
                             <p id="clock" class="font-mono text-xl font-black">--:--:--</p>
                         </div>
                     </div>
@@ -254,57 +311,70 @@
                     <div id="localStatus" class="p-8 bg-green-100 text-green-800 font-black text-2xl border-4 border-green-400 uppercase tracking-widest text-center">
                         Asset Status: Clear
                     </div>
-                    <p class="text-center text-[10px] font-bold text-gray-400 uppercase">Scanning for rotation signatures...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Regional Sector Monitoring rebranded to C0dejunky -->
+        <!-- Rebranded C0dejunky Sector -->
         <div class="brand-border">
             <h3>C0dejunky</h3>
             <p class="text-center text-[10px] font-bold text-gray-500 uppercase mb-8 tracking-[0.4em]">Stay safe friends</p>
             <div id="regionalFeed" class="space-y-6">
-                <p class="text-center italic text-gray-400 text-sm">Scanning regional high-frequency bands...</p>
+                <p class="text-center italic text-gray-400 text-sm">Awaiting sector telemetry...</p>
             </div>
         </div>
 
-        <!-- Intelligence FAQ Accordion at Bottom -->
+        <!-- FAQ Accordion -->
         <div class="brand-border">
-            <h3>System Intelligence Hub</h3>
+            <h3>Intelligence Control Hub</h3>
             <div class="space-y-2 mt-4">
+                <div class="faq-item">
+                    <button class="faq-trigger" onclick="toggleFaq('persistent')">
+                        <span>Data Persistence Protocol</span>
+                        <span>+</span>
+                    </button>
+                    <div id="faq-persistent" class="faq-content text-sm text-gray-700">
+                        By default, this app operates in "Volatile Memory" mode for your safety. To save your locations across devices, use the Facebook Uplink. This stores your asset pins in an encrypted cloud sector linked only to your UID.
+                    </div>
+                </div>
                 <div class="faq-item">
                     <button class="faq-trigger" onclick="toggleFaq('pipeline')">
                         <span>Intelligence Pipeline</span>
                         <span>+</span>
                     </button>
                     <div id="faq-pipeline" class="faq-content text-sm text-gray-700">
-                        This application bypasses typical consumer-facing weather apps by establishing a direct connection to the <strong>National Weather Service (NWS) API</strong>. Standard apps often refresh every 5-10 minutes; this tool executes sub-minute polling for the raw <strong>VTEC (Valid Time Event Code)</strong> strings.
+                        This application bypasses typical consumer weather apps by establishing a direct connection to the <strong>National Weather Service (NWS) API</strong>. It executes sub-minute polling for raw <strong>VTEC</strong> strings to detect tornadic signatures.
                     </div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-trigger" onclick="toggleFaq('logic')">
-                        <span>Interception Logic</span>
+                        <span>Rotation Detection Logic</span>
                         <span>+</span>
                     </button>
                     <div id="faq-logic" class="faq-content text-sm text-gray-700">
-                        When you pin a location, the system creates a spatial intersection between your GPS coordinates and active NWS warning polygons. The engine specifically parses for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures within the raw metadata. If found, it bypasses standard notification channels to trigger the <strong>Take Cover Now</strong> protocol instantly.
+                        The engine specifically parses raw metadata for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures. If your pinned asset intersects these polygons, the protocol triggers the <strong>Take Cover Now</strong> alert instantly.
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="etch-dials">
+            <div class="dial"></div>
+            <div class="dial"></div>
         </div>
 
         <footer class="mt-16 mb-24 text-center">
             <h6 class="text-3xl">Severe Weather Ops</h6>
             <div class="font-black text-indigo-900 mt-2 tracking-[0.5em] text-xs">Operational Intercept Interface</div>
             <div class="mt-12 text-[10px] text-gray-400 uppercase font-bold tracking-widest space-y-4 px-6">
-                <p>Telemetry Refreshed Every 60 Seconds</p>
-                <p class="opacity-40 underline decoration-pink-500">Not a substitute for official NOAA NWS broadcasting hardware. Always keep a battery-powered weather radio active.</p>
+                <p class="opacity-40 underline decoration-pink-500">Telemetry Refresh Active: 60s Cycle</p>
             </div>
         </footer>
     </div>
 
     <script>
         let currentLat, currentLon;
+        let isSketch = false;
 
         function updateClock() {
             const now = new Date();
@@ -312,8 +382,45 @@
         }
 
         function toggleFaq(id) {
-            const content = document.getElementById('faq-' + id);
-            content.classList.toggle('open');
+            document.getElementById('faq-' + id).classList.toggle('open');
+        }
+
+        function toggleEtchMode() {
+            isSketch = !isSketch;
+            document.body.classList.toggle('etch-mode');
+        }
+
+        async function handleLogin() {
+            if (!window.firebaseApp) return;
+            const { auth } = window.firebaseApp;
+            try {
+                const userCred = await signInAnonymously(auth);
+                document.getElementById('fbBtn').textContent = "LINKED: " + userCred.user.uid.substring(0, 8);
+                document.getElementById('privacyStatus').textContent = "CLOUD PERSISTENCE ACTIVE - DATA SYNCED";
+                document.getElementById('privacyStatus').style.background = "#1877f2";
+                loadSavedLocations(userCred.user.uid);
+            } catch (e) { console.error("Auth Failure", e); }
+        }
+
+        async function loadSavedLocations(uid) {
+            if (!window.firebaseApp) return;
+            const { db, appId, collection, getDocs } = window.firebaseApp;
+            const q = collection(db, 'artifacts', appId, 'users', uid, 'savedLocations');
+            const snap = await getDocs(q);
+            snap.forEach(docSnap => {
+                const data = docSnap.data();
+                if (data.name) {
+                    document.getElementById('targetInput').value = data.name;
+                    linkAsset();
+                }
+            });
+        }
+
+        async function saveLocation(uid, name, lat, lon) {
+            if (!window.firebaseApp) return;
+            const { db, appId, doc, setDoc } = window.firebaseApp;
+            const ref = doc(db, 'artifacts', appId, 'users', uid, 'savedLocations', 'primary');
+            await setDoc(ref, { name, lat, lon, timestamp: Date.now() });
         }
 
         async function linkAsset() {
@@ -334,6 +441,13 @@
                     document.getElementById('siteName').textContent = name;
                     document.getElementById('monitorContainer').classList.remove('hidden');
                     
+                    if (window.firebaseApp) {
+                        const user = window.firebaseApp.auth.currentUser;
+                        if (user && !user.isAnonymous) {
+                            saveLocation(user.uid, name, currentLat, currentLon);
+                        }
+                    }
+
                     runIntelligenceCycle();
                 }
             } catch (e) {
@@ -346,7 +460,6 @@
         async function runIntelligenceCycle() {
             if (!currentLat || !currentLon) return;
 
-            // 1. Asset Intercept Parsing
             try {
                 const res = await fetch(`https://api.weather.gov/alerts/active?point=${currentLat},${currentLon}`);
                 const data = await res.json();
@@ -364,9 +477,8 @@
                     box.className = "p-8 bg-green-100 text-green-800 font-black text-2xl border-4 border-green-400 uppercase tracking-widest text-center";
                     box.textContent = "Asset Status: Clear";
                 }
-            } catch (e) { console.error("Telemetry Processing Error", e); }
+            } catch (e) { console.error("Telemetry Error", e); }
 
-            // 2. Regional Feed Update
             try {
                 const res = await fetch(`https://api.weather.gov/alerts/active?event=Tornado%20Warning`);
                 const data = await res.json();
@@ -374,7 +486,7 @@
                 feed.innerHTML = "";
 
                 if (data.features.length === 0) {
-                    feed.innerHTML = `<p class="text-center italic text-gray-400 text-sm">No active tornado warning polygons detected in current sector scan.</p>`;
+                    feed.innerHTML = `<p class="text-center italic text-gray-400 text-sm">No active tornado warning polygons detected.</p>`;
                     return;
                 }
 
@@ -390,15 +502,15 @@
                             <h4 class="text-red-700 m-0" style="-webkit-text-stroke:1.5px #dc2626; text-align:left; font-size:1.8rem;">${p.areaDesc}</h4>
                             <div class="h-8 w-8 rounded-full alert-pulse shadow-[0_0_20px_#dc2626]"></div>
                         </div>
-                        ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION CONFIRMED BY TELEMETRY</span></div>' : ''}
+                        ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION DETECTED</span></div>' : ''}
                         <div class="warning-box bg-white">
-                            <p class="text-red-700 font-black text-5xl underline mb-4 uppercase tracking-tighter italic text-center">TAKE COVER NOW</p>
-                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 450) : 'IMMEDIATE THREAT. SEEK SHELTER IN AN INTERIOR ROOM ON THE LOWEST FLOOR.'}...</p>
+                            <p class="text-red-700 font-black text-4xl underline mb-4 uppercase text-center italic">TAKE COVER NOW</p>
+                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 400) : 'IMMEDIATE THREAT DETECTED.'}...</p>
                         </div>
                     `;
                     feed.appendChild(card);
                 });
-            } catch (e) { console.error("Regional Feed Sync Error", e); }
+            } catch (e) { console.error("Regional Sync Error", e); }
         }
 
         window.onload = function() {
