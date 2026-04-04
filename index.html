@@ -1,30 +1,84 @@
-<!-- 
-    CRITICAL PRIVACY PROTOCOL: VOLATILE MEMORY ACTIVE
-    This application is designed for maximum user safety. 
-    It does not utilize cookies, localStorage, or persistent databases. 
-    Refreshing the page will instantly purge all asset coordinates and active intercept data.
-    This ensures that personal location data remains local to the active session only.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Severe Weather Ops - Neon Master Interface</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAISY: Direct Access Information System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase Standard Integration -->
+    <!--
+        CRITICAL PRIVACY PROTOCOL: VOLATILE MEMORY ACTIVE
+        This application is designed for maximum user safety.
+        It does not utilize cookies, localStorage, or persistent databases.
+        Refreshing the page will instantly purge all asset coordinates and active intercept data.
+        This ensures that personal location data remains local to the active session only.
+    -->
+    <script>
+        window.__fb_app_id = typeof __fb_app_id !== 'undefined' ? __fb_app_id : '';
+        window.fbSdkReady = false;
+        window.fbSdkLoadError = false;
+
+        function statusChangeCallback(response) {
+            if (!response) {
+                console.warn('FB.getLoginStatus returned no response.');
+                return;
+            }
+
+            if (response.status === 'connected' && response.authResponse) {
+                handleFacebookToken(response.authResponse.accessToken);
+            } else if (response.status === 'not_authorized') {
+                console.log('Logged into Facebook but not authorized for this app.');
+            } else {
+                console.log('Not logged into Facebook.');
+            }
+        }
+
+        function checkLoginState() {
+            if (window.fbSdkReady && window.FB && window.FB.getLoginStatus) {
+                FB.getLoginStatus(function(response) {
+                    statusChangeCallback(response);
+                });
+            }
+        }
+
+        window.fbAsyncInit = function() {
+            if (!window.__fb_app_id) {
+                console.warn('Facebook App ID is not configured. Facebook login cannot initialize.');
+                return;
+            }
+            FB.init({
+                appId: window.__fb_app_id,
+                cookie: true,
+                xfbml: true,
+                version: 'v17.0'
+            });
+            window.fbSdkReady = true;
+            checkLoginState();
+        };
+
+        (function(d, s, id) {
+            if (d.getElementById(id)) return;
+            const js = d.createElement(s);
+            js.id = id;
+            js.src = 'https://connect.facebook.net/en_US/sdk.js';
+            js.onerror = () => { window.fbSdkLoadError = true; };
+            d.head.appendChild(js);
+        })(document, 'script', 'facebook-jssdk');
+    </script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weather-ops-neon';
-
-        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDocs, deleteDoc };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        if (firebaseConfig) {
+            import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js').then(({ initializeApp }) => {
+                import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js').then(({ getAuth, signInWithCredential, FacebookAuthProvider }) => {
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js').then(({ getFirestore, collection, doc, setDoc, getDoc }) => {
+                        const app = initializeApp(firebaseConfig);
+                        const auth = getAuth(app);
+                        const db = getFirestore(app);
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'daisy-direct-access';
+                        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDoc, signInWithCredential, FacebookAuthProvider };
+                    });
+                });
+            });
+        }
     </script>
     <style>
         :root {
@@ -34,187 +88,99 @@
             --brand-indigo: #483d8b;
             --brand-blue: #0000ff;
             --brand-dark-blue: #00008b;
-            --etch-red: #c41e3a;
-        }
-
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            background-color: #ffffff;
-            background-image: 
-                linear-gradient(var(--brand-aqua) 1px, transparent 1px),
-                linear-gradient(90deg, var(--brand-aqua) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: rgba(255, 255, 255, 0.97);
-            background-blend-mode: overlay;
         }
 
         body {
+            background-color: #ffffff;
             color: var(--brand-dark-blue);
-            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+            font-family: sans-serif;
             margin: 0;
-            padding: 15px;
-            text-shadow: 0 0 5px rgba(0, 0, 139, 0.2);
-            min-height: 100vh;
-            transition: all 0.5s ease-in-out;
+            padding: 20px;
         }
 
-        /* Headings: Centered with Heavy Dark Blue Outline */
-        h1, h2, h3, h4, h5, h6 {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            -webkit-text-stroke: 2.5px var(--brand-dark-blue);
-            margin-bottom: 1.5rem;
+        .body-glow {
+            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3);
         }
 
-        h1 {
-            font-size: 5rem;
-            font-weight: 950;
-            line-height: 0.85;
+        h1, h2 {
             color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-pink), 0 0 45px var(--brand-aqua);
+            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua);
+            font-weight: bold;
         }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 3rem; -webkit-text-stroke: 1.5px var(--brand-dark-blue); }
+        h3, h4 {
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo);
+            font-weight: bold;
         }
 
-        h2 { font-size: 2.75rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua); }
-        h3 { font-size: 2rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo); }
+        h5, h6 {
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--brand-blue), 0 0 20px var(--brand-dark-blue);
+            font-weight: bold;
+        }
 
         .brand-border {
             border: 3px solid;
             border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1;
-            box-shadow: 0 0 4px var(--brand-pink), 0 0 12px var(--brand-pink), 0 0 18px var(--brand-aqua);
-            background-color: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(8px);
-            padding: 24px;
-            margin-bottom: 30px;
-        }
-
-        /* Etch-A-Sketch Mode Styles */
-        .etch-mode {
-            background-color: #f0f0f0;
-            background-image: none;
-            cursor: crosshair;
-        }
-        .etch-mode .max-w-4xl {
-            border: 40px solid var(--etch-red);
-            border-radius: 40px;
-            background-color: #aeb5b8;
+            box-shadow: 
+                0 0 2px var(--brand-pink),
+                0 0 8px var(--brand-pink),
+                0 0 12px var(--brand-aqua);
+            background-color: #ffffff;
             padding: 20px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.2), 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .etch-mode h1, .etch-mode h2, .etch-mode h3 {
-            color: #2c3e50;
-            text-shadow: none;
-            -webkit-text-stroke: 1px #2c3e50;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        .etch-mode .brand-border {
-            border: 2px solid #555;
-            box-shadow: none;
-            background: rgba(255,255,255,0.3);
-            border-radius: 10px;
+            margin-bottom: 24px;
         }
 
-        .rotation-alert {
-            background: var(--brand-dark-blue);
-            color: var(--brand-aqua);
-            border: 2px solid var(--brand-aqua);
-            padding: 8px 15px;
-            font-weight: 950;
-            font-family: monospace;
-            font-size: 0.9rem;
-            display: inline-block;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            letter-spacing: 2px;
-            margin-top: 10px;
+        .warning-box {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 4px;
+        }
+
+        .county-card {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 0;
+        }
+
+        .county-card:last-child {
+            border-bottom: none;
         }
 
         .alert-pulse {
-            animation: alert-glow 0.8s ease-in-out infinite;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        @keyframes alert-glow {
-            0%, 100% { background-color: #dc2626; box-shadow: 0 0 30px #dc2626; }
-            50% { background-color: #ff0000; box-shadow: 0 0 60px #ff0000; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--brand-dark-blue);
-            color: var(--brand-aqua);
-            padding: 10px 25px;
-            font-size: 0.85rem;
-            font-weight: 900;
-            border: 1px solid var(--brand-aqua);
-            letter-spacing: 3px;
-        }
-
-        .user-input {
-            border: 3px solid var(--brand-indigo);
-            padding: 18px;
-            width: 100%;
-            text-align: center;
-            font-weight: 900;
-            text-transform: uppercase;
+        .coords-display {
             font-family: monospace;
-            background: rgba(255, 255, 255, 0.95);
-            font-size: 1.25rem;
-        }
-
-        .action-btn {
-            background: linear-gradient(to right, var(--brand-purple), var(--brand-dark-blue));
-            color: white;
-            padding: 20px;
-            width: 100%;
-            font-weight: 950;
-            text-transform: uppercase;
-            border: 1px solid var(--brand-aqua);
-            margin-top: 15px;
-            letter-spacing: 3px;
-            cursor: pointer;
-        }
-
-        .fb-login-btn {
-            background: #1877f2;
-            color: white;
-            padding: 8px 16px;
+            background: #f8fafc;
+            padding: 4px 8px;
             border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            color: var(--brand-dark-blue);
+        }
+        
+        .address-tag {
+            background: linear-gradient(to right, var(--brand-dark-blue), var(--brand-indigo));
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
-            border: none;
-            cursor: pointer;
+            letter-spacing: 0.05em;
         }
 
-        .faq-item { border-bottom: 1px solid var(--brand-aqua); }
-        .faq-trigger {
-            width: 100%;
-            padding: 15px;
-            text-align: left;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: var(--brand-indigo);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .river-valley-gradient {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid var(--brand-blue);
         }
-        .faq-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background: rgba(248, 250, 252, 0.95);
-        }
-        .faq-content.open { max-height: 500px; padding: 15px; }
 
         .privacy-ribbon {
             background: var(--brand-pink);
@@ -222,7 +188,7 @@
             font-size: 10px;
             font-weight: 900;
             text-align: center;
-            padding: 4px;
+            padding: 6px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -235,292 +201,372 @@
             letter-spacing: 2px;
         }
 
-        /* Dial UI for Etch-A-Sketch */
-        .etch-dials {
-            display: none;
-            justify-content: space-between;
-            padding: 0 40px;
-            margin-top: -30px;
-        }
-        .etch-mode .etch-dials { display: flex; }
-        .dial {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            border: 4px solid #ddd;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .cloud-sync-btn {
+            background: #1877f2;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
         }
     </style>
 </head>
-<body>
-
-    <div id="loader" class="fixed inset-0 bg-white z-[10000] hidden flex items-center justify-center font-black tracking-widest text-dark-blue">
-        SYNCING NEON FEED...
-    </div>
-
+<body class="body-glow">
     <div class="privacy-ribbon" id="privacyStatus">GUEST SESSION ACTIVE - ALL DATA VOLATILE</div>
 
-    <div class="max-w-4xl mx-auto transition-all">
-        <!-- New Notice of Attribution Disclaimer -->
-        <div class="brand-border !mb-6 !py-4 text-center mt-4">
-            <p class="data-label text-pink-600 mb-1">Notice of Attribution</p>
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start gap-4">
+            <div>
+                <span class="data-label text-pink-600 mb-2 inline-block">DAISY Direct Access System</span>
+                <h1 class="text-4xl mb-2">DAISY: Direct Access Information System</h1>
+                <p class="text-lg">Optional cloud-synced tracking for emergency weather awareness.</p>
+            </div>
+            <div class="text-right">
+                <button id="cloudSyncBtn" onclick="handleLogin()" class="cloud-sync-btn">Login with Facebook for Cloud Sync</button>
+                <div class="mt-4 text-right text-sm text-gray-600">
+                    <label class="inline-flex items-start gap-2 text-left">
+                        <input id="acceptTermsCheckbox" type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span>I accept the Terms and Conditions and consent to limited profile collection for optional cloud sync.</span>
+                    </label>
+                    <p class="mt-2 text-xs text-gray-500">Facebook login collects your public profile and email only to enable secure persistence of saved locations.</p>
+                </div>
+                <div class="mt-4 md:mt-6 text-right">
+                    <p class="text-xs font-bold uppercase text-gray-500">System Clock</p>
+                    <p id="updateTime" class="text-lg font-bold">--:--:--</p>
+                </div>
+            </div>
+        </header>
+        <div class="brand-border !mb-6 !py-4 text-center">
+            <p class="data-label text-pink-600 mb-1">Privacy Notice</p>
             <p class="text-[11px] font-bold text-gray-600 uppercase leading-relaxed px-4">
-                We do not own, nor do we take credit for any information sourced from the National Weather Service (NWS) or NOAA. 
-                This dashboard serves as a high-velocity interface placing publicly available telemetry up front for everyone to use.
+                This page is designed for maximum user safety. It does not use cookies, localStorage, or persistent databases unless cloud sync is explicitly enabled by signing in.
             </p>
         </div>
 
-        <header class="mb-10 pt-2 flex flex-col items-center">
-            <div class="w-full flex justify-between items-center mb-6">
-                <button onclick="toggleEtchMode()" class="status-pill text-[10px] px-4 py-2">
-                    Toggle Sketch UI
-                </button>
-                <button id="fbBtn" onclick="handleLogin()" class="fb-login-btn">
-                    Facebook Login
-                </button>
-            </div>
-
-            <h1 class="mb-6">Severe Weather Ops</h1>
-            <div class="flex justify-center mb-10">
-                <div class="status-pill">NEON SYSTEM: MASTER UPLINK</div>
-            </div>
-        </header>
-
-        <!-- Main Intercept Hub -->
+        <!-- Address Tracking Section -->
         <div class="brand-border">
-            <h2>Asset Target</h2>
-            <div class="flex flex-col items-center mb-8">
-                <input type="text" id="targetInput" placeholder="ENTER ZIP OR ADDRESS" class="user-input">
-                <button onclick="linkAsset()" class="action-btn">Pin Asset Telemetry</button>
+            <h2 class="text-2xl mb-4">Track Your Address</h2>
+            <div class="text-sm text-gray-500 mb-4">
+                Your locations are volatile by default. If you refresh the page, the list will clear for privacy. Sign in with Facebook to save your tracked addresses across sessions.
             </div>
+            <div class="flex flex-col gap-4">
+                <input id="addressInput" type="text" placeholder="Enter your address or ZIP code" class="coords-display" style="width:100%; padding:14px; border-radius:10px; border:1px solid #cbd5e1;" />
+                <button id="addAddressBtn" onclick="addAddress()" class="cloud-sync-btn" style="width:fit-content;">Add Location</button>
+                <p id="addressError" class="text-sm text-red-600 hidden mt-2"></p>
+            </div>
+            <div id="trackedLocations" class="mt-6 space-y-4">
+                <div class="text-sm italic text-gray-500">No monitored locations yet. Add your address to begin.</div>
+            </div>
+        </div>
 
-            <div id="monitorContainer" class="hidden">
-                <div class="p-6 border-2 border-gray-100 bg-white shadow-inner">
-                    <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-6 gap-4">
-                        <div class="text-center md:text-left">
-                            <span class="text-[10px] font-black text-pink-600 uppercase tracking-[0.3em]">Satellite Lock: Asset Verified</span>
-                            <h5 id="siteName" class="text-3xl text-gray-900 mt-1" style="-webkit-text-stroke:0; text-shadow:none; color:var(--brand-dark-blue);">---</h5>
+        <!-- Inflow Monitoring (Poteau / River Valley) -->
+        <div class="brand-border">
+            <h3 class="text-xl mb-4">River Valley Inflow & Poteau Tracker</h3>
+            <p class="text-xs text-gray-500 mb-4 font-bold uppercase">Monitoring Oklahoma-to-Arkansas Storm Path</p>
+            
+            <div class="space-y-4">
+                <!-- Poteau/Le Flore Monitoring -->
+                <div class="p-4 river-valley-gradient rounded">
+                    <div class="flex justify-between items-center mb-2">
+                        <h6 class="text-lg">Poteau / Le Flore County (OK)</h6>
+                        <span class="text-xs font-bold text-blue-600 uppercase">Upstream Inflow</span>
+                    </div>
+                    <p class="text-sm text-gray-700 italic">Tracking spin-ups and development moving East/North-East toward the river valley.</p>
+                    <!-- Warning Example -->
+                    <div class="warning-box bg-white">
+                        <p class="font-black text-red-700 text-sm underline">SITUATION AWARENESS</p>
+                        <p class="text-xs text-gray-800 mt-1">Monitoring cells near Poteau for rapid intensification before entering AR-64/I-40 corridor.</p>
+                    </div>
+                </div>
+
+                <!-- River Valley Specifics -->
+                <div class="p-4 river-valley-gradient rounded">
+                    <div class="flex justify-between items-center mb-2">
+                        <h6 class="text-lg">River Valley Channel</h6>
+                        <span class="text-xs font-bold text-blue-600 uppercase">Incoming Path</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-green-700 font-bold">
+                        <div class="h-2 w-2 bg-green-500 rounded-full"></div>
+                        Current Path Status: No rotation detected in the channel.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regional Tornado Warnings -->
+        <div class="brand-border">
+            <h4 class="text-xl mb-4">Regional Tornado Warnings</h4>
+            <div id="regionalTornadoBox" class="space-y-0">
+                
+                <div class="county-card">
+                    <div class="flex justify-between items-center">
+                        <h5 class="text-xl">Sebastian County</h5>
+                        <div class="flex items-center gap-2">
+                            <span class="h-3 w-3 bg-red-600 rounded-full alert-pulse"></span>
+                            <span class="text-sm font-black text-red-600 uppercase">Tornado Warning</span>
                         </div>
-                        <div class="text-center md:text-right">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Polling Feed</p>
-                            <p id="clock" class="font-mono text-xl font-black">--:--:--</p>
+                    </div>
+                    <div class="warning-box">
+                        <p class="font-black text-red-700 text-lg mb-1 underline">TAKE COVER NOW</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">
+                            Confirmed rotation heading toward the Fort Smith metro area.
+                        </p>
+                        <div class="mt-3 text-xs font-bold text-red-900 bg-red-100 inline-block px-2 py-1 rounded">
+                            EXPIRES: 2:45 AM CDT
                         </div>
                     </div>
+                </div>
 
-                    <div id="localStatus" class="p-8 bg-green-100 text-green-800 font-black text-2xl border-4 border-green-400 uppercase tracking-widest text-center">
-                        Asset Status: Clear
+                <div class="county-card">
+                    <div class="flex justify-between items-center">
+                        <h5 class="text-xl">Crawford County</h5>
+                        <div class="flex items-center gap-2">
+                            <span class="h-3 w-3 bg-red-600 rounded-full alert-pulse"></span>
+                            <span class="text-sm font-black text-red-600 uppercase">Tornado Warning</span>
+                        </div>
+                    </div>
+                    <div class="warning-box">
+                        <p class="font-black text-red-700 text-lg mb-1 underline">TAKE COVER NOW</p>
+                        <p class="text-sm text-gray-800 leading-relaxed">
+                            Observed Tornado confirmed by spotters.
+                        </p>
+                        <div class="mt-3 text-xs font-bold text-red-900 bg-red-100 inline-block px-2 py-1 rounded">
+                            EXPIRES: 2:30 AM CDT
+                        </div>
                     </div>
                 </div>
+
+                <div class="county-card opacity-60">
+                    <div class="flex justify-between items-center">
+                        <h5 class="text-xl">Franklin County</h5>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">No Active Warnings</span>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Rebranded C0dejunky Sector -->
-        <div class="brand-border">
-            <h3>C0dejunky</h3>
-            <p class="text-center text-[10px] font-bold text-gray-500 uppercase mb-8 tracking-[0.4em]">Stay safe friends</p>
-            <div id="regionalFeed" class="space-y-6">
-                <p class="text-center italic text-gray-400 text-sm">Awaiting sector telemetry...</p>
-            </div>
-        </div>
-
-        <!-- FAQ Accordion -->
-        <div class="brand-border">
-            <h3>Intelligence Control Hub</h3>
-            <div class="space-y-2 mt-4">
-                <div class="faq-item">
-                    <button class="faq-trigger" onclick="toggleFaq('persistent')">
-                        <span>Data Persistence Protocol</span>
-                        <span>+</span>
-                    </button>
-                    <div id="faq-persistent" class="faq-content text-sm text-gray-700">
-                        By default, this app operates in "Volatile Memory" mode for your safety. To save your locations across devices, use the Facebook Uplink. This stores your asset pins in an encrypted cloud sector linked only to your UID.
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-trigger" onclick="toggleFaq('pipeline')">
-                        <span>Intelligence Pipeline</span>
-                        <span>+</span>
-                    </button>
-                    <div id="faq-pipeline" class="faq-content text-sm text-gray-700">
-                        This application bypasses typical consumer weather apps by establishing a direct connection to the <strong>National Weather Service (NWS) API</strong>. It executes sub-minute polling for raw <strong>VTEC</strong> strings to detect tornadic signatures.
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-trigger" onclick="toggleFaq('logic')">
-                        <span>Rotation Detection Logic</span>
-                        <span>+</span>
-                    </button>
-                    <div id="faq-logic" class="faq-content text-sm text-gray-700">
-                        The engine specifically parses raw metadata for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures. If your pinned asset intersects these polygons, the protocol triggers the <strong>Take Cover Now</strong> alert instantly.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="etch-dials">
-            <div class="dial"></div>
-            <div class="dial"></div>
-        </div>
-
-        <footer class="mt-16 mb-24 text-center">
-            <h6 class="text-3xl">Severe Weather Ops</h6>
-            <div class="font-black text-indigo-900 mt-2 tracking-[0.5em] text-xs">Operational Intercept Interface</div>
-            <div class="mt-12 text-[10px] text-gray-400 uppercase font-bold tracking-widest space-y-4 px-6">
-                <p class="opacity-40 underline decoration-pink-500">Telemetry Refresh Active: 60s Cycle</p>
-            </div>
+        <footer class="mt-8 text-center text-xs text-gray-400">
+            <p>DAISY: Direct Access Information System — Optional cloud persistence remains under user control.</p>
+            <p class="mt-2">Questions or issues? Contact <a href="mailto:info@daisy.c0dejunky.com" class="text-blue-600 underline">info@daisy.c0dejunky.com</a></p>
+            <p class="mt-2">Monitoring Sites: Donahoe Ridge Rd | E Duke Ave | Poteau Inflow | River Valley Channel</p>
         </footer>
     </div>
 
     <script>
-        let currentLat, currentLon;
-        let isSketch = false;
+        let trackedLocations = [];
+        let currentUserId = null;
 
-        function updateClock() {
+        function updateTimestamp() {
             const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('updateTime').textContent = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
-        function toggleFaq(id) {
-            document.getElementById('faq-' + id).classList.toggle('open');
-        }
-
-        function toggleEtchMode() {
-            isSketch = !isSketch;
-            document.body.classList.toggle('etch-mode');
-        }
-
-        async function handleLogin() {
-            if (!window.firebaseApp) return;
-            const { auth } = window.firebaseApp;
-            try {
-                const userCred = await signInAnonymously(auth);
-                document.getElementById('fbBtn').textContent = "LINKED: " + userCred.user.uid.substring(0, 8);
-                document.getElementById('privacyStatus').textContent = "CLOUD PERSISTENCE ACTIVE - DATA SYNCED";
-                document.getElementById('privacyStatus').style.background = "#1877f2";
-                loadSavedLocations(userCred.user.uid);
-            } catch (e) { console.error("Auth Failure", e); }
-        }
-
-        async function loadSavedLocations(uid) {
-            if (!window.firebaseApp) return;
-            const { db, appId, collection, getDocs } = window.firebaseApp;
-            const q = collection(db, 'artifacts', appId, 'users', uid, 'savedLocations');
-            const snap = await getDocs(q);
-            snap.forEach(docSnap => {
-                const data = docSnap.data();
-                if (data.name) {
-                    document.getElementById('targetInput').value = data.name;
-                    linkAsset();
-                }
-            });
-        }
-
-        async function saveLocation(uid, name, lat, lon) {
-            if (!window.firebaseApp) return;
-            const { db, appId, doc, setDoc } = window.firebaseApp;
-            const ref = doc(db, 'artifacts', appId, 'users', uid, 'savedLocations', 'primary');
-            await setDoc(ref, { name, lat, lon, timestamp: Date.now() });
-        }
-
-        async function linkAsset() {
-            const val = document.getElementById('targetInput').value.trim();
-            if(!val) return;
-
-            document.getElementById('loader').style.display = 'flex';
-            
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
-                const data = await res.json();
-
-                if (data && data.length > 0) {
-                    currentLat = parseFloat(data[0].lat);
-                    currentLon = parseFloat(data[0].lon);
-                    const name = data[0].display_name.split(',').slice(0,2).join(', ');
-
-                    document.getElementById('siteName').textContent = name;
-                    document.getElementById('monitorContainer').classList.remove('hidden');
-                    
-                    if (window.firebaseApp) {
-                        const user = window.firebaseApp.auth.currentUser;
-                        if (user && !user.isAnonymous) {
-                            saveLocation(user.uid, name, currentLat, currentLon);
-                        }
-                    }
-
-                    runIntelligenceCycle();
-                }
-            } catch (e) {
-                console.error("Link Failure", e);
-            } finally {
-                document.getElementById('loader').style.display = 'none';
+        async function addAddress() {
+            const input = document.getElementById('addressInput');
+            const error = document.getElementById('addressError');
+            error.classList.add('hidden');
+            const query = input.value.trim();
+            if (!query) {
+                error.textContent = 'Please enter an address or ZIP code.';
+                error.classList.remove('hidden');
+                return;
             }
-        }
 
-        async function runIntelligenceCycle() {
-            if (!currentLat || !currentLon) return;
-
+            input.disabled = true;
             try {
-                const res = await fetch(`https://api.weather.gov/alerts/active?point=${currentLat},${currentLon}`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
                 const data = await res.json();
-                const box = document.getElementById('localStatus');
-                
-                const tornadoWarn = data.features.find(f => f.properties.event === "Tornado Warning");
-                
-                if (tornadoWarn) {
-                    const desc = (tornadoWarn.properties.description || "") + (tornadoWarn.properties.instruction || "");
-                    const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc);
-                    
-                    box.className = "p-10 alert-pulse text-white font-black text-3xl border-8 border-white uppercase tracking-widest text-center";
-                    box.innerHTML = `CRITICAL: TORNADO WARNING<br>${hasRotation ? '<div class="rotation-alert mt-4">RADAR INDICATED ROTATION DETECTED</div>' : ''}<br><span class="text-sm mt-4 block italic">TAKE COVER NOW</span>`;
-                } else {
-                    box.className = "p-8 bg-green-100 text-green-800 font-black text-2xl border-4 border-green-400 uppercase tracking-widest text-center";
-                    box.textContent = "Asset Status: Clear";
-                }
-            } catch (e) { console.error("Telemetry Error", e); }
-
-            try {
-                const res = await fetch(`https://api.weather.gov/alerts/active?event=Tornado%20Warning`);
-                const data = await res.json();
-                const feed = document.getElementById('regionalFeed');
-                feed.innerHTML = "";
-
-                if (data.features.length === 0) {
-                    feed.innerHTML = `<p class="text-center italic text-gray-400 text-sm">No active tornado warning polygons detected.</p>`;
+                if (!Array.isArray(data) || !data.length) {
+                    error.textContent = 'Location not found. Please try a different address or ZIP code.';
+                    error.classList.remove('hidden');
                     return;
                 }
 
-                data.features.forEach(feat => {
-                    const p = feat.properties;
-                    const desc = (p.description || "") + (p.instruction || "");
-                    const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc);
-                    
-                    const card = document.createElement('div');
-                    card.className = "p-6 border-4 border-red-600 bg-red-50 shadow-2xl";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-center mb-5">
-                            <h4 class="text-red-700 m-0" style="-webkit-text-stroke:1.5px #dc2626; text-align:left; font-size:1.8rem;">${p.areaDesc}</h4>
-                            <div class="h-8 w-8 rounded-full alert-pulse shadow-[0_0_20px_#dc2626]"></div>
+                const place = data[0];
+                const name = place.display_name.split(',').slice(0, 3).join(', ');
+                const lat = parseFloat(place.lat);
+                const lon = parseFloat(place.lon);
+                const id = `${lat}-${lon}-${Date.now()}`;
+
+                trackedLocations.push({ id, name, lat, lon, statusLabel: 'Status: Clear' });
+                renderTrackedLocations();
+                input.value = '';
+
+                if (currentUserId) {
+                    await saveLocations(currentUserId);
+                }
+            } catch (error) {
+                console.error('Address lookup failed', error);
+                error.textContent = 'Unable to resolve address right now. Please try again later.';
+                error.classList.remove('hidden');
+            } finally {
+                input.disabled = false;
+            }
+        }
+
+        function renderTrackedLocations() {
+            const container = document.getElementById('trackedLocations');
+            container.innerHTML = '';
+
+            if (!trackedLocations.length) {
+                container.innerHTML = '<div class="text-sm italic text-gray-500">No monitored locations yet. Add your address to begin.</div>';
+                return;
+            }
+
+            trackedLocations.forEach(location => {
+                const card = document.createElement('div');
+                card.className = 'county-card';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-4">
+                        <div>
+                            <span class="address-tag uppercase mb-1 inline-block">Monitored Location</span>
+                            <h5 class="text-xl">${location.name}</h5>
+                            <p class="coords-display text-xs mt-2">${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}</p>
                         </div>
-                        ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION DETECTED</span></div>' : ''}
-                        <div class="warning-box bg-white">
-                            <p class="text-red-700 font-black text-4xl underline mb-4 uppercase text-center italic">TAKE COVER NOW</p>
-                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 400) : 'IMMEDIATE THREAT DETECTED.'}...</p>
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="text-sm text-green-700 font-bold mt-1">${location.statusLabel}</div>
+                            <button onclick="removeLocation('${location.id}')" class="cloud-sync-btn" style="width:auto; padding:8px 12px;">Remove</button>
                         </div>
-                    `;
-                    feed.appendChild(card);
-                });
-            } catch (e) { console.error("Regional Sync Error", e); }
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function mergeSavedLocations(saved) {
+            const combined = [...trackedLocations];
+            saved.forEach(item => {
+                if (!combined.some(existing => existing.lat === item.lat && existing.lon === item.lon)) {
+                    combined.push({ id: item.id || `${item.lat}-${item.lon}`, name: item.name, lat: item.lat, lon: item.lon, statusLabel: 'Status: Clear' });
+                }
+            });
+            trackedLocations = combined;
+        }
+
+        async function loadSavedLocations(uid) {
+            if (!window.firebaseApp || !window.firebaseApp.db) return;
+            try {
+                const { db, appId, doc, getDoc } = window.firebaseApp;
+                const ref = doc(db, 'artifacts', appId, 'users', uid);
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const saved = Array.isArray(data.locations) ? data.locations : [];
+                    if (saved.length) {
+                        mergeSavedLocations(saved);
+                        renderTrackedLocations();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load saved locations', error);
+            }
+        }
+
+        async function saveLocations(uid) {
+            if (!window.firebaseApp || !window.firebaseApp.db) return;
+            try {
+                const { db, appId, doc, setDoc } = window.firebaseApp;
+                const ref = doc(db, 'artifacts', appId, 'users', uid);
+                await setDoc(ref, { locations: trackedLocations, timestamp: Date.now() });
+            } catch (error) {
+                console.error('Failed to save locations', error);
+            }
+        }
+
+        async function handleFacebookToken(accessToken) {
+            if (!accessToken) return;
+            const fbApp = window.firebaseApp;
+            if (!fbApp || !fbApp.auth || !fbApp.signInWithCredential || !fbApp.FacebookAuthProvider) {
+                console.warn('Firebase is not ready for Facebook sign-in.');
+                return;
+            }
+
+            try {
+                const credential = fbApp.FacebookAuthProvider.credential(accessToken);
+                const userCred = await fbApp.signInWithCredential(fbApp.auth, credential);
+                currentUserId = userCred.user.uid;
+                document.getElementById('cloudSyncBtn').textContent = 'SYNCED: ' + currentUserId.substring(0, 8);
+                document.getElementById('privacyStatus').textContent = 'CLOUD PERSISTENCE ACTIVE - DATA SYNCED';
+                document.getElementById('privacyStatus').style.background = '#1877f2';
+                await loadSavedLocations(currentUserId);
+                await saveLocations(currentUserId);
+            } catch (error) {
+                console.error('Facebook token sign-in failed', error);
+            }
+        }
+
+        function removeLocation(id) {
+            trackedLocations = trackedLocations.filter(location => location.id !== id);
+            renderTrackedLocations();
+            if (currentUserId) {
+                saveLocations(currentUserId);
+            }
+        }
+
+        async function handleLogin() {
+            const fbApp = window.firebaseApp;
+            const termsCheckbox = document.getElementById('acceptTermsCheckbox');
+            if (!termsCheckbox || !termsCheckbox.checked) {
+                alert('Please accept the Terms and Conditions and consent to profile collection before using Facebook cloud sync.');
+                return;
+            }
+
+            if (!window.fbSdkReady) {
+                if (window.fbSdkLoadError) {
+                    alert('Facebook SDK failed to load. Please check your connection.');
+                } else {
+                    alert('Facebook SDK is still loading. Please wait a moment and try again.');
+                }
+                return;
+            }
+
+            if (!fbApp || !fbApp.auth || !fbApp.signInWithCredential || !fbApp.FacebookAuthProvider) {
+                alert('Cloud sync is not available: Firebase configuration is missing or incomplete.');
+                return;
+            }
+
+            return new Promise((resolve) => {
+                FB.login(async (response) => {
+                    if (!response.authResponse) {
+                        alert('Facebook login was cancelled or failed.');
+                        resolve();
+                        return;
+                    }
+
+                    const accessToken = response.authResponse.accessToken;
+                    const credential = fbApp.FacebookAuthProvider.credential(accessToken);
+
+                    try {
+                        const userCred = await fbApp.signInWithCredential(fbApp.auth, credential);
+                        currentUserId = userCred.user.uid;
+                        document.getElementById('cloudSyncBtn').textContent = 'SYNCED: ' + currentUserId.substring(0, 8);
+                        document.getElementById('privacyStatus').textContent = 'CLOUD PERSISTENCE ACTIVE - DATA SYNCED';
+                        document.getElementById('privacyStatus').style.background = '#1877f2';
+                        await loadSavedLocations(currentUserId);
+                        await saveLocations(currentUserId);
+                    } catch (error) {
+                        console.error('Cloud sync failed', error);
+                        alert('Unable to sign in with Facebook right now. Check your app configuration.');
+                    }
+                    resolve();
+                }, { scope: 'public_profile,email' });
+            });
         }
 
         window.onload = function() {
-            updateClock();
-            setInterval(updateClock, 1000);
-            setInterval(runIntelligenceCycle, 60000);
-            document.getElementById('targetInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') linkAsset();
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            renderTrackedLocations();
+            document.getElementById('addressInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addAddress();
+                }
             });
         };
     </script>
+
 </body>
 </html>
