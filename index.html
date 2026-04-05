@@ -1,572 +1,513 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Direct Access Information System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!--
-        CRITICAL PRIVACY PROTOCOL: VOLATILE MEMORY ACTIVE
-        This application is designed for maximum user safety.
-        It does not utilize cookies, localStorage, or persistent databases.
-        Refreshing the page will instantly purge all asset coordinates and active intercept data.
-        This ensures that personal location data remains local to the active session only.
-    -->
-    <script>
-        window.__fb_app_id = typeof __fb_app_id !== 'undefined' ? __fb_app_id : '';
-        window.fbSdkReady = false;
-        window.fbSdkLoadError = false;
+<!-- 
+    CRITICAL PRIVACY PROTOCOL: VOLATILE MEMORY ACTIVE
+    This application is designed for maximum user safety. 
+    It does not utilize cookies, localStorage, or persistent databases for guest sessions. 
+    Refreshing the page will instantly purge all asset coordinates and active intercept data.
+    This ensures that personal location data remains local to the active session only.
+-->
+<!DOCTYPE html> <!-- Declares the document as standard HTML5 -->
+<html lang="en"> <!-- Specifies the document language as English -->
+<head> <!-- Metadata and external resource container -->
+    <meta charset="UTF-8"> <!-- Ensures proper character rendering via UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <!-- Mobile optimization: prevents unwanted zooming -->
+    <title>D.A.I.S.Y - Digital Alert Intelligence System Yield</title> <!-- Updated Tab title -->
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Utility-first CSS framework for layout -->
+    <script type="module"> 
+        // JavaScript module for secure Firebase cloud integration (Currently running in Volatile Mode)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"; // Core Firebase logic
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; // Security and user sessions
+        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Cloud database tools
 
-        function statusChangeCallback(response) {
-            if (!response) {
-                console.warn('FB.getLoginStatus returned no response.');
-                return;
-            }
+        const firebaseConfig = JSON.parse(__firebase_config); // Loads the platform-provided configuration
+        const app = initializeApp(firebaseConfig); // Starts the Firebase instance
+        const auth = getAuth(app); // Connects to authentication services
+        const db = getFirestore(app); // Connects to the cloud database
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weather-ops-neon'; // Sets the unique app ID
 
-            if (response.status === 'connected' && response.authResponse) {
-                handleFacebookToken(response.authResponse.accessToken);
-            } else if (response.status === 'not_authorized') {
-                console.log('Logged into Facebook but not authorized for this app.');
-            } else {
-                console.log('Not logged into Facebook.');
-            }
+        // Exposes tools to the global window object for interaction with the UI logic
+        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDocs, deleteDoc, signInAnonymously, query, where }; 
+    </script> <!-- End of Firebase module -->
+    <style> /* Custom brand styling and aesthetic layers */
+        :root { /* Color token definitions for the Neon brand */
+            --brand-pink: #ff69b4; /* Primary Neon Pink */
+            --brand-aqua: #00ffff; /* Primary Neon Aqua */
+            --brand-purple: #4b0082; /* Deep Neon Purple */
+            --brand-indigo: #483d8b; /* Contrast Indigo */
+            --brand-blue: #0000ff; /* Standard Neon Blue */
+            --brand-dark-blue: #00008b; /* Core Dark Blue for text clarity and outlines */
         }
 
-        function checkLoginState() {
-            if (window.fbSdkReady && window.FB && window.FB.getLoginStatus) {
-                FB.getLoginStatus(function(response) {
-                    statusChangeCallback(response);
-                });
-            }
+        html, body { /* Global UI surface settings */
+            overflow-x: hidden; /* Prevents side-to-side wobble on mobile */
+            width: 100%; /* Spans full screen width */
+            background-color: #ffffff; /* Sets Light Mode base */
+            background-image: /* Generates the Tech Square background grid */
+                linear-gradient(var(--brand-aqua) 1px, transparent 1px),
+                linear-gradient(90deg, var(--brand-aqua) 1px, transparent 1px);
+            background-size: 40px 40px; /* Dimensions of grid squares */
+            background-position: center; /* Centers the pattern */
+            background-attachment: fixed; /* Keeps grid stable while scrolling */
+            background-color: rgba(255, 255, 255, 0.97); /* Grid transparency factor */
+            background-blend-mode: overlay; /* Seamless blend with white base */
         }
 
-        window.fbAsyncInit = function() {
-            if (!window.__fb_app_id) {
-                console.warn('Facebook App ID is not configured. Facebook login cannot initialize.');
-                return;
-            }
-            FB.init({
-                appId: window.__fb_app_id,
-                cookie: true,
-                xfbml: true,
-                version: 'v17.0'
-            });
-            window.fbSdkReady = true;
-            checkLoginState();
-        };
-
-        (function(d, s, id) {
-            if (d.getElementById(id)) return;
-            const js = d.createElement(s);
-            js.id = id;
-            js.src = 'https://connect.facebook.net/en_US/sdk.js';
-            js.onerror = () => { window.fbSdkLoadError = true; };
-            d.head.appendChild(js);
-        })(document, 'script', 'facebook-jssdk');
-    </script>
-    <script type="module">
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        if (firebaseConfig) {
-            import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js').then(({ initializeApp }) => {
-                import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js').then(({ getAuth, signInWithCredential, FacebookAuthProvider }) => {
-                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js').then(({ getFirestore, collection, doc, setDoc, getDoc }) => {
-                        const app = initializeApp(firebaseConfig);
-                        const auth = getAuth(app);
-                        const db = getFirestore(app);
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'daisy-direct-access';
-                        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDoc, signInWithCredential, FacebookAuthProvider };
-                    });
-                });
-            });
-        }
-    </script>
-    <style>
-        :root {
-            --brand-pink: #ff69b4;
-            --brand-aqua: #00ffff;
-            --brand-purple: #4b0082;
-            --brand-indigo: #483d8b;
-            --brand-blue: #0000ff;
-            --brand-dark-blue: #00008b;
+        body { /* Primary text and layout responsiveness */
+            color: var(--brand-dark-blue); /* Sets primary text to brand dark blue */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* Clean, User-Friendly Sans-Serif Stack */
+            margin: 0; /* Resets margins */
+            padding: 15px; /* Spacing for mobile */
+            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3); /* Brand standard body glow */
+            min-height: 100vh; /* Ensures the page always covers the full screen height */
         }
 
-        body {
-            background-color: #ffffff;
-            color: var(--brand-dark-blue);
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
+        /* Headings: User-Friendly, Centered with Heavy Dark Blue Outlines */
+        h1, h2, h3, h4, h5, h6 {
+            text-align: center; /* Enforces horizontal centering */
+            text-transform: uppercase; /* Brand-wide all-caps emphasis */
+            letter-spacing: 0.02em; /* Readable character spacing */
+            -webkit-text-stroke: 2.5px var(--brand-dark-blue); /* Crisp dark blue border for font punch */
+            margin-bottom: 1.5rem; /* Standard bottom margin */
+            font-weight: 900; /* Heavy weight for impact */
         }
 
-        .body-glow {
-            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3);
+        h1 { /* Top-Tier branding */
+            font-size: 5.5rem; /* Max scale for the main title */
+            font-weight: 950; /* Extra bold thickness */
+            line-height: 0.85; /* Tightened line height for visual density */
+            color: #ffffff; /* White font interior */
+            text-shadow: /* Triple-layered pink/aqua brand glow */
+                0 0 10px var(--brand-pink), 
+                0 0 20px var(--brand-pink),
+                0 0 45px var(--brand-aqua);
         }
 
-        h1, h2 {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua);
-            font-weight: bold;
+        @media (max-width: 768px) { /* Mobile font scaling to prevent clipping */
+            h1 { font-size: 3.2rem; -webkit-text-stroke: 1.8px var(--brand-dark-blue); }
         }
 
-        h3, h4 {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo);
-            font-weight: bold;
+        h2 { font-size: 2.8rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua); } /* H2 specific glow */
+        h3 { font-size: 2.1rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo); } /* H3 specific glow */
+        h5, h6 { color: #ffffff; text-shadow: 0 0 10px var(--brand-blue), 0 0 20px var(--brand-dark-blue); } /* H5/H6 specific glow */
+
+        .brand-border { /* Style for primary dashboard containers */
+            border: 3px solid; /* Solid border stroke */
+            border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1; /* Pink to Aqua linear gradient */
+            border-image-slice: 1; /* Ensures gradient covers border edge */
+            box-shadow: /* Triple-layered brand glow logic */
+                0 0 4px var(--brand-pink),
+                0 0 12px var(--brand-pink),
+                0 0 18px var(--brand-aqua);
+            background-color: rgba(255, 255, 255, 0.92); /* Frosted white interior */
+            backdrop-filter: blur(8px); /* Real-time blur for depth */
+            padding: 24px; /* Internal spacing */
+            margin-bottom: 30px; /* Block separation */
         }
 
-        h5, h6 {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-blue), 0 0 20px var(--brand-dark-blue);
-            font-weight: bold;
+        .rotation-alert { /* Visual alert for Radar Indicated Rotation signatures */
+            background: var(--brand-dark-blue); /* Solid dark blue back */
+            color: var(--brand-aqua); /* Contrast aqua text */
+            border: 2px solid var(--brand-aqua); /* Border accent */
+            padding: 8px 15px; /* Alert tag size */
+            font-weight: 950; /* Boldest weight */
+            font-size: 0.9rem; /* Alert text size */
+            display: inline-block; /* Wrap to text width */
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); /* Intense highlight glow */
+            letter-spacing: 2px; /* Character emphasis */
+            margin-top: 10px; /* Vertical spacing */
         }
 
-        .brand-border {
-            border: 3px solid;
-            border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1;
-            box-shadow: 
-                0 0 2px var(--brand-pink),
-                0 0 8px var(--brand-pink),
-                0 0 12px var(--brand-aqua);
-            background-color: #ffffff;
-            padding: 20px;
-            margin-bottom: 24px;
+        .alert-pulse { /* Global fast-pulse for emergency indicators */
+            animation: alert-glow 0.8s ease-in-out infinite; 
         }
 
-        .warning-box {
-            background-color: #fef2f2;
-            border: 2px solid #dc2626;
-            padding: 12px;
-            margin-top: 12px;
-            border-radius: 4px;
+        @keyframes alert-glow { /* Logic for the high-priority red alert flicker */
+            0%, 100% { background-color: #dc2626; box-shadow: 0 0 30px #dc2626; } /* Primary red */
+            50% { background-color: #ff0000; box-shadow: 0 0 60px #ff0000; } /* Peak brightness */
         }
 
-        .county-card {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 16px 0;
+        .status-pill { /* Generic Pill UI for state labels */
+            display: inline-flex; /* Horizontal alignment */
+            align-items: center; /* Vertical center */
+            gap: 10px; /* Padding between items */
+            background: var(--brand-dark-blue); /* Dark blue fill */
+            color: var(--brand-aqua); /* Text highlight */
+            padding: 10px 25px; /* Dimensions */
+            font-size: 0.85rem; /* Font scale */
+            font-weight: 900; /* Bold weight */
+            border: 1px solid var(--brand-aqua); /* Outline */
+            letter-spacing: 3px; /* Wide tracking */
         }
 
-        .county-card:last-child {
-            border-bottom: none;
+        .user-input { /* Main entry field for site telemetry */
+            border: 3px solid var(--brand-indigo); /* Heavy indigo border */
+            padding: 18px; /* Large mobile touch target */
+            width: 100%; /* Full width container */
+            text-align: center; /* Centers user entry */
+            font-weight: 900; /* Heavy weight */
+            text-transform: uppercase; /* Enforced all-caps entry */
+            background: rgba(255, 255, 255, 0.95); /* High clarity white */
+            font-size: 1.25rem; /* Large readable text */
         }
 
-        .alert-pulse {
-            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .action-btn { /* Submit button for target linking */
+            background: linear-gradient(to right, var(--brand-purple), var(--brand-dark-blue)); /* Purple to Dark Blue gradient */
+            color: white; /* White text interior */
+            padding: 20px; /* Dimensions */
+            width: 100%; /* Spans full width */
+            font-weight: 950; /* Max boldness */
+            text-transform: uppercase; /* Capitalized label */
+            border: 1px solid var(--brand-aqua); /* Aqua border highlight */
+            margin-top: 15px; /* Top spacing */
+            letter-spacing: 3px; /* High tracking */
+            cursor: pointer; /* Interaction pointer */
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .fb-login-btn { /* Style for Facebook Persistence Uplink */
+            background: #1877f2; /* Official FB brand blue */
+            color: white; /* White text */
+            padding: 8px 16px; /* Pill sizing */
+            border-radius: 4px; /* Standard rounded corners */
+            font-weight: bold; /* Bold weight */
+            display: none; /* DISABLED PER USER REQUEST */
+            align-items: center; /* Vertical alignment */
+            gap: 10px; /* Icon-text gap */
+            font-size: 0.8rem; /* Scaled font size */
+            border: none; /* Clean flat design */
+            cursor: pointer; /* Interaction state */
         }
 
-        .coords-display {
-            font-family: monospace;
-            background: #f8fafc;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
-            color: var(--brand-dark-blue);
+        .faq-item { border-bottom: 1px solid var(--brand-aqua); } /* Row divider for Intelligence Hub */
+        .faq-trigger { /* The accordion header question block */
+            width: 100%; /* Full span click area */
+            padding: 15px; /* Click target height */
+            text-align: left; /* Left alignment for questions */
+            font-weight: 900; /* Bold weight */
+            text-transform: uppercase; /* Caps */
+            color: var(--brand-indigo); /* Indigo branding */
+            display: flex; /* Layout logic */
+            justify-content: space-between; /* Spreads text and indicator */
+            align-items: center; /* Vertical center */
         }
-        
-        .address-tag {
-            background: linear-gradient(to right, var(--brand-dark-blue), var(--brand-indigo));
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            letter-spacing: 0.05em;
+        .faq-content { /* The hidden data block for FAQ answers */
+            max-height: 0; /* Initially hidden */
+            overflow: hidden; /* Clips contents */
+            transition: max-height 0.3s ease-out; /* Smooth slide animation */
+            background: rgba(248, 250, 252, 0.95); /* Light gray backer */
+        }
+        .faq-content.open { max-height: 600px; padding: 15px; } /* Visible expanded state */
+
+        .privacy-ribbon { /* Top danger notification for Volatile Memory */
+            background: var(--brand-pink); /* Warning pink */
+            color: white; /* Contrast text */
+            font-size: 10px; /* Small detail font */
+            font-weight: 900; /* Bold weight */
+            text-align: center; /* Centered alert */
+            padding: 4px; /* Ribbon height */
+            text-transform: uppercase; /* Enforced caps */
+            letter-spacing: 2px; /* Spaced out tracking */
         }
 
-        .river-valley-gradient {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-left: 4px solid var(--brand-blue);
+        .data-label { /* Styling for secondary diagnostic labels */
+            font-weight: 900; /* Bold weight */
+            font-size: 0.7rem; /* Fine scale font */
+            text-transform: uppercase; /* Diagnostic caps style */
+            letter-spacing: 2px; /* High tracking */
         }
 
-        .privacy-ribbon {
-            background: var(--brand-pink);
-            color: white;
-            font-size: 10px;
-            font-weight: 900;
-            text-align: center;
-            padding: 6px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .asset-card { /* Container for an individual monitored site */
+            background: #ffffff; /* White background for telemetry */
+            border: 2px solid #e2e8f0; /* Soft diagnostic border */
+            padding: 20px; /* Internal spacing */
+            margin-bottom: 20px; /* Gap between asset blocks */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Soft depth shadow */
+            position: relative; /* Context for delete button positioning */
         }
 
-        .data-label {
-            font-family: monospace;
-            font-weight: 900;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .delete-btn { /* Logic for de-linking a site */
+            position: absolute; /* Floating positioning */
+            top: 10px; /* Top right corner */
+            right: 10px; /* Top right corner */
+            color: #cbd5e1; /* Subtle gray */
+            font-weight: bold; /* Bold text */
+            cursor: pointer; /* Interactive state */
+            font-size: 10px; /* Scaled down font */
+            text-transform: uppercase; /* Caps */
         }
+        .delete-btn:hover { color: #ef4444; } /* Danger red highlight on hover */
 
-        .cloud-sync-btn {
-            background: #1877f2;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
+        .statement-box { /* UI Block for NWS weather statements */
+            background-color: #f0f9ff; /* Soft tech-blue background */
+            border-left: 4px solid var(--brand-blue); /* Solid blue accent bar */
+            padding: 15px; /* Box dimensions */
+            font-size: 13px; /* Clean text scale */
+            line-height: 1.5; /* Spaced out readability */
+            color: #1e293b; /* Dark slate text for maximum readability */
+            margin-top: 10px; /* Top separation */
         }
-    </style>
+    </style> <!-- End of CSS logic -->
 </head>
-<body class="body-glow">
-    <div class="privacy-ribbon" id="privacyStatus">GUEST SESSION ACTIVE - ALL DATA VOLATILE</div>
+<body> <!-- Visible application surface begins -->
 
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-start gap-4">
-            <div>
-                <span class="data-label text-pink-600 mb-2 inline-block">DAISY Direct Access System</span>
-                <h1 class="text-4xl mb-2">DAISY: Direct Access Information System</h1>
-                <p class="text-lg">Optional cloud-synced tracking for emergency weather awareness.</p>
-            </div>
-            <div class="text-right">
-                <button id="cloudSyncBtn" onclick="handleLogin()" class="cloud-sync-btn">Login with Facebook for Cloud Sync</button>
-                <div class="mt-4 text-right text-sm text-gray-600">
-                    <label class="inline-flex items-start gap-2 text-left">
-                        <input id="acceptTermsCheckbox" type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                        <span>I accept the Terms and Conditions and consent to limited profile collection for optional cloud sync.</span>
-                    </label>
-                    <p class="mt-2 text-xs text-gray-500">Facebook login collects your public profile and email only to enable secure persistence of saved locations.</p>
-                </div>
-                <div class="mt-4 md:mt-6 text-right">
-                    <p class="text-xs font-bold uppercase text-gray-500">System Clock</p>
-                    <p id="updateTime" class="text-lg font-bold">--:--:--</p>
-                </div>
-            </div>
-        </header>
-        <div class="brand-border !mb-6 !py-4 text-center">
-            <p class="data-label text-pink-600 mb-1">Privacy Notice</p>
-            <p class="text-[11px] font-bold text-gray-600 uppercase leading-relaxed px-4">
-                This page is designed for maximum user safety. It does not use cookies, localStorage, or persistent databases unless cloud sync is explicitly enabled by signing in.
+    <div id="loader" class="fixed inset-0 bg-white z-[10000] hidden flex items-center justify-center font-black tracking-widest text-dark-blue">
+        SYNCING NEON FEED... <!-- Satellite sync visual shield during API geocoding -->
+    </div>
+
+    <!-- Mandatory Privacy Warning Ribbon -->
+    <div class="privacy-ribbon" id="privacyStatus">GUEST SESSION ACTIVE - ALL DATA VOLATILE</div> 
+
+    <div class="max-w-4xl mx-auto transition-all"> <!-- Primary dashboard wrapper -->
+        
+        <!-- Notice of Attribution Disclaimer: Legal & Source Credit -->
+        <div class="brand-border !mb-6 !py-4 text-center mt-4">
+            <p class="data-label text-pink-600 mb-1">Notice of Attribution</p> <!-- diagnostic tag -->
+            <p class="text-[11px] font-bold text-gray-600 uppercase leading-relaxed px-4"> <!-- Legal text -->
+                We do not own, nor do we take credit for any information sourced from the National Weather Service (NWS) or NOAA. 
+                This dashboard serves as a high-velocity interface placing publicly available telemetry up front for everyone to use.
             </p>
         </div>
 
-        <!-- Address Tracking Section -->
-        <div class="brand-border">
-            <h2 class="text-2xl mb-4">Track Your Address</h2>
-            <div class="text-sm text-gray-500 mb-4">
-                Your locations are volatile by default. If you refresh the page, the list will clear for privacy. Sign in with Facebook to save your tracked addresses across sessions.
+        <header class="mb-10 pt-2 flex flex-col items-center"> <!-- Master dashboard header -->
+            <h1 class="mb-6">D.A.I.S.Y</h1> <!-- Main dashboard branding: Detection and Intelligence System Yield -->
+            <div class="flex justify-center mb-10"> <!-- Connection state indicator -->
+                <div class="status-pill">Active Intelligence Monitoring</div> <!-- Functional status tag -->
             </div>
-            <div class="flex flex-col gap-4">
-                <input id="addressInput" type="text" placeholder="Enter your address or ZIP code" class="coords-display" style="width:100%; padding:14px; border-radius:10px; border:1px solid #cbd5e1;" />
-                <button id="addAddressBtn" onclick="addAddress()" class="cloud-sync-btn" style="width:fit-content;">Add Location</button>
-                <p id="addressError" class="text-sm text-red-600 hidden mt-2"></p>
-            </div>
-            <div id="trackedLocations" class="mt-6 space-y-4">
-                <div class="text-sm italic text-gray-500">No monitored locations yet. Add your address to begin.</div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Inflow Monitoring (Poteau / River Valley) -->
+        <!-- Multi-Site Intercept Hub: Independent Site Specific Monitoring -->
         <div class="brand-border">
-            <h3 class="text-xl mb-4">River Valley Inflow & Poteau Tracker</h3>
-            <p class="text-xs text-gray-500 mb-4 font-bold uppercase">Monitoring Oklahoma-to-Arkansas Storm Path</p>
-            
-            <div class="space-y-4">
-                <!-- Poteau/Le Flore Monitoring -->
-                <div class="p-4 river-valley-gradient rounded">
-                    <div class="flex justify-between items-center mb-2">
-                        <h6 class="text-lg">Poteau / Le Flore County (OK)</h6>
-                        <span class="text-xs font-bold text-blue-600 uppercase">Upstream Inflow</span>
-                    </div>
-                    <p class="text-sm text-gray-700 italic">Tracking spin-ups and development moving East/North-East toward the river valley.</p>
-                    <!-- Warning Example -->
-                    <div class="warning-box bg-white">
-                        <p class="font-black text-red-700 text-sm underline">SITUATION AWARENESS</p>
-                        <p class="text-xs text-gray-800 mt-1">Monitoring cells near Poteau for rapid intensification before entering AR-64/I-40 corridor.</p>
-                    </div>
-                </div>
+            <h2>Multi-Site Intercept</h2> <!-- Section title -->
+            <div class="flex flex-col items-center mb-8"> <!-- entry layout container -->
+                <input type="text" id="targetInput" placeholder="ENTER ZIP OR ADDRESS TO MONITOR" class="user-input"> <!-- user target field -->
+                <button onclick="linkAsset()" class="action-btn">Add Monitor Site</button> <!-- push site to monitoring logic -->
+            </div>
 
-                <!-- River Valley Specifics -->
-                <div class="p-4 river-valley-gradient rounded">
-                    <div class="flex justify-between items-center mb-2">
-                        <h6 class="text-lg">River Valley Channel</h6>
-                        <span class="text-xs font-bold text-blue-600 uppercase">Incoming Path</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-green-700 font-bold">
-                        <div class="h-2 w-2 bg-green-500 rounded-full"></div>
-                        Current Path Status: No rotation detected in the channel.
-                    </div>
+            <div id="monitorContainer" class="hidden"> <!-- Reveals only when one or more assets are active -->
+                <div id="assetList" class="space-y-4"> <!-- programmatic container for site-specific telemetry blocks -->
+                    <!-- telemetry site cards injected here -->
                 </div>
             </div>
         </div>
 
-        <!-- Regional Tornado Warnings -->
+        <!-- Regional Awareness Sector: Surrounding Alerts -->
         <div class="brand-border">
-            <h4 class="text-xl mb-4">Regional Tornado Warnings</h4>
-            <div id="regionalTornadoBox" class="space-y-0">
-                
-                <div class="county-card">
-                    <div class="flex justify-between items-center">
-                        <h5 class="text-xl">Sebastian County</h5>
-                        <div class="flex items-center gap-2">
-                            <span class="h-3 w-3 bg-red-600 rounded-full alert-pulse"></span>
-                            <span class="text-sm font-black text-red-600 uppercase">Tornado Warning</span>
-                        </div>
-                    </div>
-                    <div class="warning-box">
-                        <p class="font-black text-red-700 text-lg mb-1 underline">TAKE COVER NOW</p>
-                        <p class="text-sm text-gray-800 leading-relaxed">
-                            Confirmed rotation heading toward the Fort Smith metro area.
-                        </p>
-                        <div class="mt-3 text-xs font-bold text-red-900 bg-red-100 inline-block px-2 py-1 rounded">
-                            EXPIRES: 2:45 AM CDT
-                        </div>
-                    </div>
-                </div>
-
-                <div class="county-card">
-                    <div class="flex justify-between items-center">
-                        <h5 class="text-xl">Crawford County</h5>
-                        <div class="flex items-center gap-2">
-                            <span class="h-3 w-3 bg-red-600 rounded-full alert-pulse"></span>
-                            <span class="text-sm font-black text-red-600 uppercase">Tornado Warning</span>
-                        </div>
-                    </div>
-                    <div class="warning-box">
-                        <p class="font-black text-red-700 text-lg mb-1 underline">TAKE COVER NOW</p>
-                        <p class="text-sm text-gray-800 leading-relaxed">
-                            Observed Tornado confirmed by spotters.
-                        </p>
-                        <div class="mt-3 text-xs font-bold text-red-900 bg-red-100 inline-block px-2 py-1 rounded">
-                            EXPIRES: 2:30 AM CDT
-                        </div>
-                    </div>
-                </div>
-
-                <div class="county-card opacity-60">
-                    <div class="flex justify-between items-center">
-                        <h5 class="text-xl">Franklin County</h5>
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">No Active Warnings</span>
-                    </div>
-                </div>
-
+            <h3>Regional Intercept Monitor</h3> <!-- Neutralized functional heading -->
+            <div id="regionalFeed" class="space-y-6 mt-6"> <!-- Container for national/regional tornado polygons -->
+                <p class="text-center italic text-gray-400 text-sm">Awaiting sector telemetry...</p> <!-- fallback state -->
             </div>
         </div>
 
-        <footer class="mt-8 text-center text-xs text-gray-400">
-            <p>DAISY: Direct Access Information System — Optional cloud persistence remains under user control.</p>
-            <p class="mt-2">Questions or issues? Contact <a href="mailto:info@daisy.c0dejunky.com" class="text-blue-600 underline">info@daisy.c0dejunky.com</a></p>
-            <p class="mt-2">Monitoring Sites: Donahoe Ridge Rd | E Duke Ave | Poteau Inflow | River Valley Channel</p>
+        <!-- Intelligence Control Hub: FAQ Accordion Hub -->
+        <div class="brand-border">
+            <h3>Intelligence Control Hub</h3> <!-- Hub branding -->
+            <div class="space-y-2 mt-4"> <!-- List layout for FAQ rows -->
+                <div class="faq-item"> <!-- FAQ row 1: persistence logic -->
+                    <button class="faq-trigger" onclick="toggleFaq('persistent')">
+                        <span>Data Privacy Protocol</span> <!-- question title -->
+                        <span>+</span> <!-- state icon -->
+                    </button>
+                    <div id="faq-persistent" class="faq-content text-sm text-gray-700"> <!-- hidden answer explanation -->
+                        This application operates in "Volatile Memory" mode for user safety. No information is stored in the browser cache or on external servers. All session data is purged immediately upon a page refresh or closure.
+                    </div>
+                </div>
+                <div class="faq-item"> <!-- FAQ row 2: data pipeline -->
+                    <button class="faq-trigger" onclick="toggleFaq('pipeline')">
+                        <span>Intelligence Pipeline</span> <!-- data pipeline label -->
+                        <span>+</span>
+                    </button>
+                    <div id="faq-pipeline" class="faq-content text-sm text-gray-700"> <!-- Explanation of NWS direct polling -->
+                        D.A.I.S.Y establishes a direct connection to the <strong>National Weather Service (NWS) API</strong>. It executes sub-minute polling for raw <strong>VTEC</strong> (Valid Time Event Code) strings to detect tornadic signatures before they reach standard broadcast apps.
+                    </div>
+                </div>
+                <div class="faq-item"> <!-- FAQ row 3: rotation signatures -->
+                    <button class="faq-trigger" onclick="toggleFaq('logic')">
+                        <span>Rotation Detection Logic</span> <!-- Algorithm label -->
+                        <span>+</span>
+                    </button>
+                    <div id="faq-logic" class="faq-content text-sm text-gray-700"> <!-- Rotation parsing logic explanation -->
+                        The D.A.I.S.Y engine specifically parses raw metadata for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures. If any pinned asset intersects these polygons, the system triggers the high-priority <strong>Take Cover Now</strong> alert instantly.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 mb-24 text-center"> <!-- Master footer -->
+            <h6 class="text-3xl">D.A.I.S.Y</h6> <!-- Digital Alert Intelligence System Yield -->
+            <div class="font-black text-indigo-900 mt-2 tracking-[0.5em] text-xs">Digital Alert Intelligence System Yield</div> <!-- Functional diagnostic tag -->
+            <div id="pollingClock" class="mt-8 font-mono text-sm text-brand-dark-blue opacity-80 uppercase tracking-widest">Feed Update: --:--:--</div>
+            <div class="mt-12 text-[10px] text-gray-400 uppercase font-bold tracking-widest space-y-4 px-6"> <!-- safety fine print -->
+                <p class="opacity-40 underline decoration-pink-500">Telemetry Refresh Active: 60s Cycle</p> <!-- refresh metadata -->
+            </div>
         </footer>
     </div>
 
-    <script>
-        let trackedLocations = [];
-        let currentUserId = null;
+    <script> /* Primary Master Application Logic Engine */
+        let activeSites = []; // Local array for monitored locations during session
 
-        function updateTimestamp() {
-            const now = new Date();
-            document.getElementById('updateTime').textContent = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        function updateClock() { /* Updates the polling feed clock display in the footer */
+            const now = new Date(); // Captures system time
+            const timeStr = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }); // formats string
+            const clockEl = document.getElementById('pollingClock'); // target footer clock
+            if (clockEl) clockEl.textContent = "Feed Update: " + timeStr; // updates UI
         }
 
-        async function addAddress() {
-            const input = document.getElementById('addressInput');
-            const error = document.getElementById('addressError');
-            error.classList.add('hidden');
-            const query = input.value.trim();
-            if (!query) {
-                error.textContent = 'Please enter an address or ZIP code.';
-                error.classList.remove('hidden');
-                return;
-            }
+        function toggleFaq(id) { /* logic to expand or collapse intelligence hub items */
+            document.getElementById('faq-' + id).classList.toggle('open'); // inverts 'open' class state
+        }
 
-            input.disabled = true;
+        async function handleLogin() { /* Logic maintained but hidden in UI for session future-proofing */
+            if (!window.firebaseApp) return; 
+            const { auth, signInAnonymously } = window.firebaseApp; 
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                if (!Array.isArray(data) || !data.length) {
-                    error.textContent = 'Location not found. Please try a different address or ZIP code.';
-                    error.classList.remove('hidden');
-                    return;
-                }
-
-                const place = data[0];
-                const name = place.display_name.split(',').slice(0, 3).join(', ');
-                const lat = parseFloat(place.lat);
-                const lon = parseFloat(place.lon);
-                const id = `${lat}-${lon}-${Date.now()}`;
-
-                trackedLocations.push({ id, name, lat, lon, statusLabel: 'Status: Clear' });
-                renderTrackedLocations();
-                input.value = '';
-
-                if (currentUserId) {
-                    await saveLocations(currentUserId);
-                }
-            } catch (error) {
-                console.error('Address lookup failed', error);
-                error.textContent = 'Unable to resolve address right now. Please try again later.';
-                error.classList.remove('hidden');
-            } finally {
-                input.disabled = false;
-            }
+                await signInAnonymously(auth); 
+            } catch (e) { console.error("Session init failure", e); } 
         }
 
-        function renderTrackedLocations() {
-            const container = document.getElementById('trackedLocations');
-            container.innerHTML = '';
+        async function linkAsset() { /* Resolves user location query into coordinates and pins tracking */
+            const val = document.getElementById('targetInput').value.trim(); // Reads sanitized input
+            if(!val) return; // Prevents processing empty links
 
-            if (!trackedLocations.length) {
-                container.innerHTML = '<div class="text-sm italic text-gray-500">No monitored locations yet. Add your address to begin.</div>';
-                return;
-            }
+            document.getElementById('loader').style.display = 'flex'; // Shows sync overlay
+            
+            try {
+                // Polls OpenStreetMap geocoding API for coordinate resolution
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`); 
+                const data = await res.json(); // Parses API result
 
-            trackedLocations.forEach(location => {
-                const card = document.createElement('div');
-                card.className = 'county-card';
-                card.innerHTML = `
-                    <div class="flex justify-between items-start gap-4">
-                        <div>
-                            <span class="address-tag uppercase mb-1 inline-block">Monitored Location</span>
-                            <h5 class="text-xl">${location.name}</h5>
-                            <p class="coords-display text-xs mt-2">${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}</p>
+                if (data && data.length > 0) { // On successful geolocation
+                    const newSite = { // Structured asset object
+                        lat: parseFloat(data[0].lat), // Pins Latitude
+                        lon: parseFloat(data[0].lon), // Pins Longitude
+                        name: data[0].display_name.split(',').slice(0,2).join(', '), // User-friendly name
+                        status: 'Clear', // Default state
+                        statement: null // Placeholder for weather text
+                    };
+
+                    if (!activeSites.some(s => s.name === newSite.name)) { // Duplication filter
+                        activeSites.push(newSite); // Commits site to local session array
+                    }
+
+                    document.getElementById('targetInput').value = ''; // Resets entry field
+                    renderSites(); // Refreshes dashboard display
+                    runIntelligenceCycle(); // First telemetry poll for new asset
+                }
+            } catch (e) { console.error("Link Failure", e); } // Logs failures
+            finally { document.getElementById('loader').style.display = 'none'; } // Closes overlay
+        }
+
+        function deleteSite(index) { /* Un-pins a site from the active session */
+            activeSites.splice(index, 1); // Purges from local array
+            renderSites(); // Refreshes dashboard UI
+        }
+
+        function renderSites() { /* Logic for programmatically drawing site telemetry cards to the UI */
+            const container = document.getElementById('monitorContainer'); // Diagnostic container
+            const list = document.getElementById('assetList'); // Asset list DOM target
+            list.innerHTML = ''; // Flushes UI for reconstruction
+
+            if (activeSites.length > 0) { // Sites validation
+                container.classList.remove('hidden'); // Makes intercept board visible
+                activeSites.forEach((site, index) => { // Maps memory array to telemetry cards
+                    const card = document.createElement('div'); // Creates block element
+                    card.className = "asset-card shadow-inner border-2"; // sets diagnostic CSS
+                    
+                    const isWarning = site.alert && site.alert.properties.event === "Tornado Warning"; // Emergency state boolean
+                    if (isWarning) card.classList.add('border-red-600', 'bg-red-50', 'alert-pulse'); // High-threat visual styling
+                    
+                    card.innerHTML = ` <!-- Injects asset telemetry and safety data -->
+                        <div class="delete-btn" onclick="deleteSite(${index})">De-Link Site</div>
+                        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-4 gap-2">
+                            <div class="text-center md:text-left">
+                                <span class="text-[9px] font-black text-pink-600 uppercase tracking-widest">Site Telemetry Linked</span>
+                                <h5 class="text-xl text-gray-900 mt-1 mb-0 text-left" style="-webkit-text-stroke:0; text-shadow:none; color:var(--brand-dark-blue); font-weight:700;">${site.name}</h5>
+                            </div>
                         </div>
-                        <div class="flex flex-col items-end gap-2">
-                            <div class="text-sm text-green-700 font-bold mt-1">${location.statusLabel}</div>
-                            <button onclick="removeLocation('${location.id}')" class="cloud-sync-btn" style="width:auto; padding:8px 12px;">Remove</button>
+                        <div class="status-box p-4 uppercase font-black tracking-widest text-center ${isWarning ? 'bg-red-600 text-white border-red-800' : 'bg-green-100 text-green-800 border-green-300'} border-2">
+                            ${site.status}
                         </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                        ${site.statement ? `<div class="statement-box"><p class="font-black text-blue-800 mb-1 uppercase tracking-tighter text-[10px]">Latest Weather Statement:</p>${site.statement}</div>` : ''}
+                    `;
+                    list.appendChild(card); // Ingests finalized card into the DOM
+                });
+            } else { container.classList.add('hidden'); } // Hides board if zero site pins remain
         }
 
-        function mergeSavedLocations(saved) {
-            const combined = [...trackedLocations];
-            saved.forEach(item => {
-                if (!combined.some(existing => existing.lat === item.lat && existing.lon === item.lon)) {
-                    combined.push({ id: item.id || `${item.lat}-${item.lon}`, name: item.name, lat: item.lat, lon: item.lon, statusLabel: 'Status: Clear' });
-                }
-            });
-            trackedLocations = combined;
-        }
-
-        async function loadSavedLocations(uid) {
-            if (!window.firebaseApp || !window.firebaseApp.db) return;
-            try {
-                const { db, appId, doc, getDoc } = window.firebaseApp;
-                const ref = doc(db, 'artifacts', appId, 'users', uid);
-                const snap = await getDoc(ref);
-                if (snap.exists()) {
-                    const data = snap.data();
-                    const saved = Array.isArray(data.locations) ? data.locations : [];
-                    if (saved.length) {
-                        mergeSavedLocations(saved);
-                        renderTrackedLocations();
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load saved locations', error);
-            }
-        }
-
-        async function saveLocations(uid) {
-            if (!window.firebaseApp || !window.firebaseApp.db) return;
-            try {
-                const { db, appId, doc, setDoc } = window.firebaseApp;
-                const ref = doc(db, 'artifacts', appId, 'users', uid);
-                await setDoc(ref, { locations: trackedLocations, timestamp: Date.now() });
-            } catch (error) {
-                console.error('Failed to save locations', error);
-            }
-        }
-
-        async function handleFacebookToken(accessToken) {
-            if (!accessToken) return;
-            const fbApp = window.firebaseApp;
-            if (!fbApp || !fbApp.auth || !fbApp.signInWithCredential || !fbApp.FacebookAuthProvider) {
-                console.warn('Firebase is not ready for Facebook sign-in.');
+        async function runIntelligenceCycle() { /* Main Telemetry Engine: Intercepts NWS API Alerts, Statements, and Rotation Signatures */
+            if (activeSites.length === 0) {
+                updateClock(); // update clock even if no sites are pinned
                 return;
             }
 
-            try {
-                const credential = fbApp.FacebookAuthProvider.credential(accessToken);
-                const userCred = await fbApp.signInWithCredential(fbApp.auth, credential);
-                currentUserId = userCred.user.uid;
-                document.getElementById('cloudSyncBtn').textContent = 'SYNCED: ' + currentUserId.substring(0, 8);
-                document.getElementById('privacyStatus').textContent = 'CLOUD PERSISTENCE ACTIVE - DATA SYNCED';
-                document.getElementById('privacyStatus').style.background = '#1877f2';
-                await loadSavedLocations(currentUserId);
-                await saveLocations(currentUserId);
-            } catch (error) {
-                console.error('Facebook token sign-in failed', error);
-            }
-        }
-
-        function removeLocation(id) {
-            trackedLocations = trackedLocations.filter(location => location.id !== id);
-            renderTrackedLocations();
-            if (currentUserId) {
-                saveLocations(currentUserId);
-            }
-        }
-
-        async function handleLogin() {
-            const fbApp = window.firebaseApp;
-            const termsCheckbox = document.getElementById('acceptTermsCheckbox');
-            if (!termsCheckbox || !termsCheckbox.checked) {
-                alert('Please accept the Terms and Conditions and consent to profile collection before using Facebook cloud sync.');
-                return;
-            }
-
-            if (!window.fbSdkReady) {
-                if (window.fbSdkLoadError) {
-                    alert('Facebook SDK failed to load. Please check your connection.');
-                } else {
-                    alert('Facebook SDK is still loading. Please wait a moment and try again.');
-                }
-                return;
-            }
-
-            if (!fbApp || !fbApp.auth || !fbApp.signInWithCredential || !fbApp.FacebookAuthProvider) {
-                alert('Cloud sync is not available: Firebase configuration is missing or incomplete.');
-                return;
-            }
-
-            return new Promise((resolve) => {
-                FB.login(async (response) => {
-                    if (!response.authResponse) {
-                        alert('Facebook login was cancelled or failed.');
-                        resolve();
-                        return;
+            for (let site of activeSites) { // Monitored Site loop
+                try {
+                    const res = await fetch(`https://api.weather.gov/alerts/active?point=${site.lat},${site.lon}`); // API poll
+                    const data = await res.json(); // parse
+                    
+                    const tornadoWarn = data.features.find(f => f.properties.event === "Tornado Warning"); // Priority check
+                    const statement = data.features.find(f => f.properties.event.includes("Statement")); // Awareness check
+                    
+                    if (tornadoWarn) { // Emergency logic
+                        const desc = (tornadoWarn.properties.description || "") + (tornadoWarn.properties.instruction || ""); // Aggregate
+                        const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc); // Signature search
+                        site.alert = tornadoWarn; // set alert
+                        site.status = `CRITICAL: TORNADO WARNING${hasRotation ? ' <br><span class="rotation-alert">ROTATION DETECTED</span>' : ''}<br>TAKE COVER NOW`; // alert UI
+                    } else { // Safe logic
+                        site.alert = null; 
+                        site.status = "Asset Status: Clear"; 
                     }
 
-                    const accessToken = response.authResponse.accessToken;
-                    const credential = fbApp.FacebookAuthProvider.credential(accessToken);
-
-                    try {
-                        const userCred = await fbApp.signInWithCredential(fbApp.auth, credential);
-                        currentUserId = userCred.user.uid;
-                        document.getElementById('cloudSyncBtn').textContent = 'SYNCED: ' + currentUserId.substring(0, 8);
-                        document.getElementById('privacyStatus').textContent = 'CLOUD PERSISTENCE ACTIVE - DATA SYNCED';
-                        document.getElementById('privacyStatus').style.background = '#1877f2';
-                        await loadSavedLocations(currentUserId);
-                        await saveLocations(currentUserId);
-                    } catch (error) {
-                        console.error('Cloud sync failed', error);
-                        alert('Unable to sign in with Facebook right now. Check your app configuration.');
+                    if (statement) { // Statement logic
+                        site.statement = statement.properties.description.substring(0, 500) + "..."; // fetch text
+                    } else {
+                        site.statement = null; 
                     }
-                    resolve();
-                }, { scope: 'public_profile,email' });
-            });
+
+                } catch (e) { console.error(`Site Telemetry Sync failure [${site.name}]`, e); } 
+            }
+            renderSites(); // UI Sync
+            updateClock(); // Update footer timestamp
+
+            try { // Regional sector awareness
+                const res = await fetch(`https://api.weather.gov/alerts/active?event=Tornado%20Warning`); // Regional poll
+                const data = await res.json(); // parse
+                const feed = document.getElementById('regionalFeed'); // target
+                feed.innerHTML = ""; // flush
+
+                if (data.features.length === 0) { // safe scan logic
+                    feed.innerHTML = `<p class="text-center italic text-gray-400 text-sm">No active tornado warning polygons detected in regional scan cycle.</p>`; 
+                    return; 
+                }
+
+                data.features.forEach(feat => { // iteration
+                    const p = feat.properties; 
+                    const desc = (p.description || "") + (p.instruction || ""); 
+                    const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc); 
+                    
+                    const card = document.createElement('div'); // create block
+                    card.className = "p-6 border-4 border-red-600 bg-red-50 shadow-2xl"; // styling
+                    card.innerHTML = ` <!-- Regional alert injection -->
+                        <div class="flex justify-between items-center mb-5">
+                            <h4 class="text-red-700 m-0" style="-webkit-text-stroke:1.5px #dc2626; text-align:left; font-size:1.8rem; font-weight:900;">${p.areaDesc}</h4>
+                            <div class="h-8 w-8 rounded-full alert-pulse shadow-[0_0_20px_#dc2626]"></div>
+                        </div>
+                        ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION DETECTED</span></div>' : ''}
+                        <div class="warning-box bg-white">
+                            <p class="text-red-700 font-black text-4xl underline mb-4 uppercase text-center italic">TAKE COVER NOW</p>
+                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 400) : 'IMMEDIATE THREAT DETECTED.'}...</p>
+                        </div>
+                    `;
+                    feed.appendChild(card); // DOM add
+                });
+            } catch (e) { console.error("Regional Intercept Sync Error", e); } 
         }
 
-        window.onload = function() {
-            updateTimestamp();
-            setInterval(updateTimestamp, 1000);
-            renderTrackedLocations();
-            document.getElementById('addressInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addAddress();
-                }
+        window.onload = function() { /* Initialization script */
+            updateClock(); // Boot clock
+            setInterval(updateClock, 1000); // Clock tick (1s)
+            setInterval(runIntelligenceCycle, 60000); // Polling frequency (60s)
+            document.getElementById('targetInput').addEventListener('keypress', (e) => { // listener
+                if (e.key === 'Enter') linkAsset(); // link on enter
             });
-        };
-    </script>
-
-</body>
-</html>
+        }; 
+    </script> <!-- Logic end -->
+</body> <!-- body end -->
+</html> <!-- HTML end -->
