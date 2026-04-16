@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+index.<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Emergency System v6.1</title>
+    <title>DAISY: Emergency System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -78,7 +78,7 @@
 <body>
     <div class="max-w-7xl mx-auto">
         <header class="header-block">
-            <h1 class="text-4xl md:text-5xl">D.A.I.S.Y. // LIVE FEED PATCH</h1>
+            <h1 class="text-4xl md:text-5xl">D.A.I.S.Y. // REGIONAL FOCUS</h1>
             <div class="flex justify-between items-center mt-4 border-t-2 border-gray-700 pt-4">
                 <span class="font-black text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
                 <span id="lastSync" class="font-black text-2xl text-green-400">SYNCING...</span>
@@ -93,7 +93,7 @@
                 <div class="brand-border">
                     <h2 class="text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
                     <div id="alertsContainer" class="space-y-8">
-                        <p class="text-2xl font-bold">Bypassing cache. Pulling raw NWS feed...</p>
+                        <p class="text-2xl font-bold">Scanning NWS OK/AR Sectors...</p>
                     </div>
                 </div>
             </div>
@@ -113,11 +113,13 @@
 
     <script>
         let assets = [];
-        const BASE_NWS_URL = "https://api.weather.gov/alerts/active";
+        // OPTIMIZATION: Filtered specifically to AR and OK to reduce payload size and parsing time.
+        const NWS_URL = "https://api.weather.gov/alerts/active?area=AR,OK&event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
         
         let audioCtx;
         let alarmTriggered = false;
 
+        // Initialize Audio context on user interaction
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -126,6 +128,7 @@
             }
         }
 
+        // Extremely loud, obnoxious beep
         function playAlarm() {
             if (!audioCtx || alarmTriggered) return;
             alarmTriggered = true;
@@ -134,13 +137,13 @@
             const interval = setInterval(() => {
                 if (beepCount >= 5) {
                     clearInterval(interval);
-                    alarmTriggered = false;
+                    alarmTriggered = false; // Reset for next cycle
                     return;
                 }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch
                 gain.gain.setValueAtTime(1, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -160,40 +163,26 @@
 
         async function fetchAlerts() {
             try {
-                // CACHE BUSTER: Appending timestamp forces the NWS server to give us the absolute freshest data
-                const nocacheUrl = `${BASE_NWS_URL}?nocache=${Date.now()}`;
-                const response = await fetch(nocacheUrl, { headers: { 'User-Agent': 'DAISY_Emergency_v6.1' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v6' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
-            } catch (err) { 
-                console.error(err);
-                document.getElementById('lastSync').textContent = "OFFLINE"; 
-            }
+            } catch (err) { document.getElementById('lastSync').textContent = "OFFLINE"; }
         }
 
-        function processAlerts(allFeatures) {
+        function processAlerts(features) {
             const container = document.getElementById('alertsContainer');
             container.innerHTML = '';
             let shouldSoundAlarm = false;
 
-            if (!allFeatures || allFeatures.length === 0) {
-                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO ACTIVE THREATS DETECTED.</p>';
-                return;
-            }
-
-            // LOCAL FILTERING: Include Severe Weather Statements which update active warnings
-            const targetEvents = ["Tornado Warning", "Tornado Watch", "Severe Thunderstorm Warning", "Severe Weather Statement"];
-            const features = allFeatures.filter(f => targetEvents.includes(f.properties.event));
-
-            if (features.length === 0) {
-                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO SEVERE THREATS DETECTED.</p>';
+            if (!features || features.length === 0) {
+                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO ACTIVE THREATS.</p>';
                 return;
             }
 
             features.forEach(f => {
                 const props = f.properties;
-                const text = (props.description + " " + (props.instruction || "")).toUpperCase();
+                const text = (props.description + " " + props.instruction).toUpperCase();
                 
                 f.keywords = {
                     rotation: text.includes("ROTATION"),
@@ -203,24 +192,20 @@
 
                 if (assets.length > 0) {
                     const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
-                    // Distance calculation ensures we prioritize anything close to AR/OK pinned assets
                     f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
                 } else {
                     f.minDist = 999;
                 }
             });
 
-            // Sort so the closest threats to your pins are at the very top
             features.sort((a, b) => a.minDist - b.minDist);
 
-            // Only show the top 10 closest threats so the browser doesn't lag
-            const closestFeatures = features.slice(0, 10);
-
-            closestFeatures.forEach(f => {
+            features.forEach(f => {
                 const props = f.properties;
-                const isClose = f.minDist < 20; // Expanded alert radius to 20 miles
-                const isDangerous = f.keywords.rotation || f.keywords.observed || props.event.includes("Tornado");
+                const isClose = f.minDist < 15;
+                const isDangerous = f.keywords.rotation || f.keywords.observed;
                 
+                // TRIGGER ALARM IF DANGEROUS STORM IS CLOSE
                 if (isClose && isDangerous && audioCtx) {
                     shouldSoundAlarm = true;
                 }
@@ -248,7 +233,7 @@
         }
 
         async function addAsset() {
-            initAudio();
+            initAudio(); // Arm the alarm on first interaction
             const input = document.getElementById('addrIn');
             const val = input.value.trim();
             if (!val) return;
@@ -258,7 +243,7 @@
                 assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
                 input.value = '';
                 renderAssets();
-                fetchAlerts(); // Force immediate fetch upon pinning
+                fetchAlerts();
             }
         }
 
@@ -272,8 +257,7 @@
             `).join('');
         }
 
-        // Drop polling to 30 seconds for maximum real-time updates
-        setInterval(fetchAlerts, 30000);
+        setInterval(fetchAlerts, 60000);
         fetchAlerts();
     </script>
 </body>
