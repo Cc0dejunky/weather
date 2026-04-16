@@ -3,131 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Direct Access Information System</title>
+    <title>DAISY: Emergency Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --brand-pink: #ff69b4;
-            --brand-aqua: #00ffff;
-            --brand-purple: #4b0082;
-            --brand-dark-blue: #00008b;
+            --danger-red: #cc0000;
+            --caution-yellow: #facc15;
+            --safe-green: #15803d;
         }
 
         body {
-            background-color: #ffffff;
-            color: var(--brand-dark-blue);
-            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
             margin: 0;
-            padding: 15px;
-        }
-
-        .body-glow {
-            text-shadow: 0 0 5px rgba(0, 0, 139, 0.2);
+            padding: 10px;
         }
 
         h1 {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua);
             font-weight: 900;
+            font-size: 3.5rem;
             text-transform: uppercase;
+            border-bottom: 8px solid #000;
+            line-height: 1;
+            margin-bottom: 15px;
         }
 
         .brand-border {
-            border: 3px solid;
-            border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1;
-            box-shadow: 0 0 12px var(--brand-aqua);
-            background: #fff;
+            border: 6px solid #000000;
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .emergency-alert {
-            border: 4px solid #dc2626;
-            background-color: #fef2f2;
-            animation: border-pulse 2s infinite;
+        .radar-container {
+            border: 6px solid #000;
+            height: 550px;
         }
 
-        @keyframes border-pulse {
-            0% { border-color: #dc2626; }
-            50% { border-color: #f87171; }
-            100% { border-color: #dc2626; }
-        }
-
-        .radar-frame {
-            border: 2px solid var(--brand-dark-blue);
-            height: 500px;
+        input {
+            font-size: 2rem !important;
+            font-weight: 900 !important;
+            border: 5px solid #000 !important;
+            padding: 20px !important;
             width: 100%;
+            background: #fff !important;
         }
 
-        .status-badge {
+        .btn-pin {
+            background-color: #00008b;
+            color: #fff;
+            font-size: 2rem;
             font-weight: 900;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            text-transform: uppercase;
-            font-size: 0.75rem;
+            padding: 20px;
+            width: 100%;
+            margin-top: 15px;
         }
 
-        .btn-terminate {
-            background-color: #dc2626;
-            color: white;
-            font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            font-size: 0.7rem;
+        .alert-card {
+            border: 6px solid #000;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .urgent-red { background-color: #fee2e2; border-color: var(--danger-red); }
+        .urgent-yellow { background-color: #fefce8; border-color: var(--caution-yellow); }
+        
+        .distance-tag {
+            background: #000;
+            color: #fff;
+            padding: 5px 15px;
+            font-weight: 900;
+            font-size: 1.2rem;
         }
     </style>
 </head>
-<body class="body-glow">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-6 flex flex-col md:flex-row justify-between items-center bg-slate-900 p-6 rounded-lg shadow-xl">
-            <div class="text-center md:text-left">
-                <h1 class="text-3xl md:text-5xl">D.A.I.S.Y.</h1>
-                <p class="text-cyan-400 font-bold text-sm tracking-widest mt-1">DIRECT NWS EMERGENCY INTERFACE</p>
-            </div>
-            <div class="text-white text-center md:text-right mt-4 md:mt-0">
-                <div class="text-xs uppercase opacity-70">Live Telemetry</div>
-                <div id="lastSync" class="text-xl font-mono font-bold text-green-400">CONNECTING...</div>
+<body>
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-6">
+            <h1>D.A.I.S.Y. INTELLIGENT</h1>
+            <div class="flex justify-between items-center bg-black text-white p-5">
+                <span class="font-black text-2xl uppercase">SMART SECTOR SCANNING ACTIVE</span>
+                <span id="lastSync" class="font-black text-3xl">SYNCING...</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div class="lg:col-span-3 space-y-6">
-                <div class="brand-border rounded-lg overflow-hidden shadow-2xl">
-                    <iframe class="radar-frame" 
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+            <div class="lg:col-span-3">
+                <div class="radar-container mb-10">
+                    <iframe width="100%" height="100%" 
                         src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" 
                         frameborder="0">
                     </iframe>
                 </div>
 
-                <div class="brand-border p-6">
-                    <h2 class="text-2xl font-black mb-4 flex items-center gap-2">
-                        <span class="w-4 h-4 bg-red-600 rounded-full animate-ping"></span>
-                        ACTIVE SECTOR WARNINGS
-                    </h2>
-                    <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <p class="text-slate-500 italic">Syncing with National Weather Service servers...</p>
+                <div class="brand-border">
+                    <h2 class="text-5xl font-black mb-6 underline">SORTED BY PROXIMITY</h2>
+                    <div id="alertsContainer" class="space-y-6">
+                        <p class="text-2xl font-bold italic">Calculating distances to pinned locations...</p>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-1">
-                <div class="brand-border p-5 sticky top-5">
-                    <h3 class="text-lg font-black mb-4 border-b-2 border-slate-100 pb-2">TRACKED ASSETS</h3>
-                    
-                    <div class="space-y-4">
-                        <div class="flex flex-col gap-2">
-                            <input id="addrIn" type="text" placeholder="Enter City or ZIP" 
-                                class="w-full p-3 border-2 border-slate-200 rounded text-lg font-bold outline-none focus:border-blue-600">
-                            <button onclick="addAsset()" class="w-full bg-blue-800 text-white font-black py-3 rounded shadow-lg hover:bg-blue-700">PIN LOCATION</button>
-                        </div>
-
-                        <div id="assetList" class="space-y-3 pt-4">
-                            <p class="text-sm text-slate-400 text-center italic">No locations pinned.</p>
-                        </div>
+                <div class="brand-border">
+                    <h3 class="text-3xl font-black mb-6 underline">MY ASSETS</h3>
+                    <div class="mb-10">
+                        <label class="block font-black text-xl mb-2 uppercase">PIN NEW LOCATION:</label>
+                        <input id="addrIn" type="text" placeholder="ZIP OR CITY">
+                        <button onclick="addAsset()" class="btn-pin">PIN & SCAN</button>
                     </div>
-                    
-                    <div class="mt-8 p-3 bg-slate-50 rounded border border-slate-200 text-[10px] leading-tight text-slate-500 uppercase font-bold">
-                        Privacy Mode: Data is volatile. Refreshing purges all pinned assets.
-                    </div>
+                    <div id="assetList" class="space-y-6"></div>
                 </div>
             </div>
         </div>
@@ -136,16 +123,23 @@
     <script>
         let assets = [];
         const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
-        
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; // Miles
+            const dLat = (lat2-lat1) * Math.PI / 180;
+            const dLon = (lon2-lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Emergency_System_v4' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Smart_v1' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
-            } catch (err) {
-                document.getElementById('lastSync').textContent = "OFFLINE";
-            }
+            } catch (err) { document.getElementById('lastSync').textContent = "OFFLINE"; }
         }
 
         function processAlerts(features) {
@@ -153,89 +147,68 @@
             container.innerHTML = '';
 
             if (!features || features.length === 0) {
-                container.innerHTML = '<div class="p-4 bg-green-50 text-green-800 font-bold rounded border border-green-200">NO ACTIVE WARNINGS IN SECTOR</div>';
-                updateAssetStatus([]);
+                container.innerHTML = '<div class="text-4xl font-black text-green-700 uppercase">All Sectors Clear</div>';
                 return;
+            }
+
+            // Calculate distance to first pinned asset for sorting
+            if (assets.length > 0) {
+                features.forEach(f => {
+                    // Estimate center from polygons or geocodes
+                    const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
+                    f.distance = getDistance(assets[0].lat, assets[0].lon, coords[1], coords[0]);
+                });
+                features.sort((a, b) => a.distance - b.distance);
             }
 
             features.forEach(f => {
                 const props = f.properties;
                 const isTornado = props.event.includes("Tornado");
-                const hasRotation = (props.description + props.instruction).toUpperCase().includes("ROTATION");
-                
+                const text = (props.description + props.instruction).toUpperCase();
+                const hasRotation = text.includes("ROTATION");
+                const isInbound = text.includes("MOVING NORTHEAST") || text.includes("MOVING EAST");
+
+                let urgencyClass = '';
+                if (f.distance < 5) urgencyClass = 'urgent-red';
+                else if (f.distance < 15) urgencyClass = 'urgent-yellow';
+
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-lg shadow-md border-l-8 ${isTornado ? 'emergency-alert border-red-600' : 'bg-white border-orange-500'}`;
+                card.className = `alert-card ${urgencyClass}`;
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-slate-800 text-white text-[10px] px-2 py-1 rounded font-bold uppercase">${props.areaDesc.split(';')[0]}</span>
-                        ${hasRotation ? '<span class="bg-red-600 text-white text-[10px] px-2 py-1 rounded font-black animate-pulse">ROTATION DETECTED</span>' : ''}
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="distance-tag">${f.distance ? f.distance.toFixed(1) + ' MILES AWAY' : 'POSITION UNKNOWN'}</span>
+                        ${isInbound ? '<span class="bg-blue-800 text-white p-2 font-black">INBOUND THREAT</span>' : ''}
                     </div>
-                    <h4 class="text-xl font-black ${isTornado ? 'text-red-700' : 'text-orange-700'}">${props.event}</h4>
-                    <p class="text-xs text-slate-700 mt-2 font-medium leading-relaxed line-clamp-3">${props.instruction || 'Seek local shelter.'}</p>
-                    <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between text-[10px] font-bold text-slate-400">
-                        <span>EXPIRES:</span>
-                        <span>${new Date(props.expires).toLocaleTimeString()}</span>
-                    </div>
+                    <h4 class="text-5xl font-black mb-2">${props.event}</h4>
+                    <p class="text-2xl font-black text-red-700 mb-4">${hasRotation ? '!!! ROTATION DETECTED !!!' : ''}</p>
+                    <p class="text-xl font-bold bg-white p-4 border-2 border-black">${props.areaDesc}</p>
+                    <div class="mt-4 text-lg font-black uppercase">Expires: ${new Date(props.expires).toLocaleTimeString()}</div>
                 `;
                 container.appendChild(card);
             });
-            updateAssetStatus(features);
         }
 
         async function addAsset() {
-            const input = document.getElementById('addrIn');
-            const val = input.value.trim();
+            const val = document.getElementById('addrIn').value.trim();
             if (!val) return;
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
-                const data = await res.json();
-                if (data.length) {
-                    assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
-                    renderAssets();
-                    input.value = '';
-                    fetchAlerts();
-                }
-            } catch (e) { alert("Search failed."); }
-        }
-
-        function removeAsset(id) {
-            assets = assets.filter(a => a.id !== id);
-            renderAssets();
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            if (data.length) {
+                assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
+                document.getElementById('addrIn').value = '';
+                renderAssets();
+                fetchAlerts();
+            }
         }
 
         function renderAssets() {
             const list = document.getElementById('assetList');
-            if (assets.length === 0) {
-                list.innerHTML = '<p class="text-sm text-slate-400 text-center italic">No locations pinned.</p>';
-                return;
-            }
-            list.innerHTML = assets.map((a) => `
-                <div class="p-4 bg-white border-2 border-slate-100 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="font-black text-blue-900">${a.name}</p>
-                        <button onclick="removeAsset(${a.id})" class="btn-terminate">Terminate</button>
-                    </div>
-                    <div id="stat-${a.id}" class="text-xs font-bold py-1 px-3 bg-slate-100 rounded text-center text-slate-500 uppercase">Scanning...</div>
+            list.innerHTML = assets.map(a => `
+                <div class="p-6 border-8 border-black mb-4">
+                    <p class="text-3xl font-black uppercase">${a.name}</p>
+                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets()" class="mt-4 w-full bg-black text-white p-3 font-black">TERMINATE PIN</button>
                 </div>
             `).join('');
-        }
-
-        function updateAssetStatus(alerts) {
-            assets.forEach((asset) => {
-                const el = document.getElementById(`stat-${asset.id}`);
-                if (!el) return;
-                let warned = false;
-                alerts.forEach(alert => {
-                    if (alert.properties.areaDesc.toUpperCase().includes(asset.name) || asset.name.includes(alert.properties.areaDesc.toUpperCase())) warned = true;
-                });
-                if (warned) {
-                    el.textContent = "DANGER: WARNING ACTIVE";
-                    el.className = "text-xs font-black py-1 px-3 bg-red-600 text-white rounded text-center animate-pulse uppercase";
-                } else {
-                    el.textContent = "SECTOR CLEAR";
-                    el.className = "text-xs font-bold py-1 px-3 bg-green-500 text-white rounded text-center uppercase";
-                }
-            });
         }
 
         setInterval(fetchAlerts, 60000);
