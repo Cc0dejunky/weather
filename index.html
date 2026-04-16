@@ -3,42 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Emergency Interface</title>
+    <title>DAISY: Emergency System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --danger-red: #cc0000;
-            --caution-yellow: #facc15;
-            --safe-green: #15803d;
         }
 
         body {
             background-color: #ffffff !important;
-            color: #000000 !important;
-            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+            color: #00008b !important;
+            font-family: ui-sans-serif, system-ui, sans-serif;
             margin: 0;
             padding: 10px;
         }
 
-        h1 {
-            font-weight: 900;
-            font-size: 3.5rem;
-            text-transform: uppercase;
-            border-bottom: 8px solid #000;
-            line-height: 1;
-            margin-bottom: 15px;
-        }
-
+        h1, h2, h3 { font-weight: 900; text-transform: uppercase; }
+        
         .brand-border {
-            border: 6px solid #000000;
+            border: 6px solid #000;
             background: #ffffff;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .radar-container {
-            border: 6px solid #000;
-            height: 550px;
+        .header-block {
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-bottom: 8px solid #00008b;
+        }
+
+        .card-emergency { border: 12px solid var(--danger-red) !important; background: #fff1f2; animation: flash 1s infinite; }
+        .card-caution { border: 10px solid #fbbf24 !important; background: #fffbeb; }
+        
+        @keyframes flash {
+            0% { border-color: var(--danger-red); }
+            50% { border-color: #000; }
+            100% { border-color: var(--danger-red); }
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 8px 15px;
+            font-weight: 900;
+            font-size: 1.5rem;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
 
         input {
@@ -47,72 +61,49 @@
             border: 5px solid #000 !important;
             padding: 20px !important;
             width: 100%;
-            background: #fff !important;
         }
 
         .btn-pin {
-            background-color: #00008b;
-            color: #fff;
+            background: #00008b;
+            color: white;
             font-size: 2rem;
             font-weight: 900;
-            padding: 20px;
             width: 100%;
-            margin-top: 15px;
-        }
-
-        .alert-card {
-            border: 6px solid #000;
             padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .urgent-red { background-color: #fee2e2; border-color: var(--danger-red); }
-        .urgent-yellow { background-color: #fefce8; border-color: var(--caution-yellow); }
-        
-        .distance-tag {
-            background: #000;
-            color: #fff;
-            padding: 5px 15px;
-            font-weight: 900;
-            font-size: 1.2rem;
+            margin-top: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="max-w-7xl mx-auto">
-        <header class="mb-6">
-            <h1>D.A.I.S.Y. INTELLIGENT</h1>
-            <div class="flex justify-between items-center bg-black text-white p-5">
-                <span class="font-black text-2xl uppercase">SMART SECTOR SCANNING ACTIVE</span>
-                <span id="lastSync" class="font-black text-3xl">SYNCING...</span>
+        <header class="header-block">
+            <h1 class="text-4xl md:text-5xl">D.A.I.S.Y. // REGIONAL FOCUS</h1>
+            <div class="flex justify-between items-center mt-4 border-t-2 border-gray-700 pt-4">
+                <span class="font-black text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
+                <span id="lastSync" class="font-black text-2xl text-green-400">SYNCING...</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div class="lg:col-span-3">
-                <div class="radar-container mb-10">
-                    <iframe width="100%" height="100%" 
-                        src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" 
-                        frameborder="0">
-                    </iframe>
+                <div class="brand-border overflow-hidden h-[500px] mb-8">
+                    <iframe width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
                 </div>
-
                 <div class="brand-border">
-                    <h2 class="text-5xl font-black mb-6 underline">SORTED BY PROXIMITY</h2>
-                    <div id="alertsContainer" class="space-y-6">
-                        <p class="text-2xl font-bold italic">Calculating distances to pinned locations...</p>
+                    <h2 class="text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
+                    <div id="alertsContainer" class="space-y-8">
+                        <p class="text-2xl font-bold">Scanning NWS OK/AR Sectors...</p>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-1">
                 <div class="brand-border">
-                    <h3 class="text-3xl font-black mb-6 underline">MY ASSETS</h3>
+                    <h3 class="text-3xl mb-4 underline">MY ASSETS</h3>
                     <div class="mb-10">
-                        <label class="block font-black text-xl mb-2 uppercase">PIN NEW LOCATION:</label>
-                        <input id="addrIn" type="text" placeholder="ZIP OR CITY">
-                        <button onclick="addAsset()" class="btn-pin">PIN & SCAN</button>
+                        <input id="addrIn" type="text" placeholder="ZIP / CITY">
+                        <button onclick="addAsset()" class="btn-pin">PIN & ARM ALARM</button>
                     </div>
                     <div id="assetList" class="space-y-6"></div>
                 </div>
@@ -122,20 +113,57 @@
 
     <script>
         let assets = [];
-        const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
+        // OPTIMIZATION: Filtered specifically to AR and OK to reduce payload size and parsing time.
+        const NWS_URL = "https://api.weather.gov/alerts/active?area=AR,OK&event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
+        
+        let audioCtx;
+        let alarmTriggered = false;
+
+        // Initialize Audio context on user interaction
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                document.getElementById('audioStatus').textContent = "AUDIO ALARMS: ARMED";
+                document.getElementById('audioStatus').classList.replace("text-yellow-400", "text-green-400");
+            }
+        }
+
+        // Extremely loud, obnoxious beep
+        function playAlarm() {
+            if (!audioCtx || alarmTriggered) return;
+            alarmTriggered = true;
+            
+            let beepCount = 0;
+            const interval = setInterval(() => {
+                if (beepCount >= 5) {
+                    clearInterval(interval);
+                    alarmTriggered = false; // Reset for next cycle
+                    return;
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch
+                gain.gain.setValueAtTime(1, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+                beepCount++;
+            }, 600);
+        }
 
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; // Miles
+            const R = 3958.8;
             const dLat = (lat2-lat1) * Math.PI / 180;
             const dLon = (lon2-lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Smart_v1' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v6' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
@@ -145,57 +173,75 @@
         function processAlerts(features) {
             const container = document.getElementById('alertsContainer');
             container.innerHTML = '';
+            let shouldSoundAlarm = false;
 
             if (!features || features.length === 0) {
-                container.innerHTML = '<div class="text-4xl font-black text-green-700 uppercase">All Sectors Clear</div>';
+                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO ACTIVE THREATS.</p>';
                 return;
-            }
-
-            // Calculate distance to first pinned asset for sorting
-            if (assets.length > 0) {
-                features.forEach(f => {
-                    // Estimate center from polygons or geocodes
-                    const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
-                    f.distance = getDistance(assets[0].lat, assets[0].lon, coords[1], coords[0]);
-                });
-                features.sort((a, b) => a.distance - b.distance);
             }
 
             features.forEach(f => {
                 const props = f.properties;
-                const isTornado = props.event.includes("Tornado");
-                const text = (props.description + props.instruction).toUpperCase();
-                const hasRotation = text.includes("ROTATION");
-                const isInbound = text.includes("MOVING NORTHEAST") || text.includes("MOVING EAST");
+                const text = (props.description + " " + props.instruction).toUpperCase();
+                
+                f.keywords = {
+                    rotation: text.includes("ROTATION"),
+                    observed: text.includes("OBSERVED") || text.includes("CONFIRMED"),
+                    vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
+                };
 
-                let urgencyClass = '';
-                if (f.distance < 5) urgencyClass = 'urgent-red';
-                else if (f.distance < 15) urgencyClass = 'urgent-yellow';
+                if (assets.length > 0) {
+                    const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
+                    f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
+                } else {
+                    f.minDist = 999;
+                }
+            });
+
+            features.sort((a, b) => a.minDist - b.minDist);
+
+            features.forEach(f => {
+                const props = f.properties;
+                const isClose = f.minDist < 15;
+                const isDangerous = f.keywords.rotation || f.keywords.observed;
+                
+                // TRIGGER ALARM IF DANGEROUS STORM IS CLOSE
+                if (isClose && isDangerous && audioCtx) {
+                    shouldSoundAlarm = true;
+                }
 
                 const card = document.createElement('div');
-                card.className = `alert-card ${urgencyClass}`;
+                card.className = `brand-border ${f.minDist < 15 ? 'card-emergency' : (f.minDist < 30 ? 'card-caution' : '')}`;
+                
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <span class="distance-tag">${f.distance ? f.distance.toFixed(1) + ' MILES AWAY' : 'POSITION UNKNOWN'}</span>
-                        ${isInbound ? '<span class="bg-blue-800 text-white p-2 font-black">INBOUND THREAT</span>' : ''}
+                        <span class="bg-black text-white p-3 font-black text-3xl">${f.minDist < 999 ? f.minDist.toFixed(1) + ' MILES AWAY' : 'REGIONAL'}</span>
                     </div>
-                    <h4 class="text-5xl font-black mb-2">${props.event}</h4>
-                    <p class="text-2xl font-black text-red-700 mb-4">${hasRotation ? '!!! ROTATION DETECTED !!!' : ''}</p>
-                    <p class="text-xl font-bold bg-white p-4 border-2 border-black">${props.areaDesc}</p>
-                    <div class="mt-4 text-lg font-black uppercase">Expires: ${new Date(props.expires).toLocaleTimeString()}</div>
+                    <div class="mb-4">
+                        ${f.keywords.observed ? '<span class="keyword-tag bg-red-600">CONFIRMED TORNADO</span>' : ''}
+                        ${f.keywords.rotation ? '<span class="keyword-tag">ROTATION DETECTED</span>' : ''}
+                        ${f.keywords.vector ? `<span class="keyword-tag bg-blue-900">MOVING ${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>` : ''}
+                    </div>
+                    <h4 class="text-5xl font-black mb-2 text-black">${props.event}</h4>
+                    <p class="text-2xl font-bold bg-gray-200 p-4 border-4 border-black mb-2 text-black">${props.areaDesc}</p>
+                    <div class="mt-4 pt-4 border-t-4 border-black font-black text-2xl">EXPIRES: ${new Date(props.expires).toLocaleTimeString()}</div>
                 `;
                 container.appendChild(card);
             });
+
+            if (shouldSoundAlarm) playAlarm();
         }
 
         async function addAsset() {
-            const val = document.getElementById('addrIn').value.trim();
+            initAudio(); // Arm the alarm on first interaction
+            const input = document.getElementById('addrIn');
+            const val = input.value.trim();
             if (!val) return;
             const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
             const data = await res.json();
             if (data.length) {
                 assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
-                document.getElementById('addrIn').value = '';
+                input.value = '';
                 renderAssets();
                 fetchAlerts();
             }
@@ -204,9 +250,9 @@
         function renderAssets() {
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
-                <div class="p-6 border-8 border-black mb-4">
-                    <p class="text-3xl font-black uppercase">${a.name}</p>
-                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets()" class="mt-4 w-full bg-black text-white p-3 font-black">TERMINATE PIN</button>
+                <div class="p-6 border-4 border-black mb-4">
+                    <p class="text-3xl font-black">${a.name}</p>
+                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="mt-4 w-full bg-black text-white p-4 font-black text-xl">REMOVE</button>
                 </div>
             `).join('');
         }
