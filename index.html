@@ -1,4 +1,4 @@
-index.<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,24 +7,52 @@ index.<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --danger-red: #cc0000;
+            --danger-red: #ff3b3b;
+            --pink: #ff1493;
+            --aqua: #00ffff;
+            --indigo: #4b0082;
+            --darkblue: #00008b;
+            --caution-orange: #ffb347;
+            --resting-gray: #e5e7eb;
+            --inner-bg: #ffffff;
         }
 
         body {
             background-color: #ffffff !important;
-            color: #00008b !important;
+            color: var(--darkblue) !important;
+            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3);
             font-family: ui-sans-serif, system-ui, sans-serif;
             margin: 0;
             padding: 10px;
         }
 
-        h1, h2, h3 { font-weight: 900; text-transform: uppercase; }
-        
+        h1, h2 { 
+            color: #ffffff !important;
+            font-weight: 900; 
+            text-transform: uppercase; 
+            text-shadow: 0 0 10px var(--pink), 0 0 20px var(--aqua);
+            text-align: center;
+        }
+
+        h3, h4 {
+            color: #ffffff !important;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--indigo), 0 0 20px #8a2be2;
+            text-align: center;
+        }
+
         .brand-border {
-            border: 6px solid #000;
+            border: 3px solid;
+            border-image: linear-gradient(to right, var(--pink), var(--aqua)) 1;
+            box-shadow: 0 0 2px var(--pink), 0 0 8px var(--pink), 0 0 12px var(--aqua);
             background: #ffffff;
             padding: 20px;
             margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
         }
 
         .header-block {
@@ -32,94 +60,313 @@ index.<!DOCTYPE html>
             color: #fff;
             padding: 20px;
             margin-bottom: 20px;
-            border-bottom: 8px solid #00008b;
+            border-bottom: 8px solid var(--darkblue);
+            text-align: center;
         }
 
-        .card-emergency { border: 12px solid var(--danger-red) !important; background: #fff1f2; animation: flash 1s infinite; }
-        .card-caution { border: 10px solid #fbbf24 !important; background: #fffbeb; }
-        
-        @keyframes flash {
-            0% { border-color: var(--danger-red); }
-            50% { border-color: #000; }
-            100% { border-color: var(--danger-red); }
+        /* CARD STYLES */
+        .alert-card {
+            background: #ffffff;
+            border: 8px solid var(--resting-gray);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .alert-bar-top {
+            background: var(--resting-gray);
+            color: #ffffff;
+            font-weight: 900;
+            text-align: center;
+            padding: 12px 5px;
+            font-size: 1.5rem;
+            text-transform: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .alert-bar-bottom {
+            background: var(--resting-gray);
+            color: #ffffff;
+            font-weight: 900;
+            text-align: center;
+            padding: 5px;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .alert-inner-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+        .distance-badge {
+            background: var(--resting-gray);
+            color: #ffffff;
+            padding: 5px 20px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .notification-box {
+            border: 2px solid #ccc;
+            padding: 20px;
+            width: 100%;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #666;
+            text-shadow: none;
+        }
+
+        .card-emergency {
+            border-color: #ffcccc !important;
+            box-shadow: 0 0 20px var(--danger-red);
+            animation: pulse-red 2s infinite;
+        }
+        .card-emergency .alert-bar-top, .card-emergency .alert-bar-bottom { background: var(--danger-red) !important; }
+        .card-emergency .distance-badge { background: var(--caution-orange) !important; }
+
+        .card-rotation-red {
+            border-color: #ffcccc !important;
+            box-shadow: 0 0 15px var(--danger-red);
+        }
+        .card-rotation-red .alert-bar-top, .card-rotation-red .alert-bar-bottom { background: var(--danger-red) !important; }
+        .card-rotation-red .distance-badge { background: var(--caution-orange) !important; }
+
+        .card-caution {
+            border-color: #ffe4b2 !important;
+            box-shadow: 0 0 10px var(--caution-orange);
+        }
+        .card-caution .alert-bar-top, .card-caution .alert-bar-bottom { background: var(--caution-orange) !important; }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 10px var(--danger-red); }
+            50% { box-shadow: 0 0 30px var(--danger-red); }
+            100% { box-shadow: 0 0 10px var(--danger-red); }
         }
 
         .keyword-tag {
             display: inline-block;
             background: #000;
             color: #fff;
-            padding: 8px 15px;
+            padding: 4px 8px;
             font-weight: 900;
-            font-size: 1.5rem;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            font-size: 0.75rem;
+            margin: 2px;
+            text-transform: uppercase;
+        }
+
+        .headed-tag {
+            animation: pulse-indigo 1.5s infinite;
+        }
+
+        @keyframes pulse-indigo {
+            0% { background-color: #1e1b4b; }
+            50% { background-color: #4338ca; }
+            100% { background-color: #1e1b4b; }
         }
 
         input {
-            font-size: 2rem !important;
+            font-size: 1.2rem !important;
             font-weight: 900 !important;
-            border: 5px solid #000 !important;
-            padding: 20px !important;
+            border: 3px solid var(--darkblue) !important;
+            padding: 12px !important;
             width: 100%;
+            color: var(--darkblue);
+            outline: none;
+            text-align: center;
         }
 
         .btn-pin {
-            background: #00008b;
+            background: var(--darkblue);
             color: white;
-            font-size: 2rem;
+            font-size: 1.2rem;
             font-weight: 900;
             width: 100%;
-            padding: 20px;
+            padding: 12px;
             margin-top: 10px;
             cursor: pointer;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .btn-test {
+            background: #000;
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            font-weight: 900;
+            margin-left: 10px;
+            border: 2px solid var(--aqua);
+        }
+
+        .live-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Accordion Styles */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+        }
+        .accordion-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <div class="max-w-7xl mx-auto">
         <header class="header-block">
-            <h1 class="text-4xl md:text-5xl">D.A.I.S.Y. // REGIONAL FOCUS</h1>
-            <div class="flex justify-between items-center mt-4 border-t-2 border-gray-700 pt-4">
-                <span class="font-black text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
-                <span id="lastSync" class="font-black text-2xl text-green-400">SYNCING...</span>
+            <h1 class="text-3xl md:text-5xl">D.A.I.S.Y. // REGIONAL FOCUS</h1>
+            <div class="flex flex-col md:flex-row justify-between items-center mt-4 border-t-2 border-gray-700 pt-4 gap-2">
+                <div class="flex items-center">
+                    <span class="font-black text-sm md:text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
+                    <button onclick="testAlarm()" class="btn-test">TEST SIREN</button>
+                </div>
+                <div class="flex items-center">
+                    <span class="live-dot"></span>
+                    <span id="lastSync" class="font-black text-xl md:text-2xl text-green-400 uppercase">SYNCING...</span>
+                </div>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div class="lg:col-span-3">
-                <div class="brand-border overflow-hidden h-[500px] mb-8">
-                    <iframe width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
-                </div>
-                <div class="brand-border">
-                    <h2 class="text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
-                    <div id="alertsContainer" class="space-y-8">
-                        <p class="text-2xl font-bold">Scanning NWS OK/AR Sectors...</p>
-                    </div>
-                </div>
+        <!-- NEW: INSTRUCTIONS PANEL -->
+        <div class="brand-border bg-blue-50">
+            <h3 class="text-xl mb-2 underline">SYSTEM INSTRUCTIONS</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-bold">
+                <div class="p-2 border border-blue-200">1. PIN your ZIP or City in the Assets section to enable distance tracking.</div>
+                <div class="p-2 border border-blue-200">2. WATCH the map and cards. Red flashing cards indicate a local confirmed threat.</div>
+                <div class="p-2 border border-blue-200">3. ALARM will trigger automatically for confirmed rotation within 20 miles of pins.</div>
             </div>
+        </div>
 
-            <div class="lg:col-span-1">
-                <div class="brand-border">
-                    <h3 class="text-3xl mb-4 underline">MY ASSETS</h3>
-                    <div class="mb-10">
+        <div class="brand-border overflow-hidden h-[400px] md:h-[600px] mb-8 p-0" id="mapContainer">
+            <iframe id="radarMap" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
+        </div>
+
+        <div class="brand-border">
+            <h3 class="text-2xl md:text-3xl mb-4 underline">MY ASSETS</h3>
+            <div class="w-full max-w-4xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <div class="w-full">
                         <input id="addrIn" type="text" placeholder="ZIP / CITY">
                         <button onclick="addAsset()" class="btn-pin">PIN & ARM ALARM</button>
                     </div>
-                    <div id="assetList" class="space-y-6"></div>
+                    <div id="assetList" class="md:col-span-2 flex flex-wrap gap-3"></div>
                 </div>
+            </div>
+        </div>
+
+        <div class="brand-border bg-gray-50">
+            <h2 class="text-3xl md:text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
+            <div id="alertsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                <p class="text-xl font-bold text-darkblue col-span-full text-center">Scanning NWS OK/AR Sectors...</p>
+            </div>
+        </div>
+
+        <!-- NEW: FAQ & DISCLAIMER ACCORDION -->
+        <div class="brand-border bg-gray-100 mt-10">
+            <h3 class="text-2xl mb-6 underline">INFORMATION & LEGAL</h3>
+            <div class="w-full max-w-4xl space-y-4">
+                
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-2 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        Where does this data come from?
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white">
+                        DAISY pulls live data directly from the National Weather Service (NWS) and NOAA Public APIs. Radar imagery is provided by the Windy.com API. All meteorological data is updated every 60 seconds to ensure regional accuracy.
+                    </div>
+                </div>
+
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-2 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        What triggers the Alarm?
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white">
+                        The audio siren is programmed to trigger when a Tornado Warning or Severe Thunderstorm Warning contains keywords such as "OBSERVED", "CONFIRMED", or "ROTATION DETECTED" AND the storm is calculated to be within 20 miles of your pinned assets.
+                    </div>
+                </div>
+
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-2 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        Disclaimer & Ownership
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white text-red-700">
+                        LEGAL NOTICE: This system is for informational and educational purposes only. We do not own the meteorological data; all rights belong to the NWS/NOAA. This app is NOT a replacement for a certified NOAA Weather Radio or official local emergency broadcasts. Do not rely solely on DAISY for life-safety decisions. Always follow local official instructions during severe weather.
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
         let assets = [];
-        // OPTIMIZATION: Filtered specifically to AR and OK to reduce payload size and parsing time.
         const NWS_URL = "https://api.weather.gov/alerts/active?area=AR,OK&event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
         
         let audioCtx;
         let alarmTriggered = false;
 
-        // Initialize Audio context on user interaction
+        const cardinalMap = {
+            'N': 0, 'NORTH': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
+            'E': 90, 'EAST': 90, 'ESE': 112.5, 'SE': 135, 'SSE': 157.5,
+            'S': 180, 'SOUTH': 180, 'SSW': 202.5, 'SW': 225, 'WSW': 247.5,
+            'W': 270, 'WEST': 270, 'WNW': 292.5, 'NW': 315, 'NNW': 337.5
+        };
+
+        window.onload = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const map = document.getElementById('radarMap');
+                    map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=8&level=surface&overlay=radar&product=radar&message=true`;
+                });
+            }
+            fetchAlerts();
+        };
+
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -128,22 +375,20 @@ index.<!DOCTYPE html>
             }
         }
 
-        // Extremely loud, obnoxious beep
         function playAlarm() {
             if (!audioCtx || alarmTriggered) return;
             alarmTriggered = true;
-            
             let beepCount = 0;
             const interval = setInterval(() => {
                 if (beepCount >= 5) {
                     clearInterval(interval);
-                    alarmTriggered = false; // Reset for next cycle
+                    alarmTriggered = false;
                     return;
                 }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
                 gain.gain.setValueAtTime(1, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -151,6 +396,11 @@ index.<!DOCTYPE html>
                 osc.stop(audioCtx.currentTime + 0.3);
                 beepCount++;
             }, 600);
+        }
+
+        function testAlarm() {
+            initAudio();
+            playAlarm();
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -161,13 +411,22 @@ index.<!DOCTYPE html>
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
+        function getBearing(lat1, lon1, lat2, lon2) {
+            const y = Math.sin((lon2 - lon1) * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180);
+            const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                      Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos((lon2 - lon1) * Math.PI / 180);
+            return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+        }
+
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v6' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v7' } });
                 const data = await response.json();
                 processAlerts(data.features);
-                document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
-            } catch (err) { document.getElementById('lastSync').textContent = "OFFLINE"; }
+                document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
+            } catch (err) { 
+                document.getElementById('lastSync').textContent = "OFFLINE"; 
+            }
         }
 
         function processAlerts(features) {
@@ -176,25 +435,37 @@ index.<!DOCTYPE html>
             let shouldSoundAlarm = false;
 
             if (!features || features.length === 0) {
-                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO ACTIVE THREATS.</p>';
+                container.innerHTML = '<p class="text-2xl font-black text-green-700 col-span-full uppercase text-center">NO ACTIVE THREATS DETECTED.</p>';
                 return;
             }
 
             features.forEach(f => {
                 const props = f.properties;
                 const text = (props.description + " " + props.instruction).toUpperCase();
-                
                 f.keywords = {
                     rotation: text.includes("ROTATION"),
-                    observed: text.includes("OBSERVED") || text.includes("CONFIRMED"),
+                    observed: text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND"),
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
 
+                const coords = f.geometry ? (Array.isArray(f.geometry.coordinates[0][0]) ? f.geometry.coordinates[0][0] : f.geometry.coordinates[0]) : [-94.39, 35.38];
+                
                 if (assets.length > 0) {
-                    const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
                     f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
-                } else {
-                    f.minDist = 999;
+                    
+                    if (f.keywords.vector) {
+                        const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
+                        if (stormDir !== undefined) {
+                            f.headedTowards = assets.some(a => {
+                                const bearingToAsset = getBearing(coords[1], coords[0], a.lat, a.lon);
+                                const diff = Math.abs(stormDir - bearingToAsset);
+                                const normalizedDiff = Math.min(diff, 360 - diff);
+                                return normalizedDiff < 45; 
+                            });
+                        }
+                    }
+                } else { 
+                    f.minDist = 999; 
                 }
             });
 
@@ -202,29 +473,39 @@ index.<!DOCTYPE html>
 
             features.forEach(f => {
                 const props = f.properties;
-                const isClose = f.minDist < 15;
-                const isDangerous = f.keywords.rotation || f.keywords.observed;
+                const isClose = f.minDist < 20;
+                const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
                 
-                // TRIGGER ALARM IF DANGEROUS STORM IS CLOSE
-                if (isClose && isDangerous && audioCtx) {
-                    shouldSoundAlarm = true;
+                let stateClass = '';
+                if (isDangerousUpdate) {
+                    stateClass = isClose ? 'card-emergency' : 'card-rotation-red';
+                    if (isClose && audioCtx) shouldSoundAlarm = true;
+                } else if (props.event.includes('WARNING') || props.event.includes('WATCH')) {
+                    stateClass = 'card-caution';
                 }
 
                 const card = document.createElement('div');
-                card.className = `brand-border ${f.minDist < 15 ? 'card-emergency' : (f.minDist < 30 ? 'card-caution' : '')}`;
+                card.className = `alert-card ${stateClass}`;
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-black text-white p-3 font-black text-3xl">${f.minDist < 999 ? f.minDist.toFixed(1) + ' MILES AWAY' : 'REGIONAL'}</span>
+                    <div class="alert-bar-top">${props.event}</div>
+                    <div class="alert-inner-container">
+                        <div class="distance-badge">
+                            ${f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : '[Regional]'}
+                        </div>
+                        <div class="notification-box">
+                            ${props.areaDesc}
+                        </div>
+                        <div class="mt-4 flex flex-wrap justify-center">
+                            ${f.headedTowards ? '<span class="keyword-tag headed-tag bg-indigo-900 border border-white">HEADED TOWARDS YOU</span>' : ''}
+                            ${f.keywords.observed ? '<span class="keyword-tag bg-red-600">CONFIRMED</span>' : ''}
+                            ${f.keywords.rotation ? '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>' : ''}
+                            ${f.keywords.vector ? `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>` : ''}
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        ${f.keywords.observed ? '<span class="keyword-tag bg-red-600">CONFIRMED TORNADO</span>' : ''}
-                        ${f.keywords.rotation ? '<span class="keyword-tag">ROTATION DETECTED</span>' : ''}
-                        ${f.keywords.vector ? `<span class="keyword-tag bg-blue-900">MOVING ${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>` : ''}
+                    <div class="alert-bar-bottom">
+                        ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </div>
-                    <h4 class="text-5xl font-black mb-2 text-black">${props.event}</h4>
-                    <p class="text-2xl font-bold bg-gray-200 p-4 border-4 border-black mb-2 text-black">${props.areaDesc}</p>
-                    <div class="mt-4 pt-4 border-t-4 border-black font-black text-2xl">EXPIRES: ${new Date(props.expires).toLocaleTimeString()}</div>
                 `;
                 container.appendChild(card);
             });
@@ -233,32 +514,33 @@ index.<!DOCTYPE html>
         }
 
         async function addAsset() {
-            initAudio(); // Arm the alarm on first interaction
+            initAudio(); 
             const input = document.getElementById('addrIn');
             const val = input.value.trim();
             if (!val) return;
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            if (data.length) {
-                assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
-                input.value = '';
-                renderAssets();
-                fetchAlerts();
-            }
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
+                const data = await res.json();
+                if (data.length) {
+                    assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
+                    input.value = '';
+                    renderAssets();
+                    fetchAlerts();
+                }
+            } catch (e) { console.error(e); }
         }
 
         function renderAssets() {
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
-                <div class="p-6 border-4 border-black mb-4">
-                    <p class="text-3xl font-black">${a.name}</p>
-                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="mt-4 w-full bg-black text-white p-4 font-black text-xl">REMOVE</button>
+                <div class="p-3 border-2 border-darkblue bg-blue-50 flex items-center gap-4">
+                    <p class="text-sm font-black uppercase">${a.name}</p>
+                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="bg-red-800 text-white px-2 py-1 font-black text-[10px] uppercase">X</button>
                 </div>
             `).join('');
         }
 
         setInterval(fetchAlerts, 60000);
-        fetchAlerts();
     </script>
 </body>
 </html>
