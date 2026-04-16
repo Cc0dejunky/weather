@@ -3,109 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Emergency System v6.1</title>
+    <title>DAISY: Emergency System v6.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --danger-red: #cc0000;
+            --danger-red: #dc2626;
+            --caution-yellow: #d97706;
+            --safe-green: #16a34a;
         }
 
         body {
-            background-color: #ffffff !important;
-            color: #00008b !important;
+            background-color: #f3f4f6 !important; /* Soft gray background to make white cards pop */
+            color: #000000 !important;
             font-family: ui-sans-serif, system-ui, sans-serif;
             margin: 0;
-            padding: 10px;
+            padding: 15px;
         }
 
         h1, h2, h3 { font-weight: 900; text-transform: uppercase; }
         
-        .brand-border {
-            border: 6px solid #000;
-            background: #ffffff;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
         .header-block {
             background: #000;
             color: #fff;
-            padding: 20px;
+            padding: 15px 20px;
             margin-bottom: 20px;
-            border-bottom: 8px solid #00008b;
+            border-bottom: 6px solid #1e3a8a;
+            border-radius: 8px;
         }
 
-        .card-emergency { border: 12px solid var(--danger-red) !important; background: #fff1f2; animation: flash 1s infinite; }
-        .card-caution { border: 10px solid #fbbf24 !important; background: #fffbeb; }
+        /* Card System */
+        .alert-card {
+            background: #ffffff;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .card-emergency { 
+            border-color: var(--danger-red); 
+            background: #fef2f2; 
+            border-width: 4px;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+        }
         
-        @keyframes flash {
-            0% { border-color: var(--danger-red); }
-            50% { border-color: #000; }
-            100% { border-color: var(--danger-red); }
+        .card-caution { 
+            border-color: var(--caution-yellow); 
+            background: #fffbeb; 
+            border-width: 4px;
         }
-
+        
         .keyword-tag {
             display: inline-block;
             background: #000;
             color: #fff;
-            padding: 8px 15px;
+            padding: 4px 10px;
             font-weight: 900;
-            font-size: 1.5rem;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         input {
-            font-size: 2rem !important;
-            font-weight: 900 !important;
-            border: 5px solid #000 !important;
-            padding: 20px !important;
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            border: 3px solid #d1d5db !important;
+            padding: 12px !important;
             width: 100%;
+            border-radius: 8px;
+        }
+
+        input:focus {
+            border-color: #1e3a8a !important;
+            outline: none;
         }
 
         .btn-pin {
-            background: #00008b;
+            background: #1e3a8a;
             color: white;
-            font-size: 2rem;
+            font-size: 1.1rem;
             font-weight: 900;
             width: 100%;
-            padding: 20px;
+            padding: 12px;
             margin-top: 10px;
+            border-radius: 8px;
             cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .dev-note {
+            background-color: #fef08a;
+            color: #854d0e;
+            padding: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 2px solid #eab308;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-6xl mx-auto">
+        
+        <div class="dev-note">
+            NOTE: Sorry the app keeps changing, best time to work on it is during active tornadoes lol
+        </div>
+
         <header class="header-block">
-            <h1 class="text-4xl md:text-5xl">D.A.I.S.Y. // LIVE FEED PATCH</h1>
-            <div class="flex justify-between items-center mt-4 border-t-2 border-gray-700 pt-4">
-                <span class="font-black text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
-                <span id="lastSync" class="font-black text-2xl text-green-400">SYNCING...</span>
+            <h1 class="text-3xl md:text-4xl tracking-tight">D.A.I.S.Y. // REGIONAL PATCH</h1>
+            <div class="flex justify-between items-center mt-3 border-t border-gray-700 pt-3">
+                <span class="font-bold text-sm uppercase text-yellow-400" id="audioStatus">AUDIO ALARM: CLICK PIN TO ARM</span>
+                <span id="lastSync" class="font-bold text-lg text-green-400">SYNCING...</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div class="lg:col-span-3">
-                <div class="brand-border overflow-hidden h-[500px] mb-8">
-                    <iframe width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-2 border-2 border-gray-300 rounded-xl shadow-sm h-[400px]">
+                    <iframe width="100%" height="100%" class="rounded-lg" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
                 </div>
-                <div class="brand-border">
-                    <h2 class="text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
-                    <div id="alertsContainer" class="space-y-8">
-                        <p class="text-2xl font-bold">Bypassing cache. Pulling raw NWS feed...</p>
+                
+                <div class="bg-white p-5 border-2 border-gray-300 rounded-xl shadow-sm">
+                    <h2 class="text-2xl text-black border-b-4 border-black pb-2 mb-5">PROXIMITY ALERTS</h2>
+                    <div id="alertsContainer" class="flex flex-col gap-4">
+                        <p class="text-lg font-bold text-gray-500">Bypassing cache. Pulling raw NWS feed...</p>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-1">
-                <div class="brand-border">
-                    <h3 class="text-3xl mb-4 underline">MY ASSETS</h3>
-                    <div class="mb-10">
-                        <input id="addrIn" type="text" placeholder="ZIP / CITY">
+                <div class="bg-white p-5 border-2 border-gray-300 rounded-xl shadow-sm sticky top-5">
+                    <h3 class="text-xl border-b-4 border-black pb-2 mb-5">MY ASSETS</h3>
+                    <div class="mb-6">
+                        <input id="addrIn" type="text" placeholder="ZIP or City (e.g. Fort Smith)">
                         <button onclick="addAsset()" class="btn-pin">PIN & ARM ALARM</button>
                     </div>
-                    <div id="assetList" class="space-y-6"></div>
+                    <div id="assetList" class="flex flex-col gap-3"></div>
                 </div>
             </div>
         </div>
@@ -113,7 +152,8 @@
 
     <script>
         let assets = [];
-        const BASE_NWS_URL = "https://api.weather.gov/alerts/active";
+        // Scoped to AR and OK for speed, combined with nocache
+        const BASE_NWS_URL = "https://api.weather.gov/alerts/active?area=AR,OK";
         
         let audioCtx;
         let alarmTriggered = false;
@@ -121,7 +161,7 @@
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                document.getElementById('audioStatus').textContent = "AUDIO ALARMS: ARMED";
+                document.getElementById('audioStatus').textContent = "AUDIO ALARM: ARMED";
                 document.getElementById('audioStatus').classList.replace("text-yellow-400", "text-green-400");
             }
         }
@@ -145,9 +185,9 @@
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
+                osc.stop(audioCtx.currentTime + 0.2);
                 beepCount++;
-            }, 600);
+            }, 500);
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -160,9 +200,8 @@
 
         async function fetchAlerts() {
             try {
-                // CACHE BUSTER: Appending timestamp forces the NWS server to give us the absolute freshest data
-                const nocacheUrl = `${BASE_NWS_URL}?nocache=${Date.now()}`;
-                const response = await fetch(nocacheUrl, { headers: { 'User-Agent': 'DAISY_Emergency_v6.1' } });
+                const nocacheUrl = `${BASE_NWS_URL}&nocache=${Date.now()}`;
+                const response = await fetch(nocacheUrl, { headers: { 'User-Agent': 'DAISY_Emergency_v6.3' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
@@ -178,16 +217,15 @@
             let shouldSoundAlarm = false;
 
             if (!allFeatures || allFeatures.length === 0) {
-                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO ACTIVE THREATS DETECTED.</p>';
+                container.innerHTML = '<p class="text-xl font-bold text-green-700 p-4 bg-green-50 rounded-lg border border-green-200">NO ACTIVE THREATS DETECTED.</p>';
                 return;
             }
 
-            // LOCAL FILTERING: Include Severe Weather Statements which update active warnings
             const targetEvents = ["Tornado Warning", "Tornado Watch", "Severe Thunderstorm Warning", "Severe Weather Statement"];
             const features = allFeatures.filter(f => targetEvents.includes(f.properties.event));
 
             if (features.length === 0) {
-                container.innerHTML = '<p class="text-4xl font-black text-green-700">NO SEVERE THREATS DETECTED.</p>';
+                container.innerHTML = '<p class="text-xl font-bold text-green-700 p-4 bg-green-50 rounded-lg border border-green-200">NO SEVERE THREATS DETECTED.</p>';
                 return;
             }
 
@@ -203,22 +241,18 @@
 
                 if (assets.length > 0) {
                     const coords = f.geometry ? f.geometry.coordinates[0][0] : [-94.39, 35.38];
-                    // Distance calculation ensures we prioritize anything close to AR/OK pinned assets
                     f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
                 } else {
                     f.minDist = 999;
                 }
             });
 
-            // Sort so the closest threats to your pins are at the very top
             features.sort((a, b) => a.minDist - b.minDist);
-
-            // Only show the top 10 closest threats so the browser doesn't lag
             const closestFeatures = features.slice(0, 10);
 
             closestFeatures.forEach(f => {
                 const props = f.properties;
-                const isClose = f.minDist < 20; // Expanded alert radius to 20 miles
+                const isClose = f.minDist < 20;
                 const isDangerous = f.keywords.rotation || f.keywords.observed || props.event.includes("Tornado");
                 
                 if (isClose && isDangerous && audioCtx) {
@@ -226,20 +260,23 @@
                 }
 
                 const card = document.createElement('div');
-                card.className = `brand-border ${f.minDist < 15 ? 'card-emergency' : (f.minDist < 30 ? 'card-caution' : '')}`;
+                card.className = `alert-card ${f.minDist < 15 ? 'card-emergency' : (f.minDist < 30 ? 'card-caution' : '')}`;
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-black text-white p-3 font-black text-3xl">${f.minDist < 999 ? f.minDist.toFixed(1) + ' MILES AWAY' : 'REGIONAL'}</span>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="bg-black text-white px-3 py-1 font-bold text-sm rounded-full">${f.minDist < 999 ? f.minDist.toFixed(1) + ' MILES AWAY' : 'REGIONAL'}</span>
+                        <span class="text-xs font-bold text-gray-500 uppercase">Expires: ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
-                    <div class="mb-4">
+                    
+                    <h4 class="text-2xl font-black mb-2 text-black leading-tight">${props.event}</h4>
+                    
+                    <div class="mb-3">
                         ${f.keywords.observed ? '<span class="keyword-tag bg-red-600">CONFIRMED TORNADO</span>' : ''}
-                        ${f.keywords.rotation ? '<span class="keyword-tag">ROTATION DETECTED</span>' : ''}
-                        ${f.keywords.vector ? `<span class="keyword-tag bg-blue-900">MOVING ${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>` : ''}
+                        ${f.keywords.rotation ? '<span class="keyword-tag bg-red-500">ROTATION DETECTED</span>' : ''}
+                        ${f.keywords.vector ? `<span class="keyword-tag bg-blue-800">MOVING ${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>` : ''}
                     </div>
-                    <h4 class="text-5xl font-black mb-2 text-black">${props.event}</h4>
-                    <p class="text-2xl font-bold bg-gray-200 p-4 border-4 border-black mb-2 text-black">${props.areaDesc}</p>
-                    <div class="mt-4 pt-4 border-t-4 border-black font-black text-2xl">EXPIRES: ${new Date(props.expires).toLocaleTimeString()}</div>
+                    
+                    <p class="text-sm font-bold bg-gray-100 p-3 rounded text-gray-800">${props.areaDesc}</p>
                 `;
                 container.appendChild(card);
             });
@@ -258,21 +295,20 @@
                 assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
                 input.value = '';
                 renderAssets();
-                fetchAlerts(); // Force immediate fetch upon pinning
+                fetchAlerts(); 
             }
         }
 
         function renderAssets() {
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
-                <div class="p-6 border-4 border-black mb-4">
-                    <p class="text-3xl font-black">${a.name}</p>
-                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="mt-4 w-full bg-black text-white p-4 font-black text-xl">REMOVE</button>
+                <div class="p-3 border-2 border-gray-200 bg-gray-50 rounded-lg flex justify-between items-center">
+                    <p class="text-sm font-black text-blue-900">${a.name}</p>
+                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="text-xs font-bold text-red-600 border border-red-200 bg-white px-2 py-1 rounded hover:bg-red-50">REMOVE</button>
                 </div>
             `).join('');
         }
 
-        // Drop polling to 30 seconds for maximum real-time updates
         setInterval(fetchAlerts, 30000);
         fetchAlerts();
     </script>
