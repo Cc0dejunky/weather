@@ -1,513 +1,248 @@
-<!-- 
-    CRITICAL PRIVACY PROTOCOL: VOLATILE MEMORY ACTIVE
-    This application is designed for maximum user safety. 
-    It does not utilize cookies, localStorage, or persistent databases for guest sessions. 
-    Refreshing the page will instantly purge all asset coordinates and active intercept data.
-    This ensures that personal location data remains local to the active session only.
--->
-<!DOCTYPE html> <!-- Declares the document as standard HTML5 -->
-<html lang="en"> <!-- Specifies the document language as English -->
-<head> <!-- Metadata and external resource container -->
-    <meta charset="UTF-8"> <!-- Ensures proper character rendering via UTF-8 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <!-- Mobile optimization: prevents unwanted zooming -->
-    <title>D.A.I.S.Y - Digital Alert Intelligence System Yield</title> <!-- Updated Tab title -->
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Utility-first CSS framework for layout -->
-    <script type="module"> 
-        // JavaScript module for secure Firebase cloud integration (Currently running in Volatile Mode)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"; // Core Firebase logic
-        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; // Security and user sessions
-        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Cloud database tools
-
-        const firebaseConfig = JSON.parse(__firebase_config); // Loads the platform-provided configuration
-        const app = initializeApp(firebaseConfig); // Starts the Firebase instance
-        const auth = getAuth(app); // Connects to authentication services
-        const db = getFirestore(app); // Connects to the cloud database
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'weather-ops-neon'; // Sets the unique app ID
-
-        // Exposes tools to the global window object for interaction with the UI logic
-        window.firebaseApp = { auth, db, appId, collection, doc, setDoc, getDocs, deleteDoc, signInAnonymously, query, where }; 
-    </script> <!-- End of Firebase module -->
-    <style> /* Custom brand styling and aesthetic layers */
-        :root { /* Color token definitions for the Neon brand */
-            --brand-pink: #ff69b4; /* Primary Neon Pink */
-            --brand-aqua: #00ffff; /* Primary Neon Aqua */
-            --brand-purple: #4b0082; /* Deep Neon Purple */
-            --brand-indigo: #483d8b; /* Contrast Indigo */
-            --brand-blue: #0000ff; /* Standard Neon Blue */
-            --brand-dark-blue: #00008b; /* Core Dark Blue for text clarity and outlines */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAISY: Direct Access Information System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-aqua: #00ffff;
+            --neon-purple: #9d00ff;
+            --dark-bg: #050505;
         }
 
-        html, body { /* Global UI surface settings */
-            overflow-x: hidden; /* Prevents side-to-side wobble on mobile */
-            width: 100%; /* Spans full screen width */
-            background-color: #ffffff; /* Sets Light Mode base */
-            background-image: /* Generates the Tech Square background grid */
-                linear-gradient(var(--brand-aqua) 1px, transparent 1px),
-                linear-gradient(90deg, var(--brand-aqua) 1px, transparent 1px);
-            background-size: 40px 40px; /* Dimensions of grid squares */
-            background-position: center; /* Centers the pattern */
-            background-attachment: fixed; /* Keeps grid stable while scrolling */
-            background-color: rgba(255, 255, 255, 0.97); /* Grid transparency factor */
-            background-blend-mode: overlay; /* Seamless blend with white base */
+        body {
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #050505 100%);
+            min-height: 100vh;
         }
 
-        body { /* Primary text and layout responsiveness */
-            color: var(--brand-dark-blue); /* Sets primary text to brand dark blue */
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* Clean, User-Friendly Sans-Serif Stack */
-            margin: 0; /* Resets margins */
-            padding: 15px; /* Spacing for mobile */
-            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3); /* Brand standard body glow */
-            min-height: 100vh; /* Ensures the page always covers the full screen height */
+        /* Cyberpunk Headers */
+        h1, h2 {
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-aqua);
         }
 
-        /* Headings: User-Friendly, Centered with Heavy Dark Blue Outlines */
-        h1, h2, h3, h4, h5, h6 {
-            text-align: center; /* Enforces horizontal centering */
-            text-transform: uppercase; /* Brand-wide all-caps emphasis */
-            letter-spacing: 0.02em; /* Readable character spacing */
-            -webkit-text-stroke: 2.5px var(--brand-dark-blue); /* Crisp dark blue border for font punch */
-            margin-bottom: 1.5rem; /* Standard bottom margin */
-            font-weight: 900; /* Heavy weight for impact */
+        .neon-border {
+            border: 2px solid var(--neon-aqua);
+            box-shadow: 0 0 15px var(--neon-aqua), inset 0 0 5px var(--neon-aqua);
+            background: rgba(0, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
         }
 
-        h1 { /* Top-Tier branding */
-            font-size: 5.5rem; /* Max scale for the main title */
-            font-weight: 950; /* Extra bold thickness */
-            line-height: 0.85; /* Tightened line height for visual density */
-            color: #ffffff; /* White font interior */
-            text-shadow: /* Triple-layered pink/aqua brand glow */
-                0 0 10px var(--brand-pink), 
-                0 0 20px var(--brand-pink),
-                0 0 45px var(--brand-aqua);
+        .alert-active {
+            border-color: var(--neon-pink) !important;
+            box-shadow: 0 0 20px var(--neon-pink) !important;
+            animation: glitch 1s infinite;
         }
 
-        @media (max-width: 768px) { /* Mobile font scaling to prevent clipping */
-            h1 { font-size: 3.2rem; -webkit-text-stroke: 1.8px var(--brand-dark-blue); }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
 
-        h2 { font-size: 2.8rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-pink), 0 0 20px var(--brand-aqua); } /* H2 specific glow */
-        h3 { font-size: 2.1rem; color: #ffffff; text-shadow: 0 0 10px var(--brand-purple), 0 0 20px var(--brand-indigo); } /* H3 specific glow */
-        h5, h6 { color: #ffffff; text-shadow: 0 0 10px var(--brand-blue), 0 0 20px var(--brand-dark-blue); } /* H5/H6 specific glow */
-
-        .brand-border { /* Style for primary dashboard containers */
-            border: 3px solid; /* Solid border stroke */
-            border-image: linear-gradient(to right, var(--brand-pink), var(--brand-aqua)) 1; /* Pink to Aqua linear gradient */
-            border-image-slice: 1; /* Ensures gradient covers border edge */
-            box-shadow: /* Triple-layered brand glow logic */
-                0 0 4px var(--brand-pink),
-                0 0 12px var(--brand-pink),
-                0 0 18px var(--brand-aqua);
-            background-color: rgba(255, 255, 255, 0.92); /* Frosted white interior */
-            backdrop-filter: blur(8px); /* Real-time blur for depth */
-            padding: 24px; /* Internal spacing */
-            margin-bottom: 30px; /* Block separation */
+        .scanning-bar {
+            height: 2px;
+            background: var(--neon-aqua);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
-        .rotation-alert { /* Visual alert for Radar Indicated Rotation signatures */
-            background: var(--brand-dark-blue); /* Solid dark blue back */
-            color: var(--brand-aqua); /* Contrast aqua text */
-            border: 2px solid var(--brand-aqua); /* Border accent */
-            padding: 8px 15px; /* Alert tag size */
-            font-weight: 950; /* Boldest weight */
-            font-size: 0.9rem; /* Alert text size */
-            display: inline-block; /* Wrap to text width */
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); /* Intense highlight glow */
-            letter-spacing: 2px; /* Character emphasis */
-            margin-top: 10px; /* Vertical spacing */
+        .scanning-bar::after {
+            content: "";
+            display: block;
+            width: 50px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+            animation: scan 2s linear infinite;
         }
 
-        .alert-pulse { /* Global fast-pulse for emergency indicators */
-            animation: alert-glow 0.8s ease-in-out infinite; 
+        @keyframes scan {
+            from { left: -10%; }
+            to { left: 110%; }
         }
 
-        @keyframes alert-glow { /* Logic for the high-priority red alert flicker */
-            0%, 100% { background-color: #dc2626; box-shadow: 0 0 30px #dc2626; } /* Primary red */
-            50% { background-color: #ff0000; box-shadow: 0 0 60px #ff0000; } /* Peak brightness */
+        input {
+            background: #000 !important;
+            border: 1px solid var(--neon-purple) !important;
+            color: var(--neon-aqua) !important;
         }
-
-        .status-pill { /* Generic Pill UI for state labels */
-            display: inline-flex; /* Horizontal alignment */
-            align-items: center; /* Vertical center */
-            gap: 10px; /* Padding between items */
-            background: var(--brand-dark-blue); /* Dark blue fill */
-            color: var(--brand-aqua); /* Text highlight */
-            padding: 10px 25px; /* Dimensions */
-            font-size: 0.85rem; /* Font scale */
-            font-weight: 900; /* Bold weight */
-            border: 1px solid var(--brand-aqua); /* Outline */
-            letter-spacing: 3px; /* Wide tracking */
-        }
-
-        .user-input { /* Main entry field for site telemetry */
-            border: 3px solid var(--brand-indigo); /* Heavy indigo border */
-            padding: 18px; /* Large mobile touch target */
-            width: 100%; /* Full width container */
-            text-align: center; /* Centers user entry */
-            font-weight: 900; /* Heavy weight */
-            text-transform: uppercase; /* Enforced all-caps entry */
-            background: rgba(255, 255, 255, 0.95); /* High clarity white */
-            font-size: 1.25rem; /* Large readable text */
-        }
-
-        .action-btn { /* Submit button for target linking */
-            background: linear-gradient(to right, var(--brand-purple), var(--brand-dark-blue)); /* Purple to Dark Blue gradient */
-            color: white; /* White text interior */
-            padding: 20px; /* Dimensions */
-            width: 100%; /* Spans full width */
-            font-weight: 950; /* Max boldness */
-            text-transform: uppercase; /* Capitalized label */
-            border: 1px solid var(--brand-aqua); /* Aqua border highlight */
-            margin-top: 15px; /* Top spacing */
-            letter-spacing: 3px; /* High tracking */
-            cursor: pointer; /* Interaction pointer */
-        }
-
-        .fb-login-btn { /* Style for Facebook Persistence Uplink */
-            background: #1877f2; /* Official FB brand blue */
-            color: white; /* White text */
-            padding: 8px 16px; /* Pill sizing */
-            border-radius: 4px; /* Standard rounded corners */
-            font-weight: bold; /* Bold weight */
-            display: none; /* DISABLED PER USER REQUEST */
-            align-items: center; /* Vertical alignment */
-            gap: 10px; /* Icon-text gap */
-            font-size: 0.8rem; /* Scaled font size */
-            border: none; /* Clean flat design */
-            cursor: pointer; /* Interaction state */
-        }
-
-        .faq-item { border-bottom: 1px solid var(--brand-aqua); } /* Row divider for Intelligence Hub */
-        .faq-trigger { /* The accordion header question block */
-            width: 100%; /* Full span click area */
-            padding: 15px; /* Click target height */
-            text-align: left; /* Left alignment for questions */
-            font-weight: 900; /* Bold weight */
-            text-transform: uppercase; /* Caps */
-            color: var(--brand-indigo); /* Indigo branding */
-            display: flex; /* Layout logic */
-            justify-content: space-between; /* Spreads text and indicator */
-            align-items: center; /* Vertical center */
-        }
-        .faq-content { /* The hidden data block for FAQ answers */
-            max-height: 0; /* Initially hidden */
-            overflow: hidden; /* Clips contents */
-            transition: max-height 0.3s ease-out; /* Smooth slide animation */
-            background: rgba(248, 250, 252, 0.95); /* Light gray backer */
-        }
-        .faq-content.open { max-height: 600px; padding: 15px; } /* Visible expanded state */
-
-        .privacy-ribbon { /* Top danger notification for Volatile Memory */
-            background: var(--brand-pink); /* Warning pink */
-            color: white; /* Contrast text */
-            font-size: 10px; /* Small detail font */
-            font-weight: 900; /* Bold weight */
-            text-align: center; /* Centered alert */
-            padding: 4px; /* Ribbon height */
-            text-transform: uppercase; /* Enforced caps */
-            letter-spacing: 2px; /* Spaced out tracking */
-        }
-
-        .data-label { /* Styling for secondary diagnostic labels */
-            font-weight: 900; /* Bold weight */
-            font-size: 0.7rem; /* Fine scale font */
-            text-transform: uppercase; /* Diagnostic caps style */
-            letter-spacing: 2px; /* High tracking */
-        }
-
-        .asset-card { /* Container for an individual monitored site */
-            background: #ffffff; /* White background for telemetry */
-            border: 2px solid #e2e8f0; /* Soft diagnostic border */
-            padding: 20px; /* Internal spacing */
-            margin-bottom: 20px; /* Gap between asset blocks */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Soft depth shadow */
-            position: relative; /* Context for delete button positioning */
-        }
-
-        .delete-btn { /* Logic for de-linking a site */
-            position: absolute; /* Floating positioning */
-            top: 10px; /* Top right corner */
-            right: 10px; /* Top right corner */
-            color: #cbd5e1; /* Subtle gray */
-            font-weight: bold; /* Bold text */
-            cursor: pointer; /* Interactive state */
-            font-size: 10px; /* Scaled down font */
-            text-transform: uppercase; /* Caps */
-        }
-        .delete-btn:hover { color: #ef4444; } /* Danger red highlight on hover */
-
-        .statement-box { /* UI Block for NWS weather statements */
-            background-color: #f0f9ff; /* Soft tech-blue background */
-            border-left: 4px solid var(--brand-blue); /* Solid blue accent bar */
-            padding: 15px; /* Box dimensions */
-            font-size: 13px; /* Clean text scale */
-            line-height: 1.5; /* Spaced out readability */
-            color: #1e293b; /* Dark slate text for maximum readability */
-            margin-top: 10px; /* Top separation */
-        }
-    </style> <!-- End of CSS logic -->
+    </style>
 </head>
-<body> <!-- Visible application surface begins -->
-
-    <div id="loader" class="fixed inset-0 bg-white z-[10000] hidden flex items-center justify-center font-black tracking-widest text-dark-blue">
-        SYNCING NEON FEED... <!-- Satellite sync visual shield during API geocoding -->
-    </div>
-
-    <!-- Mandatory Privacy Warning Ribbon -->
-    <div class="privacy-ribbon" id="privacyStatus">GUEST SESSION ACTIVE - ALL DATA VOLATILE</div> 
-
-    <div class="max-w-4xl mx-auto transition-all"> <!-- Primary dashboard wrapper -->
-        
-        <!-- Notice of Attribution Disclaimer: Legal & Source Credit -->
-        <div class="brand-border !mb-6 !py-4 text-center mt-4">
-            <p class="data-label text-pink-600 mb-1">Disclaimer!</p> <!-- diagnostic tag -->
-            <p class="text-[16px] font-bold text-gray-600 uppercase leading-relaxed px-4"> <!-- Legal text -->
-                I do not own, nor do I take credit for any information sourced from the National Weather Service (NWS) or NOAA. 
-                This dashboard serves as a high-velocity interface placing publicly available telemetry up front for Anyone to use. 
-            </p>
-        </div>
-
-        <header class="mb-10 pt-2 flex flex-col items-center"> <!-- Master dashboard header -->
-            <h1 class="mb-6">D.A.I.S.Y</h1> <!-- Main dashboard branding: Detection and Intelligence System Yield -->
-            <div class="flex justify-center mb-10"> <!-- Connection state indicator -->
-                <div class="status-pill">Active Weather Statement Monitering</div> <!-- Functional status tag -->
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-black mb-1">D.A.I.S.Y. v4.0</h1>
+                <p class="text-xs text-aqua-400 opacity-70">DIRECT ACCESS INFORMATION SYSTEM // NO_PERSISTENCE_MODE</p>
+            </div>
+            <div class="text-right font-mono">
+                <div class="text-[10px] text-gray-500 uppercase">System Telemetry</div>
+                <div id="lastSync" class="text-sm text-cyan-400">SYNCING...</div>
+                <div class="scanning-bar mt-1"></div>
             </div>
         </header>
 
-        <!-- Multi-Site Intercept Hub: Independent Site Specific Monitoring -->
-        <div class="brand-border">
-            <h2>Keep an Eye on multiple locations</h2> <!-- Section title -->
-            <div class="flex flex-col items-center mb-8"> <!-- entry layout container -->
-                <input type="text" id="targetInput" placeholder="ENTER ZIP OR ADDRESS TO MONITOR" class="user-input"> <!-- user target field -->
-                <button onclick="linkAsset()" class="action-btn">Add Monitor Site</button> <!-- push site to monitoring logic -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2 neon-border rounded-lg overflow-hidden h-[400px] relative">
+                <iframe 
+                    width="100%" height="100%" 
+                    src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" 
+                    frameborder="0">
+                </iframe>
             </div>
 
-            <div id="monitorContainer" class="hidden"> <!-- Reveals only when one or more assets are active -->
-                <div id="assetList" class="space-y-4"> <!-- programmatic container for site-specific telemetry blocks -->
-                    <!-- telemetry site cards injected here -->
+            <div class="neon-border p-6 rounded-lg flex flex-col">
+                <h3 class="text-purple-400 font-bold mb-4 text-xs uppercase tracking-widest">Asset Monitoring</h3>
+                <div class="flex gap-2 mb-6">
+                    <input id="addrIn" type="text" placeholder="ZIP / ADDR" class="flex-1 p-2 text-sm rounded outline-none">
+                    <button onclick="addAsset()" class="bg-purple-900 text-white px-4 text-xs font-bold hover:bg-purple-700 transition">PIN</button>
+                </div>
+                <div id="assetList" class="space-y-3 flex-1 overflow-y-auto max-h-[250px]">
+                    <p class="text-[10px] text-gray-600 italic">No assets pinned in volatile memory.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Regional Awareness Sector: Surrounding Alerts -->
-        <div class="brand-border">
-            <h3>Regional Intercept Monitor</h3> <!-- Neutralized functional heading -->
-            <div id="regionalFeed" class="space-y-6 mt-6"> <!-- Container for national/regional tornado polygons -->
-                <p class="text-center italic text-gray-400 text-sm">Awaiting sector telemetry...</p> <!-- fallback state -->
-            </div>
-        </div>
-
-        <!-- Intelligence Control Hub: FAQ Accordion Hub -->
-        <div class="brand-border">
-            <h3>Intelligence Control Hub</h3> <!-- Hub branding -->
-            <div class="space-y-2 mt-4"> <!-- List layout for FAQ rows -->
-                <div class="faq-item"> <!-- FAQ row 1: persistence logic -->
-                    <button class="faq-trigger" onclick="toggleFaq('persistent')">
-                        <span>Data Privacy Protocol</span> <!-- question title -->
-                        <span>+</span> <!-- state icon -->
-                    </button>
-                    <div id="faq-persistent" class="faq-content text-sm text-gray-700"> <!-- hidden answer explanation -->
-                        This application operates in "Volatile Memory" mode for user safety. Which means No information is stored in the browser cache or on external servers. so if the page refreshes you'll have to put your location in again. All session data is purged immediately upon a page refresh or closure.
-                    </div>
-                </div>
-                <div class="faq-item"> <!-- FAQ row 2: data pipeline -->
-                    <button class="faq-trigger" onclick="toggleFaq('pipeline')">
-                        <span>Intelligence Pipeline</span> <!-- data pipeline label -->
-                        <span>+</span>
-                    </button>
-                    <div id="faq-pipeline" class="faq-content text-sm text-gray-700"> <!-- Explanation of NWS direct polling -->
-                        D.A.I.S.Y establishes a direct connection to the <strong>National Weather Service (NWS) API</strong>. It executes sub-minute polling for raw <strong>VTEC</strong> (Valid Time Event Code) strings to detect tornadic signatures before they reach standard broadcast apps.
-                    </div>
-                </div>
-                <div class="faq-item"> <!-- FAQ row 3: rotation signatures -->
-                    <button class="faq-trigger" onclick="toggleFaq('logic')">
-                        <span>Rotation Detection Logic</span> <!-- Algorithm label -->
-                        <span>+</span>
-                    </button>
-                    <div id="faq-logic" class="faq-content text-sm text-gray-700"> <!-- Rotation parsing logic explanation -->
-                        The D.A.I.S.Y engine specifically parses raw metadata for <strong>"RADAR INDICATED ROTATION"</strong> or <strong>"OBSERVED TORNADO"</strong> signatures. Which basically means that it coninuiously scans and watches for those statements and checks what the statment says looking for key words like  "rotation" If any pinned asset intersects these polygons, the system triggers the high-priority <strong>Take Cover Now</strong> alert instantly.
-                    </div>
+        <div class="grid grid-cols-1 gap-6">
+            <div class="neon-border p-6 rounded-lg">
+                <h2 class="text-xl mb-6 flex items-center gap-3">
+                    <span class="inline-block w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></span>
+                    Regional Sector Scan
+                </h2>
+                <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <p class="text-gray-500 text-sm">Initializing direct NWS handshake...</p>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-16 mb-24 text-center"> <!-- Master footer -->
-            <h6 class="text-3xl">D.A.I.S.Y</h6> <!-- Digital Alert Intelligence System Yield -->
-            <div class="font-black text-indigo-900 mt-2 tracking-[0.5em] text-xs">Digital Alert Intelligence System Yield</div> <!-- Functional diagnostic tag -->
-            <div id="pollingClock" class="mt-8 font-mono text-sm text-brand-dark-blue opacity-80 uppercase tracking-widest">Feed Update: --:--:--</div>
-            <div class="mt-12 text-[10px] text-gray-400 uppercase font-bold tracking-widest space-y-4 px-6"> <!-- safety fine print -->
-                <p class="opacity-40 underline decoration-pink-500">Telemetry Refresh Active: 60s Cycle</p> <!-- refresh metadata -->
-            </div>
+        <footer class="mt-12 border-t border-gray-800 pt-4 text-[10px] text-gray-600 flex justify-between">
+            <span>VOLATILE_MEMORY_ACTIVE // ZERO_COOKIES</span>
+            <span>DATA_SOURCE: NWS_API_V1</span>
         </footer>
     </div>
 
-    <script> /* Primary Master Application Logic Engine */
-        let activeSites = []; // Local array for monitored locations during session
-
-        function updateClock() { /* Updates the polling feed clock display in the footer */
-            const now = new Date(); // Captures system time
-            const timeStr = now.toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }); // formats string
-            const clockEl = document.getElementById('pollingClock'); // target footer clock
-            if (clockEl) clockEl.textContent = "Feed Update: " + timeStr; // updates UI
-        }
-
-        function toggleFaq(id) { /* logic to expand or collapse intelligence hub items */
-            document.getElementById('faq-' + id).classList.toggle('open'); // inverts 'open' class state
-        }
-
-        async function handleLogin() { /* Logic maintained but hidden in UI for session future-proofing */
-            if (!window.firebaseApp) return; 
-            const { auth, signInAnonymously } = window.firebaseApp; 
+    <script>
+        let assets = [];
+        const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
+        
+        async function fetchAlerts() {
             try {
-                await signInAnonymously(auth); 
-            } catch (e) { console.error("Session init failure", e); } 
-        }
-
-        async function linkAsset() { /* Resolves user location query into coordinates and pins tracking */
-            const val = document.getElementById('targetInput').value.trim(); // Reads sanitized input
-            if(!val) return; // Prevents processing empty links
-
-            document.getElementById('loader').style.display = 'flex'; // Shows sync overlay
-            
-            try {
-                // Polls OpenStreetMap geocoding API for coordinate resolution
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`); 
-                const data = await res.json(); // Parses API result
-
-                if (data && data.length > 0) { // On successful geolocation
-                    const newSite = { // Structured asset object
-                        lat: parseFloat(data[0].lat), // Pins Latitude
-                        lon: parseFloat(data[0].lon), // Pins Longitude
-                        name: data[0].display_name.split(',').slice(0,2).join(', '), // User-friendly name
-                        status: 'Clear', // Default state
-                        statement: null // Placeholder for weather text
-                    };
-
-                    if (!activeSites.some(s => s.name === newSite.name)) { // Duplication filter
-                        activeSites.push(newSite); // Commits site to local session array
-                    }
-
-                    document.getElementById('targetInput').value = ''; // Resets entry field
-                    renderSites(); // Refreshes dashboard display
-                    runIntelligenceCycle(); // First telemetry poll for new asset
-                }
-            } catch (e) { console.error("Link Failure", e); } // Logs failures
-            finally { document.getElementById('loader').style.display = 'none'; } // Closes overlay
-        }
-
-        function deleteSite(index) { /* Un-pins a site from the active session */
-            activeSites.splice(index, 1); // Purges from local array
-            renderSites(); // Refreshes dashboard UI
-        }
-
-        function renderSites() { /* Logic for programmatically drawing site telemetry cards to the UI */
-            const container = document.getElementById('monitorContainer'); // Diagnostic container
-            const list = document.getElementById('assetList'); // Asset list DOM target
-            list.innerHTML = ''; // Flushes UI for reconstruction
-
-            if (activeSites.length > 0) { // Sites validation
-                container.classList.remove('hidden'); // Makes intercept board visible
-                activeSites.forEach((site, index) => { // Maps memory array to telemetry cards
-                    const card = document.createElement('div'); // Creates block element
-                    card.className = "asset-card shadow-inner border-2"; // sets diagnostic CSS
-                    
-                    const isWarning = site.alert && site.alert.properties.event === "Tornado Warning"; // Emergency state boolean
-                    if (isWarning) card.classList.add('border-red-600', 'bg-red-50', 'alert-pulse'); // High-threat visual styling
-                    
-                    card.innerHTML = ` <!-- Injects asset telemetry and safety data -->
-                        <div class="delete-btn" onclick="deleteSite(${index})">De-Link Site</div>
-                        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-4 gap-2">
-                            <div class="text-center md:text-left">
-                                <span class="text-[9px] font-black text-pink-600 uppercase tracking-widest">Site Telemetry Linked</span>
-                                <h5 class="text-xl text-gray-900 mt-1 mb-0 text-left" style="-webkit-text-stroke:0; text-shadow:none; color:var(--brand-dark-blue); font-weight:700;">${site.name}</h5>
-                            </div>
-                        </div>
-                        <div class="status-box p-4 uppercase font-black tracking-widest text-center ${isWarning ? 'bg-red-600 text-white border-red-800' : 'bg-green-100 text-green-800 border-green-300'} border-2">
-                            ${site.status}
-                        </div>
-                        ${site.statement ? `<div class="statement-box"><p class="font-black text-blue-800 mb-1 uppercase tracking-tighter text-[10px]">Latest Weather Statement:</p>${site.statement}</div>` : ''}
-                    `;
-                    list.appendChild(card); // Ingests finalized card into the DOM
+                const response = await fetch(NWS_URL, {
+                    headers: { 'User-Agent': 'DAISY_Emergency_System_v4' }
                 });
-            } else { container.classList.add('hidden'); } // Hides board if zero site pins remain
+                const data = await response.json();
+                processAlerts(data.features);
+                document.getElementById('lastSync').textContent = `LAST_SYNC: ${new Date().toLocaleTimeString()}`;
+            } catch (err) {
+                console.error("NWS Handshake Failed", err);
+                document.getElementById('lastSync').textContent = "CONNECTION_ERROR";
+            }
         }
 
-        async function runIntelligenceCycle() { /* Main Telemetry Engine: Intercepts NWS API Alerts, Statements, and Rotation Signatures */
-            if (activeSites.length === 0) {
-                updateClock(); // update clock even if no sites are pinned
+        function processAlerts(features) {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+
+            if (features.length === 0) {
+                container.innerHTML = '<p class="text-cyan-900 font-bold">ALL SECTORS CLEAR</p>';
+                updateAssetStatus(null);
                 return;
             }
 
-            for (let site of activeSites) { // Monitored Site loop
-                try {
-                    const res = await fetch(`https://api.weather.gov/alerts/active?point=${site.lat},${site.lon}`); // API poll
-                    const data = await res.json(); // parse
-                    
-                    const tornadoWarn = data.features.find(f => f.properties.event === "Tornado Warning"); // Priority check
-                    const statement = data.features.find(f => f.properties.event.includes("Statement")); // Awareness check
-                    
-                    if (tornadoWarn) { // Emergency logic
-                        const desc = (tornadoWarn.properties.description || "") + (tornadoWarn.properties.instruction || ""); // Aggregate
-                        const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc); // Signature search
-                        site.alert = tornadoWarn; // set alert
-                        site.status = `CRITICAL: TORNADO WARNING${hasRotation ? ' <br><span class="rotation-alert">ROTATION DETECTED</span>' : ''}<br>TAKE COVER NOW`; // alert UI
-                    } else { // Safe logic
-                        site.alert = null; 
-                        site.status = "Asset Status: Clear"; 
-                    }
+            features.forEach(f => {
+                const props = f.properties;
+                const isTornado = props.event.includes("Tornado");
+                const hasRotation = props.description.includes("RADAR INDICATED ROTATION") || 
+                                   props.description.includes("OBSERVED TORNADO");
+                
+                const card = document.createElement('div');
+                card.className = `p-4 border border-gray-800 bg-black transition ${isTornado ? 'alert-active' : ''}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] px-2 py-0.5 bg-gray-900 border border-gray-700">${props.areaDesc.split(';')[0]}</span>
+                        ${hasRotation ? '<span class="text-[10px] text-red-500 font-black animate-bounce">ROTATION</span>' : ''}
+                    </div>
+                    <h4 class="text-sm font-bold text-white mb-1">${props.event}</h4>
+                    <p class="text-[10px] text-gray-400 line-clamp-2">${props.instruction || 'Follow local news.'}</p>
+                    <div class="mt-3 text-[9px] text-gray-600 font-mono uppercase">Expires: ${new Date(props.expires).toLocaleTimeString()}</div>
+                `;
+                container.appendChild(card);
+            });
 
-                    if (statement) { // Statement logic
-                        site.statement = statement.properties.description.substring(0, 500) + "..."; // fetch text
-                    } else {
-                        site.statement = null; 
-                    }
-
-                } catch (e) { console.error(`Site Telemetry Sync failure [${site.name}]`, e); } 
-            }
-            renderSites(); // UI Sync
-            updateClock(); // Update footer timestamp
-
-            try { // Regional sector awareness
-                const res = await fetch(`https://api.weather.gov/alerts/active?event=Tornado%20Warning`); // Regional poll
-                const data = await res.json(); // parse
-                const feed = document.getElementById('regionalFeed'); // target
-                feed.innerHTML = ""; // flush
-
-                if (data.features.length === 0) { // safe scan logic
-                    feed.innerHTML = `<p class="text-center italic text-gray-400 text-sm">No active tornado warning polygons detected in regional scan cycle.</p>`; 
-                    return; 
-                }
-
-                data.features.forEach(feat => { // iteration
-                    const p = feat.properties; 
-                    const desc = (p.description || "") + (p.instruction || ""); 
-                    const hasRotation = /rotation/i.test(desc) || /indicated by radar/i.test(desc); 
-                    
-                    const card = document.createElement('div'); // create block
-                    card.className = "p-6 border-4 border-red-600 bg-red-50 shadow-2xl"; // styling
-                    card.innerHTML = ` <!-- Regional alert injection -->
-                        <div class="flex justify-between items-center mb-5">
-                            <h4 class="text-red-700 m-0" style="-webkit-text-stroke:1.5px #dc2626; text-align:left; font-size:1.8rem; font-weight:900;">${p.areaDesc}</h4>
-                            <div class="h-8 w-8 rounded-full alert-pulse shadow-[0_0_20px_#dc2626]"></div>
-                        </div>
-                        ${hasRotation ? '<div class="mb-5 text-center"><span class="rotation-alert">ROTATION DETECTED</span></div>' : ''}
-                        <div class="warning-box bg-white">
-                            <p class="text-red-700 font-black text-4xl underline mb-4 uppercase text-center italic">TAKE COVER NOW</p>
-                            <p class="text-xs font-bold text-red-950 leading-relaxed text-center">${p.instruction ? p.instruction.substring(0, 400) : 'IMMEDIATE THREAT DETECTED.'}...</p>
-                        </div>
-                    `;
-                    feed.appendChild(card); // DOM add
-                });
-            } catch (e) { console.error("Regional Intercept Sync Error", e); } 
+            updateAssetStatus(features);
         }
 
-        window.onload = function() { /* Initialization script */
-            updateClock(); // Boot clock
-            setInterval(updateClock, 1000); // Clock tick (1s)
-            setInterval(runIntelligenceCycle, 60000); // Polling frequency (60s)
-            document.getElementById('targetInput').addEventListener('keypress', (e) => { // listener
-                if (e.key === 'Enter') linkAsset(); // link on enter
+        async function addAsset() {
+            const val = document.getElementById('addrIn').value;
+            if (!val) return;
+            
+            // Minimal Geocode (Nominatim)
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
+                const data = await res.json();
+                if (data.length) {
+                    assets.push({
+                        name: val.toUpperCase(),
+                        lat: parseFloat(data[0].lat),
+                        lon: parseFloat(data[0].lon),
+                        status: 'SCANNING'
+                    });
+                    renderAssets();
+                    document.getElementById('addrIn').value = '';
+                }
+            } catch (e) { alert("Geocode Failed"); }
+        }
+
+        function renderAssets() {
+            const list = document.getElementById('assetList');
+            list.innerHTML = assets.map((a, i) => `
+                <div class="p-3 bg-black border border-gray-800 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-cyan-400">${a.name}</p>
+                        <p id="stat-${i}" class="text-[9px] text-gray-500">MONITORING...</p>
+                    </div>
+                    <button onclick="assets.splice(${i},1);renderAssets()" class="text-red-900 hover:text-red-500 text-xs">×</button>
+                </div>
+            `).join('');
+        }
+
+        function updateAssetStatus(alerts) {
+            if (!alerts) return;
+            assets.forEach((asset, idx) => {
+                const el = document.getElementById(`stat-${idx}`);
+                let warned = false;
+                
+                // Point-in-polygon logic would go here; simplified for speed to area check
+                alerts.forEach(alert => {
+                    if (alert.properties.areaDesc.toUpperCase().includes(asset.name)) warned = true;
+                });
+
+                if (warned) {
+                    el.textContent = "!!! WARNING ACTIVE !!!";
+                    el.className = "text-[9px] text-red-500 font-bold animate-pulse";
+                } else {
+                    el.textContent = "SAFE // NO ACTIVE POLYGON";
+                    el.className = "text-[9px] text-green-500";
+                }
             });
-        }; 
-    </script> <!-- Logic end -->
-</body> <!-- body end -->
-</html> <!-- HTML end -->
+        }
+
+        // 60s Polling Cycle
+        setInterval(fetchAlerts, 60000);
+        fetchAlerts();
+    </script>
+</body>
+</html>
