@@ -64,7 +64,6 @@
             text-align: center;
         }
 
-        /* CARD STYLES */
         .alert-card {
             background: #ffffff;
             border: 8px solid var(--resting-gray);
@@ -233,7 +232,6 @@
             100% { opacity: 1; }
         }
 
-        /* Accordion Styles */
         .accordion-content {
             max-height: 0;
             overflow: hidden;
@@ -268,7 +266,6 @@
             </div>
         </header>
 
-        <!-- NEW: INSTRUCTIONS PANEL -->
         <div class="brand-border bg-blue-50">
             <h3 class="text-xl mb-2 underline">SYSTEM INSTRUCTIONS</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-bold">
@@ -302,7 +299,6 @@
             </div>
         </div>
 
-        <!-- NEW: FAQ & DISCLAIMER ACCORDION -->
         <div class="brand-border bg-gray-100 mt-10">
             <h3 class="text-2xl mb-6 underline">INFORMATION & LEGAL</h3>
             <div class="w-full max-w-4xl space-y-4">
@@ -477,10 +473,13 @@
                 const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
                 
                 let stateClass = '';
-                if (isDangerousUpdate) {
+                // Tornado Warnings with observed/rotation = RED
+                if (props.event.includes('Tornado Warning') && isDangerousUpdate) {
                     stateClass = isClose ? 'card-emergency' : 'card-rotation-red';
                     if (isClose && audioCtx) shouldSoundAlarm = true;
-                } else if (props.event.includes('WARNING') || props.event.includes('WATCH')) {
+                } 
+                // Severe Thunderstorm Warnings OR Tornado Watches = YELLOW (Caution)
+                else if (props.event.includes('Severe Thunderstorm Warning') || props.event.includes('Tornado Watch') || props.event.includes('Tornado Warning')) {
                     stateClass = 'card-caution';
                 }
 
@@ -504,7 +503,7 @@
                         </div>
                     </div>
                     <div class="alert-bar-bottom">
-                        ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        ENDS AT: ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </div>
                 `;
                 container.appendChild(card);
