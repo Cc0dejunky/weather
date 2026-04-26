@@ -328,9 +328,8 @@
 </head>
 <body>
     <div class="max-w-7xl mx-auto">
-        <!-- System Update Banner -->
         <div id="updateBanner" class="update-banner mb-4">
-            <span class="flex-grow text-center">SYSTEM UPDATE: THE DISTANCE CALCULATION BUG FOR REGIONAL AND MULTI-COUNTY WATCHES HAS BEEN FIXED.</span>
+            <span class="flex-grow text-center">SYSTEM UPDATE: THE RECURSIVE POLYGON DISTANCE CALCULATION BUG FOR LARGE ALERTS HAS BEEN COMPLETELY FIXED.</span>
             <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl hover:text-pink-400">&times;</button>
         </div>
 
@@ -379,7 +378,7 @@
             <div class="w-full max-w-4xl">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                     <div class="w-full">
-                        <input id="addrIn" type="text" placeholder="ADDRESS, CITY, OR COUNTY">
+                        <input id="addrIn" type="text" placeholder="ADDRESS, CITY, OR ZIP CODE">
                         <button onclick="addAsset()" class="btn-pin shadow-lg" id="pinBtn">PIN & ARM ALARM</button>
                         <button onclick="shareApp()" class="btn-share shadow-lg" id="shareBtn">SHARE DAISY</button>
                     </div>
@@ -449,7 +448,11 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const map = document.getElementById('radarMap');
-                    map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=6&level=surface&overlay=radar&product=radar&message=true`;
+                    if (map) {
+                        map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=6&level=surface&overlay=radar&product=radar&message=true`;
+                    }
+                }, () => {
+                    // Fallback handled automatically by Windy
                 });
             }
             fetchAlerts();
@@ -461,7 +464,7 @@
             setInterval(() => {
                 let base = alarmTriggered ? 12 : 3;
                 let flux = Math.floor(Math.random() * 4);
-                watcherEl.textContent = base + flux;
+                if (watcherEl) watcherEl.textContent = base + flux;
             }, 5000);
         }
 
@@ -516,14 +519,44 @@
             return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
         }
 
+        function getMinPolygonDistance(assetLat, assetLon, geometryCoordinates) {
+            let minDist = 9999;
+            let closestPt = null;
+
+            function traverse(arr) {
+                if (!Array.isArray(arr)) return;
+                if (arr.length >= 2 && typeof arr[0] === 'number' && typeof arr[1] === 'number') {
+                    const d = getDistance(assetLat, assetLon, arr[1], arr[0]);
+                    if (d < minDist) {
+                        minDist = d;
+                        closestPt = arr;
+                    }
+                } else {
+                    for (let i = 0; i < arr.length; i++) {
+                        traverse(arr[i]);
+                    }
+                }
+            }
+
+            traverse(geometryCoordinates);
+            return { minDist, closestPt };
+        }
+
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Mobile_v2' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Mobile_v4' } });
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
                 const data = await response.json();
+                if (!data || !data.features) {
+                    throw new Error("Invalid NWS data format");
+                }
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
             } catch (err) { 
-                document.getElementById('lastSync').textContent = "OFFLINE"; 
+                console.error("Data Fetch Error:", err);
+                document.getElementById('lastSync').textContent = "OFFLINE - RETRYING..."; 
             }
         }
 
@@ -532,14 +565,19 @@
             container.innerHTML = '';
             let shouldSoundAlarm = false;
 
-            if (!features || features.length === 0) {
+            if (!Array.isArray(features) || features.length === 0) {
                 container.innerHTML = '<p class="text-xl md:text-2xl font-black text-green-700 col-span-full uppercase text-center p-4">NO ACTIVE THREATS DETECTED NATIONWIDE.</p>';
                 return;
             }
 
             features.forEach(f => {
-                const props = f.properties;
-                const text = (props.description + " " + props.instruction).toUpperCase();
+                const props = f.properties || {};
+                const description = props.description || "";
+                const instruction = props.instruction || "";
+                const text = (description + " " + instruction).toUpperCase();
+                const eventTitle = props.event || "UNKNOWN ALERT";
+                const areaDesc = props.areaDesc || "UNKNOWN AREA";
+                const expires = props.expires ? new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "UNKNOWN";
                 
                 f.keywords = {
                     rotation: text.includes("ROTATION"),
@@ -547,65 +585,69 @@
                     possible: text.includes("TORNADO...POSSIBLE") || text.includes("RADAR INDICATED"),
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
-
-                // Safely extract coordinates from complex geometries
-                let coords = null;
-                if (f.geometry && f.geometry.coordinates) {
-                    let pt = f.geometry.coordinates;
-                    // Keep digging until we find the array containing [lon, lat]
-                    while (Array.isArray(pt) && Array.isArray(pt[0])) {
-                        pt = pt[0];
-                    }
-                    if (pt && pt.length >= 2 && !Array.isArray(pt[0])) {
-                        coords = pt;
-                    }
-                }
                 
                 if (assets.length > 0) {
-                    if (coords) {
-                        f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
-                        
-                        if (f.keywords.vector) {
-                            const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
-                            if (stormDir !== undefined) {
-                                f.headedTowards = assets.some(a => {
-                                    const bearingToAsset = getBearing(coords[1], coords[0], a.lat, a.lon);
-                                    const diff = Math.abs(stormDir - bearingToAsset);
-                                    const normalizedDiff = Math.min(diff, 360 - diff);
-                                    return normalizedDiff < 45; 
-                                });
-                            }
+                    if (f.geometry && f.geometry.coordinates) {
+                        let overallMinDist = 9999;
+                        let bestPt = null;
 
-                            if (f.headedTowards && f.minDist < 999) {
-                                const speedMph = parseInt(f.keywords.vector[2], 10);
-                                if (speedMph > 0) {
-                                    f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                        assets.forEach(a => {
+                            const result = getMinPolygonDistance(a.lat, a.lon, f.geometry.coordinates);
+                            if (result.minDist < overallMinDist) {
+                                overallMinDist = result.minDist;
+                                bestPt = result.closestPt;
+                            }
+                        });
+
+                        if (bestPt && overallMinDist < 9999) {
+                            f.minDist = overallMinDist;
+                            
+                            if (f.keywords.vector) {
+                                const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
+                                if (stormDir !== undefined) {
+                                    f.headedTowards = assets.some(a => {
+                                        const bearingToAsset = getBearing(bestPt[1], bestPt[0], a.lat, a.lon);
+                                        const diff = Math.abs(stormDir - bearingToAsset);
+                                        const normalizedDiff = Math.min(diff, 360 - diff);
+                                        return normalizedDiff < 45; 
+                                    });
+                                }
+
+                                if (f.headedTowards && f.minDist < 999) {
+                                    const speedMph = parseInt(f.keywords.vector[2], 10);
+                                    if (speedMph > 0) {
+                                        f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                                    }
                                 }
                             }
+                        } else {
+                            f.minDist = 999;
                         }
                     } else {
-                        // Alert has no specific coordinates (broad regional watch)
                         f.minDist = 999;
                     }
                 } else { 
                     f.minDist = 999; 
                 }
+                
+                f.displayEvent = eventTitle;
+                f.displayArea = areaDesc;
+                f.displayExpires = expires;
             });
 
             features.sort((a, b) => a.minDist - b.minDist);
 
             features.forEach(f => {
-                const props = f.properties;
                 const isClose = f.minDist < 20;
                 const isImminentThreat = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
                 const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
                 
                 let stateClass = '';
-                if (props.event.includes('Tornado Warning') && isDangerousUpdate) {
+                if (f.displayEvent.includes('Tornado Warning') && isDangerousUpdate) {
                     stateClass = isClose || (f.etaMinutes && f.etaMinutes < 30) ? 'card-emergency' : 'card-rotation-red';
                     if (isImminentThreat && audioCtx) shouldSoundAlarm = true;
                 } 
-                else if (props.event.includes('Severe Thunderstorm Warning') || props.event.includes('Tornado Watch') || props.event.includes('Tornado Warning')) {
+                else if (f.displayEvent.includes('Severe Thunderstorm Warning') || f.displayEvent.includes('Tornado Watch') || f.displayEvent.includes('Tornado Warning')) {
                     stateClass = 'card-caution';
                 }
 
@@ -640,18 +682,18 @@
                 if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
 
                 card.innerHTML = `
-                    <div class="alert-bar-top">${props.event}</div>
+                    <div class="alert-bar-top">${f.displayEvent}</div>
                     <div class="alert-inner-container">
                         <div class="w-full text-center p-3 mb-4 font-black flex flex-col ${distBg}">
                             <span class="text-2xl md:text-3xl">${distText}</span>
                             <span class="text-xs md:text-sm uppercase tracking-wider mt-1">${distSubtext}</span>
                         </div>
-                        <div class="notification-box text-sm md:text-base">${props.areaDesc}</div>
+                        <div class="notification-box text-sm md:text-base">${f.displayArea}</div>
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
                             ${tagsHtml}
                         </div>
                     </div>
-                    <div class="alert-bar-bottom text-sm md:text-base">ENDS AT: ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div class="alert-bar-bottom text-sm md:text-base">ENDS AT: ${f.displayExpires}</div>
                 `;
                 container.appendChild(card);
             });
@@ -670,12 +712,35 @@
             btn.textContent = "SEARCHING...";
             
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`, {
+                    headers: { 'User-Agent': 'DAISY_Emergency_System_v1' }
+                });
+                
+                if (!res.ok) {
+                    throw new Error("Search provider error");
+                }
+                
                 const data = await res.json();
-                if (data.length) {
-                    assets.push({ id: Date.now(), name: val.toUpperCase(), lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) });
+                if (Array.isArray(data) && data.length > 0) {
+                    const nameParts = data[0].display_name.split(',');
+                    let displayName = val.toUpperCase();
+                    if (nameParts.length >= 2) {
+                        displayName = (nameParts[0] + ',' + nameParts[1]).trim().toUpperCase();
+                    }
+                    
+                    const newLat = parseFloat(data[0].lat);
+                    const newLon = parseFloat(data[0].lon);
+                    
+                    assets.push({ id: Date.now(), name: displayName, lat: newLat, lon: newLon });
                     input.value = '';
-                    input.placeholder = "ADDRESS, CITY, OR COUNTY";
+                    input.placeholder = "ADDRESS, CITY, OR ZIP CODE";
+                    
+                    // State Sync Upgrade: Move map to new pinned asset
+                    const map = document.getElementById('radarMap');
+                    if (map) {
+                        map.src = `https://embed.windy.com/embed2.html?lat=${newLat}&lon=${newLon}&zoom=8&level=surface&overlay=radar&product=radar&message=true`;
+                    }
+                    
                     renderAssets();
                     fetchAlerts();
                 } else {
@@ -683,7 +748,7 @@
                     input.placeholder = "NOT FOUND - TRY ADDING STATE";
                 }
             } catch (e) { 
-                console.error(e); 
+                console.error("Search Error:", e); 
                 input.value = '';
                 input.placeholder = "SEARCH ERROR";
             } finally {
@@ -695,7 +760,7 @@
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
                 <div class="p-3 border-2 border-darkblue bg-blue-50 flex items-center justify-between w-full sm:w-auto shadow-sm">
-                    <p class="text-sm font-black uppercase truncate pr-4">${a.name}</p>
+                    <p class="text-sm font-black uppercase truncate pr-4" title="${a.name}">${a.name}</p>
                     <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="bg-red-800 text-white px-4 py-2 rounded font-black text-sm uppercase shadow-md active:bg-red-900 transition-colors">X</button>
                 </div>
             `).join('');
@@ -720,7 +785,7 @@
                     setTimeout(() => { btn.textContent = originalText; }, 2000);
                 }
             } catch (err) {
-                console.error('Error sharing:', err);
+                console.error('Sharing failed or cancelled:', err);
             }
         }
 
