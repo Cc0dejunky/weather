@@ -24,6 +24,8 @@
             font-family: ui-sans-serif, system-ui, sans-serif;
             margin: 0;
             padding: 10px;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         h1, h2 { 
@@ -176,6 +178,17 @@
             animation: pulse-indigo 1.5s infinite;
         }
 
+        .eta-tag {
+            background-color: var(--indigo);
+            border: 1px solid #fff;
+        }
+
+        .possible-tag {
+            background-color: var(--caution-orange);
+            color: #000;
+            border: 1px solid #000;
+        }
+
         @keyframes pulse-indigo {
             0% { background-color: #1e1b4b; }
             50% { background-color: #4338ca; }
@@ -257,12 +270,28 @@
             width: 100%;
             text-align: left;
         }
+
+        /* Fixes scrolling trap on the map */
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .map-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent;
+            z-index: 10;
+        }
+        .map-wrapper:hover .map-overlay, .map-wrapper:active .map-overlay {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="max-w-7xl mx-auto">
         <header class="header-block">
-            <h1 class="text-3xl md:text-5xl">D.A.I.S.Y. // REGIONAL FOCUS</h1>
+            <h1 class="text-3xl md:text-5xl">D.A.I.S.Y. // NATIONAL FOCUS</h1>
             <div class="flex flex-col md:flex-row justify-between items-center mt-4 border-t-2 border-gray-700 pt-4 gap-4">
                 <div class="flex items-center">
                     <span class="font-black text-sm md:text-xl uppercase text-yellow-400" id="audioStatus">AUDIO ALARMS: ARMED ON FIRST PIN</span>
@@ -284,15 +313,19 @@
 
         <div class="brand-border bg-blue-50">
             <h3 class="text-xl mb-2 underline">SYSTEM INSTRUCTIONS</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-bold">
+            <p class="text-xs font-bold text-center mb-4 uppercase text-purple-800">If you input your information and don't see anything, there are no active weather alerts for your location.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-bold w-full">
                 <div class="p-2 border border-blue-200">1. PIN your location to enable distance tracking.</div>
                 <div class="p-2 border border-blue-200">2. WATCH the map. Red flashing indicates local threat.</div>
                 <div class="p-2 border border-blue-200">3. ALARM triggers for rotation within 20 miles.</div>
             </div>
         </div>
 
-        <div class="brand-border overflow-hidden h-[300px] md:h-[350px] mb-8 p-0" id="mapContainer">
-            <iframe id="radarMap" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=8&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
+        <div class="brand-border overflow-hidden h-[300px] md:h-[400px] mb-8 p-0" id="mapContainer">
+            <div class="map-wrapper">
+                <div class="map-overlay" title="Hover or tap to interact with the map"></div>
+                <iframe id="radarMap" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=5&level=surface&overlay=radar&product=radar&message=true" frameborder="0"></iframe>
+            </div>
         </div>
 
         <div class="brand-border">
@@ -311,7 +344,7 @@
         <div class="brand-border bg-gray-50">
             <h2 class="text-3xl md:text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
             <div id="alertsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-                <p class="text-xl font-bold text-darkblue col-span-full text-center">Scanning NWS OK/AR Sectors...</p>
+                <p class="text-xl font-bold text-darkblue col-span-full text-center">Scanning National Weather Service...</p>
             </div>
         </div>
 
@@ -324,7 +357,16 @@
                         <span>+</span>
                     </div>
                     <div class="accordion-content text-sm font-bold p-4 bg-white">
-                        DAISY pulls live data directly from the National Weather Service (NWS) and NOAA.
+                        DAISY pulls live data directly from the National Weather Service (NWS) and NOAA APIs covering the entire United States.
+                    </div>
+                </div>
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-2 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        Predictive Logic & ETA
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white">
+                        The system scans NWS data for vector speeds and calculates an Estimated Time of Arrival (ETA) if a storm is on a heading within 45 degrees of your pinned assets. It also searches for early warning indicators such as "TORNADO POSSIBLE" in standard thunderstorm warnings.
                     </div>
                 </div>
                 <div class="accordion-item border-b-2 border-darkblue pb-2">
@@ -342,7 +384,8 @@
 
     <script>
         let assets = [];
-        const NWS_URL = "https://api.weather.gov/alerts/active?area=AR,OK&event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
+        // Upgraded: Removed area=AR,OK to scan the entire US for threats.
+        const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
         
         let audioCtx;
         let alarmTriggered = false;
@@ -360,7 +403,7 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     const map = document.getElementById('radarMap');
-                    map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=8&level=surface&overlay=radar&product=radar&message=true`;
+                    map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=6&level=surface&overlay=radar&product=radar&message=true`;
                 });
             }
             fetchAlerts();
@@ -429,7 +472,7 @@
 
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v7' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v8' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
@@ -444,16 +487,19 @@
             let shouldSoundAlarm = false;
 
             if (!features || features.length === 0) {
-                container.innerHTML = '<p class="text-2xl font-black text-green-700 col-span-full uppercase text-center">NO ACTIVE THREATS DETECTED.</p>';
+                container.innerHTML = '<p class="text-2xl font-black text-green-700 col-span-full uppercase text-center">NO ACTIVE THREATS DETECTED NATIONWIDE.</p>';
                 return;
             }
 
             features.forEach(f => {
                 const props = f.properties;
                 const text = (props.description + " " + props.instruction).toUpperCase();
+                
+                // Predictive Upgrade: Expanded Keyword Detection
                 f.keywords = {
                     rotation: text.includes("ROTATION"),
                     observed: text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND"),
+                    possible: text.includes("TORNADO...POSSIBLE") || text.includes("RADAR INDICATED"),
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
 
@@ -472,6 +518,14 @@
                                 return normalizedDiff < 45; 
                             });
                         }
+
+                        // Predictive Upgrade: Time-to-Impact ETA Math
+                        if (f.headedTowards && f.minDist < 999) {
+                            const speedMph = parseInt(f.keywords.vector[2], 10);
+                            if (speedMph > 0) {
+                                f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                            }
+                        }
                     }
                 } else { 
                     f.minDist = 999; 
@@ -483,12 +537,14 @@
             features.forEach(f => {
                 const props = f.properties;
                 const isClose = f.minDist < 20;
+                // Trigger alarm if it's observed/rotating and either extremely close OR headed straight for you within 45 mins
+                const isImminentThreat = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
                 const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
                 
                 let stateClass = '';
                 if (props.event.includes('Tornado Warning') && isDangerousUpdate) {
-                    stateClass = isClose ? 'card-emergency' : 'card-rotation-red';
-                    if (isClose && audioCtx) shouldSoundAlarm = true;
+                    stateClass = isClose || (f.etaMinutes && f.etaMinutes < 30) ? 'card-emergency' : 'card-rotation-red';
+                    if (isImminentThreat && audioCtx) shouldSoundAlarm = true;
                 } 
                 else if (props.event.includes('Severe Thunderstorm Warning') || props.event.includes('Tornado Watch') || props.event.includes('Tornado Warning')) {
                     stateClass = 'card-caution';
@@ -496,15 +552,24 @@
 
                 const card = document.createElement('div');
                 card.className = `alert-card ${stateClass}`;
+                
+                let tagsHtml = '';
+                if (f.headedTowards) tagsHtml += '<span class="keyword-tag headed-tag">HEADED TOWARDS YOU</span>';
+                // Predictive UI Upgrade: Show ETA tag if calculated
+                if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag eta-tag">ETA: ${f.etaMinutes} MINS</span>`;
+                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-600">CONFIRMED</span>';
+                if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>';
+                // Predictive UI Upgrade: Early warning tag for possible tornadoes inside thunderstorm warnings
+                if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag possible-tag">TORNADO POSSIBLE</span>';
+                if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
+
                 card.innerHTML = `
                     <div class="alert-bar-top">${props.event}</div>
                     <div class="alert-inner-container">
-                        <div class="distance-badge">${f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : '[Regional]'}</div>
+                        <div class="distance-badge">${f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : '[National]'}</div>
                         <div class="notification-box">${props.areaDesc}</div>
-                        <div class="mt-4 flex flex-wrap justify-center">
-                            ${f.headedTowards ? '<span class="keyword-tag headed-tag bg-indigo-900 border border-white">HEADED TOWARDS YOU</span>' : ''}
-                            ${f.keywords.observed ? '<span class="keyword-tag bg-red-600">CONFIRMED</span>' : ''}
-                            ${f.keywords.rotation ? '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>' : ''}
+                        <div class="mt-4 flex flex-wrap justify-center gap-1">
+                            ${tagsHtml}
                         </div>
                     </div>
                     <div class="alert-bar-bottom">ENDS AT: ${new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
