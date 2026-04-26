@@ -498,7 +498,7 @@
 
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Mobile_v1' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Mobile_v2' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
@@ -528,28 +528,44 @@
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
 
-                const coords = f.geometry ? (Array.isArray(f.geometry.coordinates[0][0]) ? f.geometry.coordinates[0][0] : f.geometry.coordinates[0]) : [-94.39, 35.38];
+                // Safely extract coordinates from complex geometries
+                let coords = null;
+                if (f.geometry && f.geometry.coordinates) {
+                    let pt = f.geometry.coordinates;
+                    // Keep digging until we find the array containing [lon, lat]
+                    while (Array.isArray(pt) && Array.isArray(pt[0])) {
+                        pt = pt[0];
+                    }
+                    if (pt && pt.length >= 2 && !Array.isArray(pt[0])) {
+                        coords = pt;
+                    }
+                }
                 
                 if (assets.length > 0) {
-                    f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
-                    
-                    if (f.keywords.vector) {
-                        const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
-                        if (stormDir !== undefined) {
-                            f.headedTowards = assets.some(a => {
-                                const bearingToAsset = getBearing(coords[1], coords[0], a.lat, a.lon);
-                                const diff = Math.abs(stormDir - bearingToAsset);
-                                const normalizedDiff = Math.min(diff, 360 - diff);
-                                return normalizedDiff < 45; 
-                            });
-                        }
+                    if (coords) {
+                        f.minDist = Math.min(...assets.map(a => getDistance(a.lat, a.lon, coords[1], coords[0])));
+                        
+                        if (f.keywords.vector) {
+                            const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
+                            if (stormDir !== undefined) {
+                                f.headedTowards = assets.some(a => {
+                                    const bearingToAsset = getBearing(coords[1], coords[0], a.lat, a.lon);
+                                    const diff = Math.abs(stormDir - bearingToAsset);
+                                    const normalizedDiff = Math.min(diff, 360 - diff);
+                                    return normalizedDiff < 45; 
+                                });
+                            }
 
-                        if (f.headedTowards && f.minDist < 999) {
-                            const speedMph = parseInt(f.keywords.vector[2], 10);
-                            if (speedMph > 0) {
-                                f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                            if (f.headedTowards && f.minDist < 999) {
+                                const speedMph = parseInt(f.keywords.vector[2], 10);
+                                if (speedMph > 0) {
+                                    f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                                }
                             }
                         }
+                    } else {
+                        // Alert has no specific coordinates (broad regional watch)
+                        f.minDist = 999;
                     }
                 } else { 
                     f.minDist = 999; 
@@ -574,13 +590,16 @@
                 }
 
                 let distBg = 'bg-gray-400 text-white';
-                let distText = f.minDist.toFixed(1) + ' Miles';
+                let distText = f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : 'WATCH AREA';
                 let distSubtext = 'DISTANT - NO IMMEDIATE THREAT';
 
                 if (assets.length === 0) {
                     distBg = 'bg-indigo-900 text-white';
                     distText = '[NATIONAL SCAN]';
                     distSubtext = 'PIN LOCATION TO TRACK DISTANCE';
+                } else if (f.minDist === 999) {
+                    distBg = 'bg-orange-400 text-black';
+                    distSubtext = 'BROAD REGIONAL ALERT - MONITOR';
                 } else if (f.minDist < 20 || (f.etaMinutes && f.etaMinutes <= 30)) {
                     distBg = 'bg-red-600 text-white animate-pulse';
                     distSubtext = 'IMMINENT LOCAL THREAT';
