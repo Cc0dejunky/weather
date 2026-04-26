@@ -110,17 +110,6 @@
             background: #fff;
         }
 
-        .distance-badge {
-            background: var(--resting-gray);
-            color: #ffffff;
-            padding: 5px 20px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            width: 100%;
-            text-align: center;
-        }
-
         .notification-box {
             border: 2px solid #ccc;
             padding: 20px;
@@ -142,14 +131,12 @@
             animation: pulse-red 2s infinite;
         }
         .card-emergency .alert-bar-top, .card-emergency .alert-bar-bottom { background: var(--danger-red) !important; }
-        .card-emergency .distance-badge { background: var(--caution-orange) !important; }
 
         .card-rotation-red {
             border-color: #ffcccc !important;
             box-shadow: 0 0 15px var(--danger-red);
         }
         .card-rotation-red .alert-bar-top, .card-rotation-red .alert-bar-bottom { background: var(--danger-red) !important; }
-        .card-rotation-red .distance-badge { background: var(--caution-orange) !important; }
 
         .card-caution {
             border-color: #ffe4b2 !important;
@@ -271,7 +258,6 @@
             text-align: left;
         }
 
-        /* Fixes scrolling trap on the map */
         .map-wrapper {
             position: relative;
             width: 100%;
@@ -362,11 +348,11 @@
                 </div>
                 <div class="accordion-item border-b-2 border-darkblue pb-2">
                     <div class="accordion-header font-black text-lg py-2 uppercase" onclick="this.parentElement.classList.toggle('active')">
-                        Predictive Logic & ETA
+                        Predictive Logic & Tiers
                         <span>+</span>
                     </div>
                     <div class="accordion-content text-sm font-bold p-4 bg-white">
-                        The system scans NWS data for vector speeds and calculates an Estimated Time of Arrival (ETA) if a storm is on a heading within 45 degrees of your pinned assets. It also searches for early warning indicators such as "TORNADO POSSIBLE" in standard thunderstorm warnings.
+                        DAISY calculates threat tiers based on distance from your pins. Under 20 miles is IMMINENT. Under 100 miles is REGIONAL. Over 100 miles is DISTANT. She also parses vectors to provide an Estimated Time of Arrival (ETA).
                     </div>
                 </div>
                 <div class="accordion-item border-b-2 border-darkblue pb-2">
@@ -384,7 +370,6 @@
 
     <script>
         let assets = [];
-        // Upgraded: Removed area=AR,OK to scan the entire US for threats.
         const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
         
         let audioCtx;
@@ -472,7 +457,7 @@
 
         async function fetchAlerts() {
             try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v8' } });
+                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Speed_v9' } });
                 const data = await response.json();
                 processAlerts(data.features);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
@@ -495,7 +480,6 @@
                 const props = f.properties;
                 const text = (props.description + " " + props.instruction).toUpperCase();
                 
-                // Predictive Upgrade: Expanded Keyword Detection
                 f.keywords = {
                     rotation: text.includes("ROTATION"),
                     observed: text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND"),
@@ -519,7 +503,6 @@
                             });
                         }
 
-                        // Predictive Upgrade: Time-to-Impact ETA Math
                         if (f.headedTowards && f.minDist < 999) {
                             const speedMph = parseInt(f.keywords.vector[2], 10);
                             if (speedMph > 0) {
@@ -537,7 +520,6 @@
             features.forEach(f => {
                 const props = f.properties;
                 const isClose = f.minDist < 20;
-                // Trigger alarm if it's observed/rotating and either extremely close OR headed straight for you within 45 mins
                 const isImminentThreat = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
                 const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
                 
@@ -550,23 +532,41 @@
                     stateClass = 'card-caution';
                 }
 
+                // Tier Interpretation Logic
+                let distBg = 'bg-gray-400 text-white';
+                let distText = f.minDist.toFixed(1) + ' Miles';
+                let distSubtext = 'DISTANT - NO IMMEDIATE THREAT';
+
+                if (assets.length === 0) {
+                    distBg = 'bg-indigo-900 text-white';
+                    distText = '[NATIONAL SCAN]';
+                    distSubtext = 'PIN LOCATION TO TRACK DISTANCE';
+                } else if (f.minDist < 20 || (f.etaMinutes && f.etaMinutes <= 30)) {
+                    distBg = 'bg-red-600 text-white animate-pulse';
+                    distSubtext = 'IMMINENT LOCAL THREAT';
+                } else if (f.minDist <= 100) {
+                    distBg = 'bg-orange-500 text-black';
+                    distSubtext = 'REGIONAL SYSTEM - MONITOR';
+                }
+
                 const card = document.createElement('div');
                 card.className = `alert-card ${stateClass}`;
                 
                 let tagsHtml = '';
                 if (f.headedTowards) tagsHtml += '<span class="keyword-tag headed-tag">HEADED TOWARDS YOU</span>';
-                // Predictive UI Upgrade: Show ETA tag if calculated
                 if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag eta-tag">ETA: ${f.etaMinutes} MINS</span>`;
                 if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-600">CONFIRMED</span>';
                 if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>';
-                // Predictive UI Upgrade: Early warning tag for possible tornadoes inside thunderstorm warnings
                 if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag possible-tag">TORNADO POSSIBLE</span>';
                 if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
 
                 card.innerHTML = `
                     <div class="alert-bar-top">${props.event}</div>
                     <div class="alert-inner-container">
-                        <div class="distance-badge">${f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : '[National]'}</div>
+                        <div class="w-full text-center p-2 mb-4 font-black flex flex-col ${distBg}">
+                            <span class="text-2xl">${distText}</span>
+                            <span class="text-xs uppercase tracking-wider mt-1">${distSubtext}</span>
+                        </div>
                         <div class="notification-box">${props.areaDesc}</div>
                         <div class="mt-4 flex flex-wrap justify-center gap-1">
                             ${tagsHtml}
