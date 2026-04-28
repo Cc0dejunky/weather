@@ -1,253 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY | Emergency Weather System</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://www.weather.gov/hazstat/images/nws_logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DAISY: Emergency System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-099XWX42W4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-099XWX42W4');
     </script>
 
     <style>
         :root {
-            /* Light Mode Palette */
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --accent-primary: #2563eb;
-            --accent-secondary: #0ea5e9;
-            --border-color: #e2e8f0;
-            
-            --danger-red: #ef4444;
-            --danger-bg: #fee2e2;
-            --caution-orange: #f59e0b;
-            --caution-bg: #fef3c7;
-            --success-green: #10b981;
-            
-            --brand-gradient: linear-gradient(135deg, #2563eb, #0ea5e9);
-            --emergency-gradient: linear-gradient(135deg, #dc2626, #ef4444);
-            
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.5);
-        }
-
-        .dark {
-            /* Dark Mode Palette */
-            --bg-primary: #020617;
-            --bg-secondary: #0f172a;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --accent-primary: #3b82f6;
-            --accent-secondary: #06b6d4;
-            --border-color: #1e293b;
-            
-            --danger-red: #f87171;
-            --danger-bg: #450a0a;
-            --caution-orange: #fbbf24;
-            --caution-bg: #451a03;
-            
-            --glass-bg: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(30, 41, 59, 0.5);
+            --danger-red: #ff3b3b;
+            --pink: #ff1493;
+            --aqua: #00ffff;
+            --indigo: #4b0082;
+            --darkblue: #00008b;
+            --caution-orange: #ffb347;
+            --resting-gray: #e5e7eb;
+            --inner-bg: #ffffff;
         }
 
         body {
-            background-color: var(--bg-primary) !important;
-            color: var(--text-primary) !important;
-            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            background-color: #ffffff !important;
+            color: var(--darkblue) !important;
+            text-shadow: 0 0 5px rgba(0, 0, 139, 0.3);
+            font-family: ui-sans-serif, system-ui, sans-serif;
             margin: 0;
-            padding: 0;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            -webkit-font-smoothing: antialiased;
+            padding: 10px;
             overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .main-container {
-            padding: 12px;
-            max-width: 1400px;
-            margin: 0 auto;
+        h1, h2 { 
+            color: #ffffff !important;
+            font-weight: 900; 
+            text-transform: uppercase; 
+            text-shadow: 0 0 10px var(--pink), 0 0 20px var(--aqua);
+            text-align: center;
         }
 
-        @media (min-width: 768px) {
-            .main-container {
-                padding: 24px;
-            }
+        h3, h4 {
+            color: #ffffff !important;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--indigo), 0 0 20px #8a2be2;
+            text-align: center;
         }
 
-        h1 {
-            font-size: clamp(2rem, 8vw, 4rem);
-            line-height: 1;
-        }
-
-        h2, h3, h4 {
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            color: var(--text-primary) !important;
-        }
-
-        .header-block {
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 2rem 1rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-sm);
+        h5, h6 {
+            color: #ffffff !important;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--darkblue), 0 0 20px #0000cd;
+            text-align: center;
         }
 
         .brand-border {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
+            border: 3px solid;
+            border-image: linear-gradient(to right, var(--pink), var(--aqua)) 1;
+            border-image-slice: 1;
+            box-shadow: 0 0 2px var(--pink), 0 0 8px var(--pink), 0 0 12px var(--aqua);
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .header-block {
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-bottom: 8px solid var(--darkblue);
+            text-align: center;
         }
 
         .alert-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+            border: 8px solid var(--resting-gray);
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow-md);
-        }
-
-        .alert-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .alert-bar-top {
-            background: #0d9488; /* Seagreen default for calm states */
-            color: white;
-            font-weight: 800;
-            padding: 1rem;
+            background: var(--resting-gray);
+            color: #ffffff;
+            font-weight: 900;
             text-align: center;
-            text-transform: uppercase;
-            font-size: 0.875rem;
-            letter-spacing: 0.05em;
+            padding: 12px 5px;
+            font-size: 1.5rem;
+            text-transform: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .alert-bar-bottom {
+            background: var(--resting-gray);
+            color: #ffffff;
+            font-weight: 900;
+            text-align: center;
+            padding: 5px;
+            font-size: 1.2rem;
+            margin-top: 10px;
         }
 
         .alert-inner-container {
-            padding: 1.5rem;
+            border: 1px solid #ddd;
+            padding: 15px;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
         }
 
         .notification-box {
-            background: var(--bg-primary);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            border: 2px solid #ccc;
+            padding: 20px;
+            width: 100%;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #444;
+            text-shadow: none;
         }
 
         .threat-detail {
-            background: var(--danger-bg);
-            color: var(--danger-red);
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-            border-left: 4px solid var(--danger-red);
+            background: #f8fafc;
+            border-left: 4px solid var(--darkblue);
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #1e293b;
+            width: 100%;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+            border-left-width: 6px;
+            border-left-color: var(--darkblue);
         }
 
         .card-emergency {
-            border: 2px solid var(--danger-red);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-            animation: pulse-red 1s infinite;
+            border-color: #ffcccc !important;
+            box-shadow: 0 0 20px var(--danger-red);
+            animation: pulse-red 2s infinite;
         }
-        .card-emergency .alert-bar-top { background: var(--emergency-gradient); }
-
-        .card-emergency-pds {
-            border: 4px solid #000;
-            background: #000 !important;
-            color: #fff !important;
-            box-shadow: 0 0 40px #ff0000;
-            animation: strobe-pds 0.5s infinite;
-        }
-        .card-emergency-pds .alert-bar-top { background: #ff0000; color: #000; font-weight: 900; font-size: 1.2rem; }
-        .card-emergency-pds .alert-inner-container { background: #000; border: none; }
-        .card-emergency-pds .notification-box { background: #1a1a1a; color: #fff; border-color: #333; }
-        .card-emergency-pds .threat-detail { background: #ff0000; color: #000; border: none; font-size: 1.1rem; }
-        .card-emergency-pds .alert-bar-bottom { background: #1a1a1a; color: #ff0000; }
-
-        @keyframes strobe-pds {
-            0% { border-color: #ff0000; }
-            50% { border-color: #000; }
-            100% { border-color: #ff0000; }
-        }
-
-        @keyframes full-screen-flash {
-            0%, 100% { background-color: var(--bg-primary); }
-            50% { background-color: #ff0000; }
-        }
-        
-        .flash-active {
-            animation: full-screen-flash 0.5s infinite !important;
-        }
-
-        /* Fluid Typography */
-        .text-fluid-massive { font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1; }
-        .text-fluid-title { font-size: clamp(1.5rem, 5vw, 2.25rem); line-height: 1.1; letter-spacing: -0.02em; }
-        .text-fluid-subtitle { font-size: clamp(0.75rem, 2vw, 1rem); letter-spacing: 0.1em; }
-        .text-fluid-body { font-size: clamp(0.9rem, 2vw, 1.1rem); line-height: 1.5; }
-
-        .safety-action-box {
-            background: #fef2f2;
-            border: 2px dashed #dc2626;
-            padding: 1rem;
-            margin-top: 1rem;
-            border-radius: 0.5rem;
-            color: #991b1b;
-            font-weight: 800;
-            text-align: center;
-            animation: slide-up 0.3s ease-out;
-        }
-
-        @keyframes slide-up {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        .card-emergency .alert-bar-top, .card-emergency .alert-bar-bottom { background: var(--danger-red) !important; }
+        .card-emergency .threat-detail { border-left-color: var(--danger-red); background: #fff1f2; }
 
         .card-rotation-red {
-            border: 2px solid var(--danger-red);
+            border-color: #ffcccc !important;
+            box-shadow: 0 0 15px var(--danger-red);
+            animation: pulse-subtle-red 3s infinite;
         }
-        .card-rotation-red .alert-bar-top { background: var(--danger-red); }
+        .card-rotation-red .alert-bar-top, .card-rotation-red .alert-bar-bottom { background: #991b1b !important; }
+        .card-rotation-red .threat-detail { border-left-color: #991b1b; }
 
-        .card-warning {
-            border: 2px solid #ea580c; /* Orange */
+        .card-caution {
+            border-color: #ffe4b2 !important;
+            box-shadow: 0 0 10px var(--caution-orange);
         }
-        .card-warning .alert-bar-top { background: #ea580c; }
-
-        .card-watch {
-            border: 2px solid #eab308; /* Yellow */
-        }
-        .card-watch .alert-bar-top { background: #eab308; color: #000; }
-
-        .card-calm {
-            border: 2px solid #0d9488; /* Seagreen */
-        }
-        .card-calm .alert-bar-top { background: #0d9488; }
+        .card-caution .alert-bar-top, .card-caution .alert-bar-bottom { background: var(--caution-orange) !important; }
 
         @keyframes pulse-red {
-            0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.7); }
-            100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+            0% { box-shadow: 0 0 10px var(--danger-red); }
+            50% { box-shadow: 0 0 30px var(--danger-red); }
+            100% { box-shadow: 0 0 10px var(--danger-red); }
         }
         
         @keyframes pulse-subtle-red {
@@ -291,91 +228,56 @@
         }
 
         input {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color) !important;
-            border-radius: 0.5rem !important;
-            color: var(--text-primary) !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            padding: 0.75rem 1rem !important;
+            font-size: 1.2rem !important;
+            font-weight: 900 !important;
+            border: 3px solid var(--darkblue) !important;
+            padding: 12px !important;
             width: 100%;
+            color: var(--darkblue);
             outline: none;
-            transition: border-color 0.2s;
+            text-align: center;
+            border-radius: 0;
+            -webkit-appearance: none;
         }
 
-        input:focus {
-            border-color: var(--accent-primary) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-            outline: none;
-        }
-
-        button:focus-visible, input:focus-visible {
-            outline: 3px solid var(--accent-primary);
-            outline-offset: 2px;
+        input::placeholder {
+            color: #9ca3af;
+            font-size: 1rem;
         }
 
         .btn-pin {
-            background: var(--accent-primary);
+            background: var(--darkblue);
             color: white;
-            font-weight: 700;
-            border-radius: 0.75rem;
-            padding: 1rem 1.5rem;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            font-size: 0.875rem;
-            letter-spacing: 0.05em;
+            font-size: 1.2rem;
+            font-weight: 900;
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
             cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 48px; /* Touch target size */
-        }
-
-        .btn-pin:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+            text-transform: uppercase;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-share {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 1rem 1.5rem;
-            font-weight: 700;
-            transition: all 0.2s;
+            background: #000;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 900;
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
             cursor: pointer;
-            min-height: 48px;
-        }
-
-        .theme-toggle {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-            z-index: 100;
-            font-size: 1.5rem;
-        }
-
-        .alert-bar-bottom {
-            background: var(--bg-primary);
-            padding: 0.75rem;
-            font-size: 0.75rem;
+            text-transform: uppercase;
             text-align: center;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-            font-weight: 600;
+            border: 2px solid var(--aqua);
+            text-shadow: 0 0 5px var(--aqua);
+            transition: all 0.2s ease-in-out;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-share:hover, .btn-share:active {
+            box-shadow: 0 0 10px var(--aqua);
         }
 
         .btn-test {
@@ -478,111 +380,97 @@
             color: white;
             box-shadow: 0 0 10px var(--aqua);
         }
-        #radarMap {
-            cursor: pointer;
-        }
-
-        #radarMap { border: 0; }
     </style>
 </head>
 <body>
-    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌓</button>
-
-    <div class="main-container">
-        <div id="updateBanner" class="bg-blue-600 text-white p-3 rounded-lg mb-6 flex justify-between items-center shadow-lg">
-            <span class="font-bold text-sm">SYSTEM UPDATE: ZONE MATCHING ENABLED. WATCHES FOR YOUR PINNED COUNTIES NOW FLOAT TO THE TOP.</span>
-            <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl">&times;</button>
+    <div class="max-w-7xl mx-auto">
+        <div id="updateBanner" class="update-banner mb-4">
+            <span class="flex-grow text-center">SYSTEM UPDATE: API PARSING STABILIZED. NWS CONNECTION DROPS ARE NOW HANDLED SILENTLY.</span>
+            <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl hover:text-pink-400">&times;</button>
         </div>
 
-        <header class="header-block rounded-3xl">
-            <h1 class="text-center mb-4">D.A.I.S.Y.</h1>
-            <p class="text-center text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-8">National Emergency System</p>
-            
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 dark:border-slate-800 pt-6">
-                <div class="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
-                    <button onclick="testAlarm()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-colors">TEST SIREN</button>
-                    <button id="installBtn" onclick="installApp()" class="hidden px-5 py-2.5 bg-blue-600 rounded-full text-[10px] font-black uppercase text-white tracking-wider hover:bg-blue-700 transition-colors">INSTALL DAISY</button>
+        <header class="header-block">
+            <h1 class="text-3xl md:text-5xl">D.A.I.S.Y. // NATIONAL FOCUS</h1>
+            <div class="flex flex-col md:flex-row justify-between items-center mt-6 border-t-2 border-gray-700 pt-4 gap-6">
+                <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-center">
+                    <span class="font-black text-sm md:text-xl uppercase text-yellow-400 text-center" id="audioStatus">AUDIO ALARMS: ARMED ON PIN</span>
+                    <button onclick="testAlarm()" class="btn-test">TEST SIREN</button>
                 </div>
                 
-                <div class="flex flex-wrap items-center gap-4 w-full md:w-auto justify-center">
-                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                        <input type="checkbox" id="prefAudio" checked class="w-4 h-4 accent-blue-600"> AUDIO
-                    </label>
-                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                        <input type="checkbox" id="prefVibrate" checked class="w-4 h-4 accent-blue-600"> VIBRATE
-                    </label>
-                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                        <input type="checkbox" id="prefFlash" checked class="w-4 h-4 accent-blue-600"> FLASH
-                    </label>
-                </div>
-
-                <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
-                    <span class="live-dot"></span>
-                    <span id="lastSync" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">SYNCING...</span>
+                <div class="flex items-center justify-center gap-6 w-full md:w-auto">
+                    <div class="flex items-center">
+                        <span class="live-dot"></span>
+                        <span id="lastSync" class="font-black text-sm md:text-xl text-green-400 uppercase">SYNCING...</span>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <div class="brand-border p-0 overflow-hidden" id="mapContainer">
-            <div class="flex justify-center bg-slate-50 dark:bg-slate-900 p-3 gap-2 border-b border-slate-200 dark:border-slate-800">
-                <button onclick="setMapMode('radar')" id="modeRadar" class="px-6 py-2 rounded-full text-sm font-bold transition-all active bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">Radar</button>
-                <button onclick="setMapMode('gust')" id="modeGust" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-transparent text-slate-500">Wind Gust</button>
+        <div class="brand-border overflow-hidden mb-8 p-0 w-full" id="mapContainer">
+            <div class="w-full flex justify-center bg-gray-200 p-2 gap-4 border-b-2 border-darkblue">
+                <button onclick="setMapMode('radar')" id="modeRadar" class="map-toggle-btn active">Radar (Storm Shape)</button>
+                <button onclick="setMapMode('gust')" id="modeGust" class="map-toggle-btn">Wind Gust (Circulation)</button>
             </div>
-            <div class="map-wrapper h-[300px] md:h-[400px]">
+            <div class="map-wrapper h-[400px] md:h-[550px]">
                 <div class="map-overlay" id="mapOverlay" onclick="this.style.pointerEvents='none'; this.style.opacity='0';">
-                    <span class="bg-white/10 backdrop-blur-md px-8 py-4 rounded-full border border-white/20">Tap to Unlock Map</span>
+                    <span>Tap to Unlock Map</span>
                 </div>
-                <iframe id="radarMap" title="Interactive Weather Radar Map" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=5&level=surface&overlay=radar&product=radar&message=true" loading="lazy"></iframe>
+                <iframe id="radarMap" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=5&level=surface&overlay=radar&product=radar&message=true" frameborder="0" loading="lazy"></iframe>
             </div>
         </div>
 
         <div class="brand-border">
-            <h3 class="text-xs font-black mb-6 text-center uppercase tracking-[0.2em] text-slate-400">PINNED LOCATIONS</h3>
-            <div class="w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="flex flex-col gap-4">
-                        <input id="addrIn" type="text" placeholder="Enter City, Zip, or Address" class="h-12" aria-label="Enter address city or zip code" onkeyup="if(event.key === 'Enter') addAsset()">
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="addAsset()" class="btn-pin" id="pinBtn" aria-label="Pin this location and arm alarm">PIN LOCATION</button>
-                            <button onclick="shareApp()" class="btn-share" id="shareBtn" aria-label="Share a link to this app">SHARE</button>
-                        </div>
+            <h3 class="text-2xl md:text-3xl mb-4 underline">MY ASSETS</h3>
+            <div class="w-full max-w-4xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <div class="w-full">
+                        <input id="addrIn" type="text" placeholder="ADDRESS, CITY, OR ZIP CODE">
+                        <button onclick="addAsset()" class="btn-pin shadow-lg" id="pinBtn">PIN & ARM ALARM</button>
+                        <button onclick="shareApp()" class="btn-share shadow-lg" id="shareBtn">SHARE DAISY</button>
                     </div>
-                    <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start" aria-label="Currently pinned locations"></div>
+                    <div id="assetList" class="md:col-span-2 flex flex-col sm:flex-row flex-wrap gap-3 w-full"></div>
                 </div>
             </div>
         </div>
 
-        <div class="mb-12">
-            <h2 class="text-2xl font-black mb-8 flex items-center gap-3">
-                <span class="w-8 h-1 bg-accent-primary rounded-full"></span>
-                ACTIVE PROXIMITY ALERTS
-            </h2>
-            <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full" aria-live="polite" aria-relevant="additions text">
-                <p class="text-slate-500 font-medium col-span-full text-center py-12">Scanning National Weather Service...</p>
+        <div class="brand-border bg-gray-50">
+            <h2 class="text-3xl md:text-4xl text-black underline mb-6">PROXIMITY ALERTS</h2>
+            <div id="alertsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full">
+                <p class="text-xl font-bold text-darkblue col-span-full text-center">Scanning National Weather Service...</p>
             </div>
         </div>
 
-        <div class="brand-border mb-12">
-            <h3 class="text-xl font-bold mb-8 text-center uppercase tracking-widest text-slate-400">RESOURCES</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="space-y-4">
-                    <h4 class="font-bold text-sm uppercase text-slate-500">Radar Guide</h4>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        On <strong>Wind Gust</strong> maps, look for circular "swirls" indicating rotation. Tight spirals with bright colors signal intense circulation.
-                    </p>
+        <div class="brand-border bg-gray-100 mt-10">
+            <h3 class="text-2xl mb-6 underline">INFORMATION & LEGAL</h3>
+            <div class="w-full max-w-4xl space-y-4">
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        How to Spot Rotation on Wind Maps
+                        <span class="text-2xl leading-none">+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white">
+                        On the **Wind Gust** map, rotation appears as a "spiral" or "swirl." You will see the wind particles curving in toward a central point. The tighter the swirl and the brighter the colors, the more intense the circulation.
+                    </div>
                 </div>
-                <div class="space-y-4">
-                    <h4 class="font-bold text-sm uppercase text-slate-500">Glossary</h4>
-                    <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
-                        <li><strong>Hook Echo:</strong> Radar "tail" indicating storm circulation.</li>
-                        <li><strong>Debris Ball:</strong> Bright spot inside a hook; tornado likely active.</li>
-                    </ul>
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        Rotation Glossary: What to look for
+                        <span class="text-2xl leading-none">+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white space-y-2">
+                        <p><strong>Hook Echo:</strong> A "tail" shape on radar that wraps around the storm's circulation.</p>
+                        <p><strong>Velocity Couplet:</strong> (What you see on wind maps) Bright green next to bright red, indicating wind moving in opposite directions very close together.</p>
+                        <p><strong>Debris Ball:</strong> A bright circular spot on radar inside a hook, suggesting a tornado is actually on the ground and lofting debris.</p>
+                    </div>
                 </div>
-                <div class="space-y-4">
-                    <h4 class="font-bold text-sm uppercase text-slate-500">Disclaimer</h4>
-                    <p class="text-xs text-red-500/70 italic">
-                        Informational only. Do not rely solely on DAISY for life-safety decisions.
-                    </p>
+                <div class="accordion-item border-b-2 border-darkblue pb-2">
+                    <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
+                        Disclaimer
+                        <span class="text-2xl leading-none">+</span>
+                    </div>
+                    <div class="accordion-content text-sm font-bold p-4 bg-white text-red-700">
+                        LEGAL NOTICE: This system is for informational purposes only. Do not rely solely on DAISY for life-safety decisions.
+                    </div>
                 </div>
             </div>
         </div>
@@ -598,17 +486,6 @@
         let currentMapLon = -94.398;
         let currentOverlay = 'radar';
 
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌓';
-        }
-
-        // Auto-detect system preference
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            toggleTheme();
-        }
-
         const cardinalMap = {
             'N': 0, 'NORTH': 0, 'NNE': 22.5, 'NE': 45, 'ENE': 67.5,
             'E': 90, 'EAST': 90, 'ESE': 112.5, 'SE': 135, 'SSE': 157.5,
@@ -616,72 +493,23 @@
             'W': 270, 'WEST': 270, 'WNW': 292.5, 'NW': 315, 'NNW': 337.5
         };
 
-        const usStates = {
-            'Alabama':'AL', 'Alaska':'AK', 'Arizona':'AZ', 'Arkansas':'AR', 'California':'CA', 'Colorado':'CO', 'Connecticut':'CT', 'Delaware':'DE', 'Florida':'FL', 'Georgia':'GA', 'Hawaii':'HI', 'Idaho':'ID', 'Illinois':'IL', 'Indiana':'IN', 'Iowa':'IA', 'Kansas':'KS', 'Kentucky':'KY', 'Louisiana':'LA', 'Maine':'ME', 'Maryland':'MD', 'Massachusetts':'MA', 'Michigan':'MI', 'Minnesota':'MN', 'Mississippi':'MS', 'Missouri':'MO', 'Montana':'MT', 'Nebraska':'NE', 'Nevada':'NV', 'New Hampshire':'NH', 'New Jersey':'NJ', 'New Mexico':'NM', 'New York':'NY', 'North Carolina':'NC', 'North Dakota':'ND', 'Ohio':'OH', 'Oklahoma':'OK', 'Oregon':'OR', 'Pennsylvania':'PA', 'Rhode Island':'RI', 'South Carolina':'SC', 'South Dakota':'SD', 'Tennessee':'TN', 'Texas':'TX', 'Utah':'UT', 'Vermont':'VT', 'Virginia':'VA', 'Washington':'WA', 'West Virginia':'WV', 'Wisconsin':'WI', 'Wyoming':'WY', 'District of Columbia':'DC'
-        };
-
-        function formatLocationName(addr, fallback) {
-            if (!addr) return fallback.toUpperCase();
-            const city = addr.city || addr.town || addr.village || addr.municipality || "";
-            const state = addr.state ? (usStates[addr.state] || addr.state.toUpperCase()) : "";
-            
-            if (city) return `${city}${state ? ', ' + state : ''}`.toUpperCase();
-            if (addr.county) return `${addr.county.replace(/ County/i, '')}${state ? ', ' + state : ''}`.toUpperCase();
-            return fallback.toUpperCase();
-        }
-
         window.onload = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    currentMapLat = lat;
-                    currentMapLon = lon;
-                    reverseGeocode(lat, lon);
-                }, () => {
-                    fetchAlerts();
-                });
-            } else {
-                fetchAlerts();
+                    currentMapLat = position.coords.latitude;
+                    currentMapLon = position.coords.longitude;
+                    updateMap();
+                }, () => {});
             }
+            fetchAlerts();
         };
-
-        async function reverseGeocode(lat, lon) {
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
-                const data = await res.json();
-                const name = formatLocationName(data.address, "MY LOCATION");
-                
-                // Add as an asset but check if it already exists to avoid duplicates
-                if (!assets.some(a => Math.abs(a.lat - lat) < 0.01 && Math.abs(a.lon - lon) < 0.01)) {
-                    assets.push({ id: 'current-' + Date.now(), name: name, lat: lat, lon: lon });
-                    renderAssets();
-                }
-                updateMap();
-                fetchAlerts();
-            } catch (e) {
-                console.error("Reverse geocode failed", e);
-                assets.push({ id: 'current-' + Date.now(), name: "MY LOCATION", lat: lat, lon: lon });
-                renderAssets();
-                updateMap();
-                fetchAlerts();
-            }
-        }
 
         function setMapMode(mode) {
             currentOverlay = mode;
-            const radarBtn = document.getElementById('modeRadar');
-            const gustBtn = document.getElementById('modeGust');
-            
-            radarBtn.classList.remove('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
-            gustBtn.classList.remove('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
-            radarBtn.classList.add('text-slate-500');
-            gustBtn.classList.add('text-slate-500');
-
-            const activeBtn = mode === 'radar' ? radarBtn : gustBtn;
-            activeBtn.classList.add('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
-            activeBtn.classList.remove('text-slate-500');
-            
+            document.getElementById('modeRadar').classList.remove('active');
+            document.getElementById('modeGust').classList.remove('active');
+            if (mode === 'radar') document.getElementById('modeRadar').classList.add('active');
+            else document.getElementById('modeGust').classList.add('active');
             updateMap();
         }
 
@@ -695,78 +523,37 @@
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                document.getElementById('audioStatus').textContent = "AUDIO ALARMS: ARMED";
+                document.getElementById('audioStatus').classList.replace("text-yellow-400", "text-green-400");
             }
         }
 
-        let alarmLevel = 0; // 0: none, 1: watch, 2: warning, 3: emergency/pds
-        let alarmInterval;
-        let hapticInterval;
-
-        function triggerHaptics(level) {
-            if (!navigator.vibrate || !document.getElementById('prefVibrate').checked) return;
-            if (level === 3) {
-                // S-O-S Pattern
-                navigator.vibrate([100,100,100,100,100, 300,300,300,300,300, 100,100,100,100,100]);
-            } else if (level === 2) {
-                navigator.vibrate([500, 500, 500]);
-            }
-        }
-
-        function triggerFlash(level, isTornado = false) {
-            if (!document.getElementById('prefFlash').checked) {
-                document.body.classList.remove('flash-active');
-                return;
-            }
-            // Flash ONLY if it's a level 2+ alarm AND a tornado threat is confirmed
-            if (level >= 2 && isTornado) {
-                document.body.classList.add('flash-active');
-            } else {
-                document.body.classList.remove('flash-active');
-            }
-        }
-
-        function playAlarm(level, isTornado = false) {
-            triggerHaptics(level);
-            triggerFlash(level, isTornado);
-            
-            if (!audioCtx || level <= alarmLevel || !document.getElementById('prefAudio').checked) return;
-            
-            // Upgrade alarm
-            alarmLevel = level;
-            if (alarmInterval) clearInterval(alarmInterval);
-            
+        function playAlarm() {
+            if (!audioCtx || alarmTriggered) return;
+            alarmTriggered = true;
             let beepCount = 0;
-            const frequency = level === 3 ? 1200 : (level === 2 ? 880 : 440);
-            const duration = level === 3 ? 0.8 : (level === 2 ? 0.4 : 0.2);
-            const pause = level === 3 ? 200 : (level === 2 ? 600 : 2000);
-
-            alarmInterval = setInterval(() => {
+            const interval = setInterval(() => {
+                if (beepCount >= 5) {
+                    clearInterval(interval);
+                    alarmTriggered = false;
+                    return;
+                }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = level === 3 ? 'sawtooth' : 'square';
-                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime); 
-                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                gain.gain.setValueAtTime(1, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-                
+                osc.stop(audioCtx.currentTime + 0.3);
                 beepCount++;
-                if (level < 3 && beepCount >= 10) {
-                    clearInterval(alarmInterval);
-                    alarmLevel = 0;
-                }
-            }, pause);
+            }, 600);
         }
 
         function testAlarm() {
             initAudio();
-            playAlarm(2, true); // Pass true so the user can verify flashing works during test
-            setTimeout(() => {
-                if (alarmInterval) clearInterval(alarmInterval);
-                alarmLevel = 0;
-                document.body.classList.remove('flash-active');
-            }, 3000);
+            playAlarm();
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -787,104 +574,64 @@
         function getMinPolygonDistance(assetLat, assetLon, geometryCoordinates) {
             let minDist = 9999;
             let closestPt = null;
-            let isInside = false;
-
             function traverse(arr) {
                 if (!Array.isArray(arr)) return;
-                // If it's a coordinate pair [lon, lat]
                 if (arr.length >= 2 && typeof arr[0] === 'number' && typeof arr[1] === 'number') {
                     const d = getDistance(assetLat, assetLon, arr[1], arr[0]);
                     if (d < minDist) { minDist = d; closestPt = arr; }
                 } else {
-                    // Check if this level of the array is a polygon ring
-                    if (Array.isArray(arr[0]) && typeof arr[0][0] === 'number') {
-                        if (isPointInPolygon(assetLat, assetLon, arr)) isInside = true;
-                    }
                     for (let i = 0; i < arr.length; i++) { traverse(arr[i]); }
                 }
             }
             traverse(geometryCoordinates);
-            return { minDist, closestPt, isInside };
-        }
-
-        function isPointInPolygon(lat, lon, polygon) {
-            let inside = false;
-            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                let xi = polygon[i][0], yi = polygon[i][1];
-                let xj = polygon[j][0], yj = polygon[j][1];
-                let intersect = ((yi > lat) !== (yj > lat))
-                    && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
-                if (intersect) inside = !inside;
-            }
-            return inside;
+            return { minDist, closestPt };
         }
 
         async function fetchAlerts() {
             try {
                 const response = await fetch(NWS_URL);
                 if (!response.ok) throw new Error(`NWS API Error: ${response.status}`);
-                const data = await response.json();
+                
+                // Safely parse the response stream to avoid Global SyntaxErrors if NWS connection drops
+                const textData = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(textData);
+                } catch (parseError) {
+                    throw new Error("Invalid or truncated JSON received from NWS.");
+                }
+
                 processAlerts(data.features || []);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
             } catch (err) { 
-                document.getElementById('lastSync').textContent = "OFFLINE";
+                // Don't clutter the UI with "OFFLINE" if it's just a momentary stream drop
+                console.warn("DAISY Sync Interrupted (will retry in 20s):", err.message);
             }
-        }
-
-        if (typeof window.isFirstLoad === 'undefined') window.isFirstLoad = true;
-        if (typeof window.previousAlertSignatures === 'undefined') window.previousAlertSignatures = new Set();
-
-        function showToast(message) {
-            const t = document.createElement('div');
-            t.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-full font-black text-sm shadow-[0_0_20px_rgba(37,99,235,0.5)] z-[100] flex items-center gap-3 border-2 border-blue-400 transition-all duration-500 -translate-y-20 opacity-0';
-            t.innerHTML = `<span>🔄</span> ${message}`;
-            document.body.appendChild(t);
-            
-            setTimeout(() => {
-                t.classList.remove('-translate-y-20', 'opacity-0');
-                t.classList.add('translate-y-0', 'opacity-100');
-            }, 10);
-            
-            setTimeout(() => {
-                t.classList.remove('translate-y-0', 'opacity-100');
-                t.classList.add('-translate-y-20', 'opacity-0');
-                setTimeout(() => t.remove(), 500);
-            }, 6000);
         }
 
         function processAlerts(features) {
             const container = document.getElementById('alertsContainer');
             container.innerHTML = '';
-            let highestAlarmLevel = 0;
-            let tornadoActive = false;
-            let hasActiveWarning = false;
+            let shouldSoundAlarm = false;
 
-            document.body.classList.remove('flash-active');
             if (features.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full bg-green-600 dark:bg-green-700 text-white rounded-3xl p-12 text-center shadow-lg border-4 border-green-500">
-                        <h2 class="text-fluid-massive font-black mb-4">CLEAR</h2>
-                        <p class="text-fluid-body font-bold uppercase tracking-widest">NO ACTIVE THREATS</p>
-                        <p class="text-sm font-medium mt-4 text-green-200">System Standing By</p>
-                    </div>
-                `;
-            } else {
-                features.forEach(f => {
+                container.innerHTML = '<p class="text-xl md:text-2xl font-black text-green-700 col-span-full uppercase text-center p-4">NO ACTIVE THREATS DETECTED.</p>';
+                return;
+            }
+
+            features.forEach(f => {
                 const props = f.properties || {};
                 const description = (props.description || "").toUpperCase();
                 const text = description + " " + (props.instruction || "").toUpperCase();
-                const event = (props.event || "").toUpperCase();
                 
                 const hasRotation = text.includes("ROTATION") || text.includes("RADAR INDICATED TORNADO") || text.includes("TORNADIC") || text.includes("CIRCULATION") || text.includes("FUNNEL");
-                const hasObserved = text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND") || text.includes("TORNADO...OBSERVED");
+                const hasObserved = text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND");
                 const hasPossible = text.includes("TORNADO...POSSIBLE") || text.includes("INDICATED TORNADO") || text.includes("DEVELOPING ROTATION");
-                const hasEmergency = text.includes("TORNADO EMERGENCY") || text.includes("PARTICULARLY DANGEROUS SITUATION") || text.includes("PDS") || event.includes("EMERGENCY");
 
                 f.keywords = {
                     rotation: hasRotation,
                     observed: hasObserved,
                     possible: hasPossible,
-                    emergency: hasEmergency,
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
 
@@ -901,20 +648,14 @@
                     if (f.geometry && f.geometry.coordinates) {
                         let overallMinDist = 9999;
                         let bestPt = null;
-                        let isInsidePolygon = false;
                         assets.forEach(a => {
                             const result = getMinPolygonDistance(a.lat, a.lon, f.geometry.coordinates);
-                            if (result.isInside) isInsidePolygon = true;
                             if (result.minDist < overallMinDist) {
                                 overallMinDist = result.minDist;
                                 bestPt = result.closestPt;
                             }
                         });
-                        
-                        if (isInsidePolygon) {
-                            f.minDist = 0;
-                            f.isDirectHit = true;
-                        } else if (bestPt && overallMinDist < 9999) {
+                        if (bestPt && overallMinDist < 9999) {
                             f.minDist = overallMinDist;
                             if (f.keywords.vector) {
                                 const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
@@ -952,163 +693,98 @@
             const uniqueFeatures = features.filter((v,i,a)=>a.findIndex(t=>(t.properties.id === v.properties.id))===i);
             uniqueFeatures.sort((a, b) => a.minDist - b.minDist);
 
-            let currentSignatures = new Set();
-            let newUpdates = 0;
-
             uniqueFeatures.forEach(f => {
-                const sig = f.properties.id + '-' + (f.minDist < 999 ? f.minDist.toFixed(1) : 'NA') + '-' + (f.snippet || '');
-                currentSignatures.add(sig);
-                
-                f.justUpdated = false;
-                if (!window.isFirstLoad && !window.previousAlertSignatures.has(sig)) {
-                    if (f.isDirectHit || f.minDist < 50) {
-                        f.justUpdated = true;
-                        newUpdates++;
-                    }
-                }
+                const props = f.properties || {};
+                const eventTitle = props.event || "UNKNOWN ALERT";
+                const areaDesc = props.areaDesc || "UNKNOWN AREA";
+                const expiresStr = props.expires ? new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "UNKNOWN";
 
                 const isClose = f.minDist < 25 || f.isDirectHit;
-                const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || (f.isDirectHit && !f.properties.event.includes('Watch'));
+                const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
                 const isDangerous = f.keywords.rotation || f.keywords.observed;
-                const isEmergency = f.keywords.emergency;
                 const isDeveloping = f.keywords.possible;
                 
-                const isTornado = f.properties.event.includes('TORNADO') || f.keywords.rotation || f.keywords.observed || f.keywords.possible || text.includes('TORNADIC');
-
-                if (isEmergency && isImminent) {
-                    stateClass = 'card-emergency-pds';
-                    highestAlarmLevel = 3;
-                    if (isTornado) tornadoActive = true;
-                } else if (isDangerous || isDeveloping) {
+                let stateClass = '';
+                if (isDangerous || isDeveloping) {
                     stateClass = isClose || (f.etaMinutes && f.etaMinutes < 20) ? 'card-emergency' : 'card-rotation-red';
-                    if (isImminent) {
-                        highestAlarmLevel = Math.max(highestAlarmLevel, 2);
-                        if (isTornado) tornadoActive = true;
-                    }
+                    if (isImminent && audioCtx) shouldSoundAlarm = true;
                 } 
-                else if (f.properties.event.includes('Warning')) {
-                    stateClass = 'card-warning';
-                    if (isImminent) {
-                        highestAlarmLevel = Math.max(highestAlarmLevel, 2);
-                        if (isTornado) tornadoActive = true;
-                    }
-                } else if (f.properties.event.includes('Watch')) {
-                    stateClass = 'card-watch';
-                    if (isImminent) {
-                        highestAlarmLevel = Math.max(highestAlarmLevel, 1);
-                        if (isTornado) tornadoActive = true;
-                    }
-                } else {
-                    stateClass = 'card-calm';
+                else if (eventTitle.includes('Severe Thunderstorm Warning') || eventTitle.includes('Tornado Watch')) {
+                    stateClass = 'card-caution';
                 }
 
-                if (f.properties.event.includes('Warning')) hasActiveWarning = true;
-
-                let distBg = 'bg-slate-100 dark:bg-slate-800 text-slate-500';
+                let distBg = 'bg-gray-400 text-white';
                 let distText = f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : 'WATCH AREA';
-                let distSubtext = 'MONITOR SYSTEM';
+                let distSubtext = 'DISTANT - MONITOR';
 
                 if (assets.length === 0) {
-                    distBg = 'bg-blue-600 text-white'; distText = '[SCANNING]'; distSubtext = 'PIN LOCATION TO TRACK';
+                    distBg = 'bg-indigo-900 text-white'; distText = '[SCANNING]'; distSubtext = 'PIN LOCATION TO TRACK';
                 } else if (f.isDirectHit) {
-                    if (f.properties.event.includes('Watch')) {
-                        distText = 'IN YOUR AREA';
-                        distBg = 'bg-amber-500 text-white';
-                        distSubtext = 'BE PREPARED';
+                    distText = 'ACTIVE IN ZONE';
+                    if (eventTitle.includes('Watch')) {
+                        distBg = 'bg-yellow-400 text-black'; // Bright Yellow for active zone watch
+                        distSubtext = 'LOCAL WATCH IN EFFECT';
                     } else {
-                        distText = 'TAKE COVER NOW';
                         distBg = 'bg-red-600 text-white animate-pulse';
-                        distSubtext = 'GO TO BASEMENT OR INTERIOR ROOM';
+                        distSubtext = 'IMMINENT THREAT';
                     }
                 } else if (isImminent && (isDangerous || isDeveloping)) {
-                    distText = 'IMMINENT THREAT';
-                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'TAKE COVER SOON';
-                } else if (f.minDist <= 50) {
-                    distBg = 'bg-orange-500 text-white'; distSubtext = 'REGIONAL SYSTEM';
+                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'IMMINENT THREAT';
+                } else if (f.minDist <= 100) {
+                    distBg = 'bg-orange-500 text-black'; distSubtext = 'REGIONAL SYSTEM';
                 }
 
                 const card = document.createElement('div');
                 card.className = `alert-card ${stateClass}`;
                 
                 let tagsHtml = '';
-                if (f.headedTowards) tagsHtml += '<span class="keyword-tag bg-blue-600 text-white ring-2 ring-blue-400">HEADED TOWARDS YOU</span>';
-                if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag bg-slate-900 text-white">ETA: ${f.etaMinutes} MINS</span>`;
-                if (isEmergency) tagsHtml += '<span class="keyword-tag bg-black text-red-500 animate-bounce">TORNADO EMERGENCY</span>';
-                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
-                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
-                if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600 text-white">ROTATION DETECTED</span>';
-                if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
-                if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
-                if (f.justUpdated) tagsHtml = '<span class="keyword-tag bg-green-500 text-white animate-pulse ring-2 ring-green-300">NEW DETAILS</span> ' + tagsHtml;
+                if (f.headedTowards) tagsHtml += '<span class="keyword-tag headed-tag">HEADED TOWARDS YOU</span>';
+                if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag eta-tag">ETA: ${f.etaMinutes} MINS</span>`;
+                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-600">CONFIRMED TORNADO</span>';
+                if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>';
+                if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag possible-tag">TORNADO POSSIBLE</span>';
+                if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
 
-                let safetyHtml = '';
-                if (f.isDirectHit && f.properties.event.includes('Warning')) {
-                    safetyHtml = `
-                        <div class="safety-action-box">
-                            <p class="text-lg">🚨 TAKE SHELTER NOW 🚨</p>
-                            <p class="text-xs mt-1">INTERIOR ROOM / BASEMENT. COVER HEAD. HELMETS ON.</p>
-                        </div>
-                    `;
-                }
-
-                card.setAttribute('role', 'alert');
-                card.setAttribute('aria-label', `${f.properties.event} for ${f.properties.areaDesc}`);
                 card.innerHTML = `
-                    <div class="alert-bar-top" role="header">${f.properties.event}</div>
+                    <div class="alert-bar-top">${eventTitle}</div>
                     <div class="alert-inner-container">
-                        <div class="w-full text-center p-4 mb-4 rounded-xl flex flex-col ${distBg}" role="status">
-                            <span class="text-3xl font-black">${distText}</span>
-                            <span class="text-[10px] uppercase font-bold tracking-[0.2em] mt-1">${distSubtext}</span>
+                        <div class="w-full text-center p-3 mb-4 font-black flex flex-col ${distBg}">
+                            <span class="text-2xl md:text-3xl">${distText}</span>
+                            <span class="text-xs md:text-sm uppercase tracking-wider mt-1">${distSubtext}</span>
                         </div>
-                        <div class="notification-box font-bold text-center">${f.properties.areaDesc}</div>
-                        ${f.snippet ? `<div class="threat-detail" role="note">REPORTED: ${f.snippet}</div>` : ''}
-                        ${safetyHtml}
-                        <div class="mt-6 flex flex-wrap justify-center gap-2">
+                        <div class="notification-box">${areaDesc}</div>
+                        ${f.snippet ? `<div class="threat-detail">REPORTED: ${f.snippet}</div>` : ''}
+                        <div class="mt-4 flex flex-wrap justify-center gap-2">
                             ${tagsHtml}
                         </div>
                     </div>
-                    <div class="alert-bar-bottom">EXPIRES: ${new Date(f.properties.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div class="alert-bar-bottom">ENDS AT: ${expiresStr}</div>
                 `;
                 container.appendChild(card);
             });
-            }
-
-            window.previousAlertSignatures = currentSignatures;
-            window.isFirstLoad = false;
-            
-            if (newUpdates > 0) {
-                showToast(`${newUpdates} ALERT${newUpdates > 1 ? 'S' : ''} UPDATED WITH NEW NWS DATA`);
-                if (navigator.vibrate && document.getElementById('prefVibrate').checked) {
-                    navigator.vibrate([200, 100, 200]);
-                }
-            }
-
-            if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel, tornadoActive);
-
-            // Adjust sync frequency: 10s always for "Ultimate Advantage" lead time
-            if (window.fetchIntervalTime !== 10000) {
-                clearInterval(window.fetchInterval);
-                window.fetchIntervalTime = 10000;
-                window.fetchInterval = setInterval(fetchAlerts, 10000);
-            }
+            if (shouldSoundAlarm) playAlarm();
         }
 
         async function addAsset() {
             initAudio(); 
             const input = document.getElementById('addrIn');
-            const btn = document.getElementById('pinBtn');
             let val = input.value.trim();
             if (!val) return;
-            
-            const originalBtnText = btn.textContent;
-            btn.textContent = "SEARCHING...";
-            btn.disabled = true;
+            if (!val.includes(',') && !val.toUpperCase().includes(' AR')) val += ', AR';
             
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us&addressdetails=1&limit=1`);
-                const data = await res.json();
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us&email=daisy-app-local@example.com`);
+                if (!res.ok) throw new Error("Search provider error");
+                
+                // Safe parsing for Map API as well
+                const textData = await res.text();
+                const data = JSON.parse(textData);
+
                 if (data.length > 0) {
-                    const displayName = formatLocationName(data[0].address, val);
+                    const nameParts = data[0].display_name.split(',');
+                    let displayName = val.toUpperCase();
+                    // Grab the full location and county name from the mapping service
+                    if (nameParts.length >= 2) displayName = (nameParts[0] + ',' + nameParts[1]).trim().toUpperCase();
                     
                     currentMapLat = parseFloat(data[0].lat);
                     currentMapLon = parseFloat(data[0].lon);
@@ -1117,84 +793,34 @@
                     updateMap();
                     renderAssets();
                     fetchAlerts();
-                } else {
-                    alert("LOCATION NOT FOUND. PLEASE TRY A ZIP CODE OR FULL CITY NAME.");
                 }
             } catch (e) { 
-                console.error(e);
-                alert("SEARCH FAILED. PLEASE CHECK YOUR CONNECTION.");
-            } finally {
-                btn.textContent = originalBtnText;
-                btn.disabled = false;
+                console.warn("Map pinning issue: ", e.message); 
             }
         }
 
         function renderAssets() {
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
-                <div class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between gap-4 shadow-sm" role="listitem">
-                    <span class="text-xs font-bold uppercase truncate">${a.name}</span>
-                    <button onclick="assets=assets.filter(x=>x.id!==${typeof a.id === 'string' ? `'${a.id}'` : a.id});renderAssets();fetchAlerts()" 
-                            class="text-slate-400 hover:text-red-500 transition-colors font-bold"
-                            aria-label="Remove ${a.name}">×</button>
+                <div class="p-3 border-2 border-darkblue bg-blue-50 flex items-center justify-between w-full sm:w-auto shadow-sm">
+                    <p class="text-sm font-black uppercase truncate pr-4">${a.name}</p>
+                    <button onclick="assets=assets.filter(x=>x.id!==${a.id});renderAssets();fetchAlerts()" class="bg-red-800 text-white px-4 py-2 rounded font-black text-sm">X</button>
                 </div>
             `).join('');
         }
 
         async function shareApp() {
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'DAISY: Emergency System',
-                        url: window.location.href
-                    });
-                    return;
-                } catch (err) {
-                    if (err.name !== 'AbortError') console.error('Share failed:', err);
-                }
-            }
-            
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                document.getElementById('shareBtn').textContent = "LINK COPIED";
-            } catch (err) {
-                const el = document.createElement('textarea');
-                el.value = window.location.href;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                document.getElementById('shareBtn').textContent = "LINK COPIED";
-            }
+            const el = document.createElement('textarea');
+            el.value = window.location.href;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            document.getElementById('shareBtn').textContent = "LINK COPIED";
             setTimeout(() => { document.getElementById('shareBtn').textContent = "SHARE DAISY"; }, 2000);
         }
 
-        window.fetchIntervalTime = 10000;
-        window.fetchInterval = setInterval(fetchAlerts, 10000); 
-
-        // PWA Installation Logic
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(console.error);
-        }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installBtn').classList.remove('hidden');
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        document.getElementById('installBtn').classList.add('hidden');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
+        setInterval(fetchAlerts, 20000); 
     </script>
 </body>
 </html>
