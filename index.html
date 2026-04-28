@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAISY: Emergency System</title>
+    <title>DAISY | Emergency Weather System</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://www.weather.gov/hazstat/images/nws_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-099XWX42W4"></script>
@@ -128,7 +130,7 @@
         }
 
         .alert-bar-top {
-            background: var(--accent-primary);
+            background: #0d9488; /* Seagreen default for calm states */
             color: white;
             font-weight: 800;
             padding: 1rem;
@@ -189,6 +191,21 @@
             100% { border-color: #ff0000; }
         }
 
+        @keyframes full-screen-flash {
+            0%, 100% { background-color: var(--bg-primary); }
+            50% { background-color: #ff0000; }
+        }
+        
+        .flash-active {
+            animation: full-screen-flash 0.5s infinite !important;
+        }
+
+        /* Fluid Typography */
+        .text-fluid-massive { font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1; }
+        .text-fluid-title { font-size: clamp(1.5rem, 5vw, 2.25rem); line-height: 1.1; letter-spacing: -0.02em; }
+        .text-fluid-subtitle { font-size: clamp(0.75rem, 2vw, 1rem); letter-spacing: 0.1em; }
+        .text-fluid-body { font-size: clamp(0.9rem, 2vw, 1.1rem); line-height: 1.5; }
+
         .safety-action-box {
             background: #fef2f2;
             border: 2px dashed #dc2626;
@@ -211,10 +228,20 @@
         }
         .card-rotation-red .alert-bar-top { background: var(--danger-red); }
 
-        .card-caution {
-            border: 2px solid var(--caution-orange);
+        .card-warning {
+            border: 2px solid #ea580c; /* Orange */
         }
-        .card-caution .alert-bar-top { background: var(--caution-orange); }
+        .card-warning .alert-bar-top { background: #ea580c; }
+
+        .card-watch {
+            border: 2px solid #eab308; /* Yellow */
+        }
+        .card-watch .alert-bar-top { background: #eab308; color: #000; }
+
+        .card-calm {
+            border: 2px solid #0d9488; /* Seagreen */
+        }
+        .card-calm .alert-bar-top { background: #0d9488; }
 
         @keyframes pulse-red {
             0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
@@ -278,6 +305,12 @@
         input:focus {
             border-color: var(--accent-primary) !important;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
+
+        button:focus-visible, input:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 2px;
         }
 
         .btn-pin {
@@ -466,10 +499,22 @@
             
             <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 dark:border-slate-800 pt-6">
                 <div class="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400" id="audioStatus">AUDIO: ARMED</span>
                     <button onclick="testAlarm()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-colors">TEST SIREN</button>
+                    <button id="installBtn" onclick="installApp()" class="hidden px-5 py-2.5 bg-blue-600 rounded-full text-[10px] font-black uppercase text-white tracking-wider hover:bg-blue-700 transition-colors">INSTALL DAISY</button>
                 </div>
                 
+                <div class="flex flex-wrap items-center gap-4 w-full md:w-auto justify-center">
+                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                        <input type="checkbox" id="prefAudio" checked class="w-4 h-4 accent-blue-600"> AUDIO
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                        <input type="checkbox" id="prefVibrate" checked class="w-4 h-4 accent-blue-600"> VIBRATE
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                        <input type="checkbox" id="prefFlash" checked class="w-4 h-4 accent-blue-600"> FLASH
+                    </label>
+                </div>
+
                 <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
                     <span class="live-dot"></span>
                     <span id="lastSync" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">SYNCING...</span>
@@ -482,7 +527,7 @@
                 <button onclick="setMapMode('radar')" id="modeRadar" class="px-6 py-2 rounded-full text-sm font-bold transition-all active bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">Radar</button>
                 <button onclick="setMapMode('gust')" id="modeGust" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-transparent text-slate-500">Wind Gust</button>
             </div>
-            <div class="map-wrapper h-[450px] md:h-[600px]">
+            <div class="map-wrapper h-[300px] md:h-[400px]">
                 <div class="map-overlay" id="mapOverlay" onclick="this.style.pointerEvents='none'; this.style.opacity='0';">
                     <span class="bg-white/10 backdrop-blur-md px-8 py-4 rounded-full border border-white/20">Tap to Unlock Map</span>
                 </div>
@@ -495,13 +540,13 @@
             <div class="w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="flex flex-col gap-4">
-                        <input id="addrIn" type="text" placeholder="Enter City, Zip, or Address" class="h-12" onkeyup="if(event.key === 'Enter') addAsset()">
+                        <input id="addrIn" type="text" placeholder="Enter City, Zip, or Address" class="h-12" aria-label="Enter address city or zip code" onkeyup="if(event.key === 'Enter') addAsset()">
                         <div class="grid grid-cols-2 gap-3">
-                            <button onclick="addAsset()" class="btn-pin" id="pinBtn">PIN LOCATION</button>
-                            <button onclick="shareApp()" class="btn-share" id="shareBtn">SHARE</button>
+                            <button onclick="addAsset()" class="btn-pin" id="pinBtn" aria-label="Pin this location and arm alarm">PIN LOCATION</button>
+                            <button onclick="shareApp()" class="btn-share" id="shareBtn" aria-label="Share a link to this app">SHARE</button>
                         </div>
                     </div>
-                    <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start"></div>
+                    <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start" aria-label="Currently pinned locations"></div>
                 </div>
             </div>
         </div>
@@ -511,7 +556,7 @@
                 <span class="w-8 h-1 bg-accent-primary rounded-full"></span>
                 ACTIVE PROXIMITY ALERTS
             </h2>
-            <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
+            <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full" aria-live="polite" aria-relevant="additions text">
                 <p class="text-slate-500 font-medium col-span-full text-center py-12">Scanning National Weather Service...</p>
             </div>
         </div>
@@ -570,6 +615,20 @@
             'W': 270, 'WEST': 270, 'WNW': 292.5, 'NW': 315, 'NNW': 337.5
         };
 
+        const usStates = {
+            'Alabama':'AL', 'Alaska':'AK', 'Arizona':'AZ', 'Arkansas':'AR', 'California':'CA', 'Colorado':'CO', 'Connecticut':'CT', 'Delaware':'DE', 'Florida':'FL', 'Georgia':'GA', 'Hawaii':'HI', 'Idaho':'ID', 'Illinois':'IL', 'Indiana':'IN', 'Iowa':'IA', 'Kansas':'KS', 'Kentucky':'KY', 'Louisiana':'LA', 'Maine':'ME', 'Maryland':'MD', 'Massachusetts':'MA', 'Michigan':'MI', 'Minnesota':'MN', 'Mississippi':'MS', 'Missouri':'MO', 'Montana':'MT', 'Nebraska':'NE', 'Nevada':'NV', 'New Hampshire':'NH', 'New Jersey':'NJ', 'New Mexico':'NM', 'New York':'NY', 'North Carolina':'NC', 'North Dakota':'ND', 'Ohio':'OH', 'Oklahoma':'OK', 'Oregon':'OR', 'Pennsylvania':'PA', 'Rhode Island':'RI', 'South Carolina':'SC', 'South Dakota':'SD', 'Tennessee':'TN', 'Texas':'TX', 'Utah':'UT', 'Vermont':'VT', 'Virginia':'VA', 'Washington':'WA', 'West Virginia':'WV', 'Wisconsin':'WI', 'Wyoming':'WY', 'District of Columbia':'DC'
+        };
+
+        function formatLocationName(addr, fallback) {
+            if (!addr) return fallback.toUpperCase();
+            const city = addr.city || addr.town || addr.village || addr.municipality || "";
+            const state = addr.state ? (usStates[addr.state] || addr.state.toUpperCase()) : "";
+            
+            if (city) return `${city}${state ? ', ' + state : ''}`.toUpperCase();
+            if (addr.county) return `${addr.county.replace(/ County/i, '')}${state ? ', ' + state : ''}`.toUpperCase();
+            return fallback.toUpperCase();
+        }
+
         window.onload = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
@@ -588,17 +647,9 @@
 
         async function reverseGeocode(lat, lon) {
             try {
-                // Using nominatim for reverse geocoding to get a readable name for the auto-detected location
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
                 const data = await res.json();
-                let name = "MY LOCATION";
-                if (data && data.address) {
-                    const addr = data.address;
-                    const city = addr.city || addr.town || addr.village || "";
-                    const state = addr.state ? addr.state.substring(0,2).toUpperCase() : "";
-                    if (city) name = `${city}${state ? ', ' + state : ''}`.toUpperCase();
-                    else if (addr.county) name = addr.county.toUpperCase();
-                }
+                const name = formatLocationName(data.address, "MY LOCATION");
                 
                 // Add as an asset but check if it already exists to avoid duplicates
                 if (!assets.some(a => Math.abs(a.lat - lat) < 0.01 && Math.abs(a.lon - lon) < 0.01)) {
@@ -643,16 +694,40 @@
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                document.getElementById('audioStatus').textContent = "AUDIO ALARMS: ARMED";
-                document.getElementById('audioStatus').classList.replace("text-yellow-400", "text-green-400");
             }
         }
 
         let alarmLevel = 0; // 0: none, 1: watch, 2: warning, 3: emergency/pds
         let alarmInterval;
+        let hapticInterval;
+
+        function triggerHaptics(level) {
+            if (!navigator.vibrate || !document.getElementById('prefVibrate').checked) return;
+            if (level === 3) {
+                // S-O-S Pattern
+                navigator.vibrate([100,100,100,100,100, 300,300,300,300,300, 100,100,100,100,100]);
+            } else if (level === 2) {
+                navigator.vibrate([500, 500, 500]);
+            }
+        }
+
+        function triggerFlash(level) {
+            if (!document.getElementById('prefFlash').checked) {
+                document.body.classList.remove('flash-active');
+                return;
+            }
+            if (level >= 2) {
+                document.body.classList.add('flash-active');
+            } else {
+                document.body.classList.remove('flash-active');
+            }
+        }
 
         function playAlarm(level) {
-            if (!audioCtx || level <= alarmLevel) return;
+            triggerHaptics(level);
+            triggerFlash(level);
+            
+            if (!audioCtx || level <= alarmLevel || !document.getElementById('prefAudio').checked) return;
             
             // Upgrade alarm
             alarmLevel = level;
@@ -688,6 +763,7 @@
             setTimeout(() => {
                 if (alarmInterval) clearInterval(alarmInterval);
                 alarmLevel = 0;
+                document.body.classList.remove('flash-active');
             }, 3000);
         }
 
@@ -759,12 +835,17 @@
             let highestAlarmLevel = 0;
             let hasActiveWarning = false;
 
+            document.body.classList.remove('flash-active');
             if (features.length === 0) {
-                container.innerHTML = '<p class="text-slate-500 font-medium col-span-full text-center py-12">NO ACTIVE THREATS DETECTED.</p>';
-                return;
-            }
-
-            features.forEach(f => {
+                container.innerHTML = `
+                    <div class="col-span-full bg-green-600 dark:bg-green-700 text-white rounded-3xl p-12 text-center shadow-lg border-4 border-green-500">
+                        <h2 class="text-fluid-massive font-black mb-4">CLEAR</h2>
+                        <p class="text-fluid-body font-bold uppercase tracking-widest">NO ACTIVE THREATS</p>
+                        <p class="text-sm font-medium mt-4 text-green-200">System Standing By</p>
+                    </div>
+                `;
+            } else {
+                features.forEach(f => {
                 const props = f.properties || {};
                 const description = (props.description || "").toUpperCase();
                 const text = description + " " + (props.instruction || "").toUpperCase();
@@ -863,11 +944,13 @@
                     if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
                 } 
                 else if (f.properties.event.includes('Warning')) {
-                    stateClass = 'card-caution';
+                    stateClass = 'card-warning';
                     if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
                 } else if (f.properties.event.includes('Watch')) {
-                    stateClass = 'card-caution';
+                    stateClass = 'card-watch';
                     if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 1);
+                } else {
+                    stateClass = 'card-calm';
                 }
 
                 if (f.properties.event.includes('Warning')) hasActiveWarning = true;
@@ -879,16 +962,18 @@
                 if (assets.length === 0) {
                     distBg = 'bg-blue-600 text-white'; distText = '[SCANNING]'; distSubtext = 'PIN LOCATION TO TRACK';
                 } else if (f.isDirectHit) {
-                    distText = 'ACTIVE IN ZONE';
                     if (f.properties.event.includes('Watch')) {
+                        distText = 'IN YOUR AREA';
                         distBg = 'bg-amber-500 text-white';
-                        distSubtext = 'LOCAL WATCH IN EFFECT';
+                        distSubtext = 'BE PREPARED';
                     } else {
+                        distText = 'TAKE COVER NOW';
                         distBg = 'bg-red-600 text-white animate-pulse';
-                        distSubtext = 'IMMINENT THREAT';
+                        distSubtext = 'GO TO BASEMENT OR INTERIOR ROOM';
                     }
                 } else if (isImminent && (isDangerous || isDeveloping)) {
-                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'IMMINENT THREAT';
+                    distText = 'IMMINENT THREAT';
+                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'TAKE COVER SOON';
                 } else if (f.minDist <= 50) {
                     distBg = 'bg-orange-500 text-white'; distSubtext = 'REGIONAL SYSTEM';
                 }
@@ -915,15 +1000,17 @@
                     `;
                 }
 
+                card.setAttribute('role', 'alert');
+                card.setAttribute('aria-label', `${f.properties.event} for ${f.properties.areaDesc}`);
                 card.innerHTML = `
-                    <div class="alert-bar-top">${f.properties.event}</div>
+                    <div class="alert-bar-top" role="header">${f.properties.event}</div>
                     <div class="alert-inner-container">
-                        <div class="w-full text-center p-4 mb-4 rounded-xl flex flex-col ${distBg}">
+                        <div class="w-full text-center p-4 mb-4 rounded-xl flex flex-col ${distBg}" role="status">
                             <span class="text-3xl font-black">${distText}</span>
                             <span class="text-[10px] uppercase font-bold tracking-[0.2em] mt-1">${distSubtext}</span>
                         </div>
                         <div class="notification-box font-bold text-center">${f.properties.areaDesc}</div>
-                        ${f.snippet ? `<div class="threat-detail">REPORTED: ${f.snippet}</div>` : ''}
+                        ${f.snippet ? `<div class="threat-detail" role="note">REPORTED: ${f.snippet}</div>` : ''}
                         ${safetyHtml}
                         <div class="mt-6 flex flex-wrap justify-center gap-2">
                             ${tagsHtml}
@@ -933,22 +1020,15 @@
                 `;
                 container.appendChild(card);
             });
+            }
 
             if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel);
-            
-            // Adjust sync frequency based on danger
-            if (hasActiveWarning) {
-                if (window.fetchIntervalTime !== 10000) {
-                    clearInterval(window.fetchInterval);
-                    window.fetchIntervalTime = 10000;
-                    window.fetchInterval = setInterval(fetchAlerts, 10000);
-                }
-            } else {
-                if (window.fetchIntervalTime !== 30000) {
-                    clearInterval(window.fetchInterval);
-                    window.fetchIntervalTime = 30000;
-                    window.fetchInterval = setInterval(fetchAlerts, 30000);
-                }
+
+            // Adjust sync frequency: 10s always for "Ultimate Advantage" lead time
+            if (window.fetchIntervalTime !== 10000) {
+                clearInterval(window.fetchInterval);
+                window.fetchIntervalTime = 10000;
+                window.fetchInterval = setInterval(fetchAlerts, 10000);
             }
         }
 
@@ -964,12 +1044,10 @@
             btn.disabled = true;
             
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us&addressdetails=1&limit=1`);
                 const data = await res.json();
                 if (data.length > 0) {
-                    const nameParts = data[0].display_name.split(',');
-                    let displayName = val.toUpperCase();
-                    if (nameParts.length >= 2) displayName = (nameParts[0] + ',' + nameParts[1]).trim().toUpperCase();
+                    const displayName = formatLocationName(data[0].address, val);
                     
                     currentMapLat = parseFloat(data[0].lat);
                     currentMapLon = parseFloat(data[0].lon);
@@ -993,9 +1071,11 @@
         function renderAssets() {
             const list = document.getElementById('assetList');
             list.innerHTML = assets.map(a => `
-                <div class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between gap-4 shadow-sm">
+                <div class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between gap-4 shadow-sm" role="listitem">
                     <span class="text-xs font-bold uppercase truncate">${a.name}</span>
-                    <button onclick="assets=assets.filter(x=>x.id!==${typeof a.id === 'string' ? `'${a.id}'` : a.id});renderAssets();fetchAlerts()" class="text-slate-400 hover:text-red-500 transition-colors font-bold">×</button>
+                    <button onclick="assets=assets.filter(x=>x.id!==${typeof a.id === 'string' ? `'${a.id}'` : a.id});renderAssets();fetchAlerts()" 
+                            class="text-slate-400 hover:text-red-500 transition-colors font-bold"
+                            aria-label="Remove ${a.name}">×</button>
                 </div>
             `).join('');
         }
@@ -1028,8 +1108,32 @@
             setTimeout(() => { document.getElementById('shareBtn').textContent = "SHARE DAISY"; }, 2000);
         }
 
-        window.fetchIntervalTime = 30000;
-        window.fetchInterval = setInterval(fetchAlerts, 30000); 
+        window.fetchIntervalTime = 10000;
+        window.fetchInterval = setInterval(fetchAlerts, 10000); 
+
+        // PWA Installation Logic
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(console.error);
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installBtn').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
     </script>
 </body>
 </html>

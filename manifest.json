@@ -1,0 +1,21 @@
+{
+  "name": "D.A.I.S.Y. System",
+  "short_name": "DAISY",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#dc2626",
+  "description": "National Emergency Weather Tracking System",
+  "icons": [
+    {
+      "src": "https://www.weather.gov/hazstat/images/nws_logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://www.weather.gov/hazstat/images/nws_logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
