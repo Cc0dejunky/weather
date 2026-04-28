@@ -73,8 +73,8 @@
             </div>
         </div>
 
-        <div class="brand-border">
-            <h3 class="text-xs font-black mb-6 text-center uppercase tracking-[0.2em] text-slate-400">PINNED LOCATIONS</h3>
+        <section class="brand-border" aria-label="Location Management">
+            <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-4">PINNED LOCATIONS</h3>
             <div class="w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="flex flex-col gap-4">
@@ -87,20 +87,20 @@
                     <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start" aria-label="Currently pinned locations"></div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="mb-12">
-            <h2 class="text-2xl font-black mb-8 flex items-center gap-3">
+        <section id="proximitySection" aria-label="Active Weather Threats">
+            <h2 class="text-fluid-title font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                 <span class="w-8 h-1 bg-accent-primary rounded-full"></span>
                 ACTIVE PROXIMITY ALERTS
             </h2>
             <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full" aria-live="polite" aria-relevant="additions text">
                 <p class="text-slate-500 font-medium col-span-full text-center py-12">Scanning National Weather Service...</p>
             </div>
-        </div>
+        </section>
 
-        <div class="brand-border mb-12">
-            <h3 class="text-xl font-bold mb-8 text-center uppercase tracking-widest text-slate-400">RESOURCES</h3>
+        <section class="brand-border mb-12" aria-label="Emergency Resources">
+            <h3 class="text-xl font-bold mb-8 text-center uppercase tracking-widest text-slate-500">RESOURCES</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
                     <h4 class="font-bold text-sm uppercase text-slate-500">Radar Guide</h4>
@@ -123,7 +123,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <div id="audioOverlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[200] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center animate-pulse mb-6 shadow-[0_0_40px_rgba(37,99,235,0.4)]">
