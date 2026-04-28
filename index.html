@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-099XWX42W4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
       gtag('config', 'G-099XWX42W4');
     </script>
@@ -711,21 +712,22 @@
             }
         }
 
-        function triggerFlash(level) {
+        function triggerFlash(level, isTornado = false) {
             if (!document.getElementById('prefFlash').checked) {
                 document.body.classList.remove('flash-active');
                 return;
             }
-            if (level >= 2) {
+            // Flash ONLY if it's a level 2+ alarm AND a tornado threat is confirmed
+            if (level >= 2 && isTornado) {
                 document.body.classList.add('flash-active');
             } else {
                 document.body.classList.remove('flash-active');
             }
         }
 
-        function playAlarm(level) {
+        function playAlarm(level, isTornado = false) {
             triggerHaptics(level);
-            triggerFlash(level);
+            triggerFlash(level, isTornado);
             
             if (!audioCtx || level <= alarmLevel || !document.getElementById('prefAudio').checked) return;
             
@@ -759,7 +761,7 @@
 
         function testAlarm() {
             initAudio();
-            playAlarm(2);
+            playAlarm(2, true); // Pass true so the user can verify flashing works during test
             setTimeout(() => {
                 if (alarmInterval) clearInterval(alarmInterval);
                 alarmLevel = 0;
@@ -854,6 +856,7 @@
             const container = document.getElementById('alertsContainer');
             container.innerHTML = '';
             let highestAlarmLevel = 0;
+            let tornadoActive = false;
             let hasActiveWarning = false;
 
             document.body.classList.remove('flash-active');
@@ -970,20 +973,31 @@
                 const isEmergency = f.keywords.emergency;
                 const isDeveloping = f.keywords.possible;
                 
-                let stateClass = '';
+                const isTornado = f.properties.event.includes('TORNADO') || f.keywords.rotation || f.keywords.observed || f.keywords.possible || text.includes('TORNADIC');
+
                 if (isEmergency && isImminent) {
                     stateClass = 'card-emergency-pds';
-                    if (audioCtx) highestAlarmLevel = 3;
+                    highestAlarmLevel = 3;
+                    if (isTornado) tornadoActive = true;
                 } else if (isDangerous || isDeveloping) {
                     stateClass = isClose || (f.etaMinutes && f.etaMinutes < 20) ? 'card-emergency' : 'card-rotation-red';
-                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                    if (isImminent) {
+                        highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                        if (isTornado) tornadoActive = true;
+                    }
                 } 
                 else if (f.properties.event.includes('Warning')) {
                     stateClass = 'card-warning';
-                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                    if (isImminent) {
+                        highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                        if (isTornado) tornadoActive = true;
+                    }
                 } else if (f.properties.event.includes('Watch')) {
                     stateClass = 'card-watch';
-                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 1);
+                    if (isImminent) {
+                        highestAlarmLevel = Math.max(highestAlarmLevel, 1);
+                        if (isTornado) tornadoActive = true;
+                    }
                 } else {
                     stateClass = 'card-calm';
                 }
@@ -1020,6 +1034,7 @@
                 if (f.headedTowards) tagsHtml += '<span class="keyword-tag bg-blue-600 text-white ring-2 ring-blue-400">HEADED TOWARDS YOU</span>';
                 if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag bg-slate-900 text-white">ETA: ${f.etaMinutes} MINS</span>`;
                 if (isEmergency) tagsHtml += '<span class="keyword-tag bg-black text-red-500 animate-bounce">TORNADO EMERGENCY</span>';
+                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
                 if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
                 if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600 text-white">ROTATION DETECTED</span>';
                 if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
@@ -1068,7 +1083,7 @@
                 }
             }
 
-            if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel);
+            if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel, tornadoActive);
 
             // Adjust sync frequency: 10s always for "Ultimate Advantage" lead time
             if (window.fetchIntervalTime !== 10000) {
