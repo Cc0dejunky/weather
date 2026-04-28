@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +7,13 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://www.weather.gov/hazstat/images/nws_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-099XWX42W4"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-099XWX42W4');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-099XWX42W4');
     </script>
 
     <style>
@@ -27,16 +26,16 @@
             --accent-primary: #2563eb;
             --accent-secondary: #0ea5e9;
             --border-color: #e2e8f0;
-
+            
             --danger-red: #ef4444;
             --danger-bg: #fee2e2;
             --caution-orange: #f59e0b;
             --caution-bg: #fef3c7;
             --success-green: #10b981;
-
+            
             --brand-gradient: linear-gradient(135deg, #2563eb, #0ea5e9);
             --emergency-gradient: linear-gradient(135deg, #dc2626, #ef4444);
-
+            
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --glass-bg: rgba(255, 255, 255, 0.7);
@@ -52,12 +51,12 @@
             --accent-primary: #3b82f6;
             --accent-secondary: #06b6d4;
             --border-color: #1e293b;
-
+            
             --danger-red: #f87171;
             --danger-bg: #450a0a;
             --caution-orange: #fbbf24;
             --caution-bg: #451a03;
-
+            
             --glass-bg: rgba(15, 23, 42, 0.7);
             --glass-border: rgba(30, 41, 59, 0.5);
         }
@@ -90,9 +89,7 @@
             line-height: 1;
         }
 
-        h2,
-        h3,
-        h4 {
+        h2, h3, h4 {
             font-weight: 800;
             letter-spacing: -0.025em;
             color: var(--text-primary) !important;
@@ -133,8 +130,7 @@
         }
 
         .alert-bar-top {
-            background: #0d9488;
-            /* Seagreen default for calm states */
+            background: #0d9488; /* Seagreen default for calm states */
             color: white;
             font-weight: 800;
             padding: 1rem;
@@ -174,10 +170,7 @@
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
             animation: pulse-red 1s infinite;
         }
-
-        .card-emergency .alert-bar-top {
-            background: var(--emergency-gradient);
-        }
+        .card-emergency .alert-bar-top { background: var(--emergency-gradient); }
 
         .card-emergency-pds {
             border: 4px solid #000;
@@ -186,88 +179,32 @@
             box-shadow: 0 0 40px #ff0000;
             animation: strobe-pds 0.5s infinite;
         }
-
-        .card-emergency-pds .alert-bar-top {
-            background: #ff0000;
-            color: #000;
-            font-weight: 900;
-            font-size: 1.2rem;
-        }
-
-        .card-emergency-pds .alert-inner-container {
-            background: #000;
-            border: none;
-        }
-
-        .card-emergency-pds .notification-box {
-            background: #1a1a1a;
-            color: #fff;
-            border-color: #333;
-        }
-
-        .card-emergency-pds .threat-detail {
-            background: #ff0000;
-            color: #000;
-            border: none;
-            font-size: 1.1rem;
-        }
-
-        .card-emergency-pds .alert-bar-bottom {
-            background: #1a1a1a;
-            color: #ff0000;
-        }
+        .card-emergency-pds .alert-bar-top { background: #ff0000; color: #000; font-weight: 900; font-size: 1.2rem; }
+        .card-emergency-pds .alert-inner-container { background: #000; border: none; }
+        .card-emergency-pds .notification-box { background: #1a1a1a; color: #fff; border-color: #333; }
+        .card-emergency-pds .threat-detail { background: #ff0000; color: #000; border: none; font-size: 1.1rem; }
+        .card-emergency-pds .alert-bar-bottom { background: #1a1a1a; color: #ff0000; }
 
         @keyframes strobe-pds {
-            0% {
-                border-color: #ff0000;
-            }
-
-            50% {
-                border-color: #000;
-            }
-
-            100% {
-                border-color: #ff0000;
-            }
+            0% { border-color: #ff0000; }
+            50% { border-color: #000; }
+            100% { border-color: #ff0000; }
         }
 
         @keyframes full-screen-flash {
-
-            0%,
-            100% {
-                background-color: var(--bg-primary);
-            }
-
-            50% {
-                background-color: #ff0000;
-            }
+            0%, 100% { background-color: var(--bg-primary); }
+            50% { background-color: #ff0000; }
         }
-
+        
         .flash-active {
             animation: full-screen-flash 0.5s infinite !important;
         }
 
         /* Fluid Typography */
-        .text-fluid-massive {
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            line-height: 1;
-        }
-
-        .text-fluid-title {
-            font-size: clamp(1.5rem, 5vw, 2.25rem);
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-        }
-
-        .text-fluid-subtitle {
-            font-size: clamp(0.75rem, 2vw, 1rem);
-            letter-spacing: 0.1em;
-        }
-
-        .text-fluid-body {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            line-height: 1.5;
-        }
+        .text-fluid-massive { font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1; }
+        .text-fluid-title { font-size: clamp(1.5rem, 5vw, 2.25rem); line-height: 1.1; letter-spacing: -0.02em; }
+        .text-fluid-subtitle { font-size: clamp(0.75rem, 2vw, 1rem); letter-spacing: 0.1em; }
+        .text-fluid-body { font-size: clamp(0.9rem, 2vw, 1.1rem); line-height: 1.5; }
 
         .safety-action-box {
             background: #fef2f2;
@@ -282,79 +219,40 @@
         }
 
         @keyframes slide-up {
-            from {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .card-rotation-red {
             border: 2px solid var(--danger-red);
         }
-
-        .card-rotation-red .alert-bar-top {
-            background: var(--danger-red);
-        }
+        .card-rotation-red .alert-bar-top { background: var(--danger-red); }
 
         .card-warning {
-            border: 2px solid #ea580c;
-            /* Orange */
+            border: 2px solid #ea580c; /* Orange */
         }
-
-        .card-warning .alert-bar-top {
-            background: #ea580c;
-        }
+        .card-warning .alert-bar-top { background: #ea580c; }
 
         .card-watch {
-            border: 2px solid #eab308;
-            /* Yellow */
+            border: 2px solid #eab308; /* Yellow */
         }
-
-        .card-watch .alert-bar-top {
-            background: #eab308;
-            color: #000;
-        }
+        .card-watch .alert-bar-top { background: #eab308; color: #000; }
 
         .card-calm {
-            border: 2px solid #0d9488;
-            /* Seagreen */
+            border: 2px solid #0d9488; /* Seagreen */
         }
-
-        .card-calm .alert-bar-top {
-            background: #0d9488;
-        }
+        .card-calm .alert-bar-top { background: #0d9488; }
 
         @keyframes pulse-red {
-            0% {
-                box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 30px rgba(239, 68, 68, 0.7);
-            }
-
-            100% {
-                box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-            }
+            0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.7); }
+            100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
         }
-
+        
         @keyframes pulse-subtle-red {
-            0% {
-                border-color: #fca5a5;
-            }
-
-            50% {
-                border-color: #ef4444;
-            }
-
-            100% {
-                border-color: #fca5a5;
-            }
+            0% { border-color: #fca5a5; }
+            50% { border-color: #ef4444; }
+            100% { border-color: #fca5a5; }
         }
 
         .keyword-tag {
@@ -386,17 +284,9 @@
         }
 
         @keyframes pulse-indigo {
-            0% {
-                background-color: #1e1b4b;
-            }
-
-            50% {
-                background-color: #4338ca;
-            }
-
-            100% {
-                background-color: #1e1b4b;
-            }
+            0% { background-color: #1e1b4b; }
+            50% { background-color: #4338ca; }
+            100% { background-color: #1e1b4b; }
         }
 
         input {
@@ -418,8 +308,7 @@
             outline: none;
         }
 
-        button:focus-visible,
-        input:focus-visible {
+        button:focus-visible, input:focus-visible {
             outline: 3px solid var(--accent-primary);
             outline-offset: 2px;
         }
@@ -439,8 +328,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 48px;
-            /* Touch target size */
+            min-height: 48px; /* Touch target size */
         }
 
         .btn-pin:hover {
@@ -510,17 +398,9 @@
         }
 
         @keyframes blink {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
-
-            100% {
-                opacity: 1;
-            }
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
 
         .accordion-content {
@@ -528,11 +408,9 @@
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
-
         .accordion-item.active .accordion-content {
             max-height: 1000px;
         }
-
         .accordion-header {
             cursor: pointer;
             display: flex;
@@ -550,13 +428,10 @@
             height: 100%;
             background: #e5e7eb;
         }
-
+        
         .map-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.6);
             z-index: 10;
             display: flex;
@@ -569,7 +444,7 @@
             letter-spacing: 2px;
             cursor: pointer;
             transition: opacity 0.3s ease;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .update-banner {
@@ -597,51 +472,37 @@
             text-transform: uppercase;
             transition: all 0.2s;
         }
-
         .map-toggle-btn.active {
             background: var(--darkblue);
             color: white;
             box-shadow: 0 0 10px var(--aqua);
         }
-
         #radarMap {
             cursor: pointer;
         }
 
-        #radarMap {
-            border: 0;
-        }
+        #radarMap { border: 0; }
     </style>
 </head>
-
 <body>
     <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌓</button>
 
     <div class="main-container">
-        <div id="updateBanner"
-            class="bg-blue-600 text-white p-3 rounded-lg mb-6 flex justify-between items-center shadow-lg">
-            <span class="font-bold text-sm">SYSTEM UPDATE: ZONE MATCHING ENABLED. WATCHES FOR YOUR PINNED COUNTIES NOW
-                FLOAT TO THE TOP.</span>
-            <button onclick="document.getElementById('updateBanner').style.display='none'"
-                class="ml-4 font-bold text-xl">&times;</button>
+        <div id="updateBanner" class="bg-blue-600 text-white p-3 rounded-lg mb-6 flex justify-between items-center shadow-lg">
+            <span class="font-bold text-sm">SYSTEM UPDATE: ZONE MATCHING ENABLED. WATCHES FOR YOUR PINNED COUNTIES NOW FLOAT TO THE TOP.</span>
+            <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl">&times;</button>
         </div>
 
         <header class="header-block rounded-3xl">
             <h1 class="text-center mb-4">D.A.I.S.Y.</h1>
-            <p class="text-center text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-8">National
-                Emergency System</p>
-
-            <div
-                class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <p class="text-center text-slate-500 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mb-8">National Emergency System</p>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-slate-100 dark:border-slate-800 pt-6">
                 <div class="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
-                    <button onclick="testAlarm()"
-                        class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-colors">TEST
-                        SIREN</button>
-                    <button id="installBtn" onclick="installApp()"
-                        class="hidden px-5 py-2.5 bg-blue-600 rounded-full text-[10px] font-black uppercase text-white tracking-wider hover:bg-blue-700 transition-colors">INSTALL
-                        DAISY</button>
+                    <button onclick="testAlarm()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-colors">TEST SIREN</button>
+                    <button id="installBtn" onclick="installApp()" class="hidden px-5 py-2.5 bg-blue-600 rounded-full text-[10px] font-black uppercase text-white tracking-wider hover:bg-blue-700 transition-colors">INSTALL DAISY</button>
                 </div>
-
+                
                 <div class="flex flex-wrap items-center gap-4 w-full md:w-auto justify-center">
                     <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
                         <input type="checkbox" id="prefAudio" checked class="w-4 h-4 accent-blue-600"> AUDIO
@@ -656,50 +517,36 @@
 
                 <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
                     <span class="live-dot"></span>
-                    <span id="lastSync"
-                        class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">SYNCING...</span>
+                    <span id="lastSync" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">SYNCING...</span>
                 </div>
             </div>
         </header>
 
         <div class="brand-border p-0 overflow-hidden" id="mapContainer">
-            <div
-                class="flex justify-center bg-slate-50 dark:bg-slate-900 p-3 gap-2 border-b border-slate-200 dark:border-slate-800">
-                <button onclick="setMapMode('radar')" id="modeRadar"
-                    class="px-6 py-2 rounded-full text-sm font-bold transition-all active bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">Radar</button>
-                <button onclick="setMapMode('gust')" id="modeGust"
-                    class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-transparent text-slate-500">Wind
-                    Gust</button>
+            <div class="flex justify-center bg-slate-50 dark:bg-slate-900 p-3 gap-2 border-b border-slate-200 dark:border-slate-800">
+                <button onclick="setMapMode('radar')" id="modeRadar" class="px-6 py-2 rounded-full text-sm font-bold transition-all active bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">Radar</button>
+                <button onclick="setMapMode('gust')" id="modeGust" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-transparent text-slate-500">Wind Gust</button>
             </div>
             <div class="map-wrapper h-[300px] md:h-[400px]">
-                <div class="map-overlay" id="mapOverlay"
-                    onclick="this.style.pointerEvents='none'; this.style.opacity='0';">
-                    <span class="bg-white/10 backdrop-blur-md px-8 py-4 rounded-full border border-white/20">Tap to
-                        Unlock Map</span>
+                <div class="map-overlay" id="mapOverlay" onclick="this.style.pointerEvents='none'; this.style.opacity='0';">
+                    <span class="bg-white/10 backdrop-blur-md px-8 py-4 rounded-full border border-white/20">Tap to Unlock Map</span>
                 </div>
-                <iframe id="radarMap" title="Interactive Weather Radar Map" width="100%" height="100%"
-                    src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=5&level=surface&overlay=radar&product=radar&message=true"
-                    loading="lazy"></iframe>
+                <iframe id="radarMap" title="Interactive Weather Radar Map" width="100%" height="100%" src="https://embed.windy.com/embed2.html?lat=35.385&lon=-94.398&zoom=5&level=surface&overlay=radar&product=radar&message=true" loading="lazy"></iframe>
             </div>
         </div>
 
         <div class="brand-border">
-            <h3 class="text-xs font-black mb-6 text-center uppercase tracking-[0.2em] text-slate-400">PINNED LOCATIONS
-            </h3>
+            <h3 class="text-xs font-black mb-6 text-center uppercase tracking-[0.2em] text-slate-400">PINNED LOCATIONS</h3>
             <div class="w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div class="flex flex-col gap-4">
-                        <input id="addrIn" type="text" placeholder="Enter City, Zip, or Address" class="h-12"
-                            aria-label="Enter address city or zip code" onkeyup="if(event.key === 'Enter') addAsset()">
+                        <input id="addrIn" type="text" placeholder="Enter City, Zip, or Address" class="h-12" aria-label="Enter address city or zip code" onkeyup="if(event.key === 'Enter') addAsset()">
                         <div class="grid grid-cols-2 gap-3">
-                            <button onclick="addAsset()" class="btn-pin" id="pinBtn"
-                                aria-label="Pin this location and arm alarm">PIN LOCATION</button>
-                            <button onclick="shareApp()" class="btn-share" id="shareBtn"
-                                aria-label="Share a link to this app">SHARE</button>
+                            <button onclick="addAsset()" class="btn-pin" id="pinBtn" aria-label="Pin this location and arm alarm">PIN LOCATION</button>
+                            <button onclick="shareApp()" class="btn-share" id="shareBtn" aria-label="Share a link to this app">SHARE</button>
                         </div>
                     </div>
-                    <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start"
-                        aria-label="Currently pinned locations"></div>
+                    <div id="assetList" class="flex flex-wrap gap-2 justify-center lg:justify-start" aria-label="Currently pinned locations"></div>
                 </div>
             </div>
         </div>
@@ -709,10 +556,8 @@
                 <span class="w-8 h-1 bg-accent-primary rounded-full"></span>
                 ACTIVE PROXIMITY ALERTS
             </h2>
-            <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full"
-                aria-live="polite" aria-relevant="additions text">
-                <p class="text-slate-500 font-medium col-span-full text-center py-12">Scanning National Weather
-                    Service...</p>
+            <div id="alertsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full" aria-live="polite" aria-relevant="additions text">
+                <p class="text-slate-500 font-medium col-span-full text-center py-12">Scanning National Weather Service...</p>
             </div>
         </div>
 
@@ -722,8 +567,7 @@
                 <div class="space-y-4">
                     <h4 class="font-bold text-sm uppercase text-slate-500">Radar Guide</h4>
                     <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        On <strong>Wind Gust</strong> maps, look for circular "swirls" indicating rotation. Tight
-                        spirals with bright colors signal intense circulation.
+                        On <strong>Wind Gust</strong> maps, look for circular "swirls" indicating rotation. Tight spirals with bright colors signal intense circulation.
                     </p>
                 </div>
                 <div class="space-y-4">
@@ -746,7 +590,7 @@
     <script>
         let assets = [];
         const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning,Severe%20Weather%20Statement,Special%20Weather%20Statement";
-
+        
         let audioCtx;
         let alarmTriggered = false;
         let currentMapLat = 35.385;
@@ -772,20 +616,20 @@
         };
 
         const usStates = {
-            'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY', 'District of Columbia': 'DC'
+            'Alabama':'AL', 'Alaska':'AK', 'Arizona':'AZ', 'Arkansas':'AR', 'California':'CA', 'Colorado':'CO', 'Connecticut':'CT', 'Delaware':'DE', 'Florida':'FL', 'Georgia':'GA', 'Hawaii':'HI', 'Idaho':'ID', 'Illinois':'IL', 'Indiana':'IN', 'Iowa':'IA', 'Kansas':'KS', 'Kentucky':'KY', 'Louisiana':'LA', 'Maine':'ME', 'Maryland':'MD', 'Massachusetts':'MA', 'Michigan':'MI', 'Minnesota':'MN', 'Mississippi':'MS', 'Missouri':'MO', 'Montana':'MT', 'Nebraska':'NE', 'Nevada':'NV', 'New Hampshire':'NH', 'New Jersey':'NJ', 'New Mexico':'NM', 'New York':'NY', 'North Carolina':'NC', 'North Dakota':'ND', 'Ohio':'OH', 'Oklahoma':'OK', 'Oregon':'OR', 'Pennsylvania':'PA', 'Rhode Island':'RI', 'South Carolina':'SC', 'South Dakota':'SD', 'Tennessee':'TN', 'Texas':'TX', 'Utah':'UT', 'Vermont':'VT', 'Virginia':'VA', 'Washington':'WA', 'West Virginia':'WV', 'Wisconsin':'WI', 'Wyoming':'WY', 'District of Columbia':'DC'
         };
 
         function formatLocationName(addr, fallback) {
             if (!addr) return fallback.toUpperCase();
             const city = addr.city || addr.town || addr.village || addr.municipality || "";
             const state = addr.state ? (usStates[addr.state] || addr.state.toUpperCase()) : "";
-
+            
             if (city) return `${city}${state ? ', ' + state : ''}`.toUpperCase();
             if (addr.county) return `${addr.county.replace(/ County/i, '')}${state ? ', ' + state : ''}`.toUpperCase();
             return fallback.toUpperCase();
         }
 
-        window.onload = function () {
+        window.onload = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const lat = position.coords.latitude;
@@ -806,7 +650,7 @@
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
                 const data = await res.json();
                 const name = formatLocationName(data.address, "MY LOCATION");
-
+                
                 // Add as an asset but check if it already exists to avoid duplicates
                 if (!assets.some(a => Math.abs(a.lat - lat) < 0.01 && Math.abs(a.lon - lon) < 0.01)) {
                     assets.push({ id: 'current-' + Date.now(), name: name, lat: lat, lon: lon });
@@ -827,7 +671,7 @@
             currentOverlay = mode;
             const radarBtn = document.getElementById('modeRadar');
             const gustBtn = document.getElementById('modeGust');
-
+            
             radarBtn.classList.remove('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
             gustBtn.classList.remove('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
             radarBtn.classList.add('text-slate-500');
@@ -836,7 +680,7 @@
             const activeBtn = mode === 'radar' ? radarBtn : gustBtn;
             activeBtn.classList.add('active', 'bg-white', 'dark:bg-slate-800', 'shadow-sm', 'border');
             activeBtn.classList.remove('text-slate-500');
-
+            
             updateMap();
         }
 
@@ -861,7 +705,7 @@
             if (!navigator.vibrate || !document.getElementById('prefVibrate').checked) return;
             if (level === 3) {
                 // S-O-S Pattern
-                navigator.vibrate([100, 100, 100, 100, 100, 300, 300, 300, 300, 300, 100, 100, 100, 100, 100]);
+                navigator.vibrate([100,100,100,100,100, 300,300,300,300,300, 100,100,100,100,100]);
             } else if (level === 2) {
                 navigator.vibrate([500, 500, 500]);
             }
@@ -882,13 +726,13 @@
         function playAlarm(level) {
             triggerHaptics(level);
             triggerFlash(level);
-
+            
             if (!audioCtx || level <= alarmLevel || !document.getElementById('prefAudio').checked) return;
-
+            
             // Upgrade alarm
             alarmLevel = level;
             if (alarmInterval) clearInterval(alarmInterval);
-
+            
             let beepCount = 0;
             const frequency = level === 3 ? 1200 : (level === 2 ? 880 : 440);
             const duration = level === 3 ? 0.8 : (level === 2 ? 0.4 : 0.2);
@@ -898,13 +742,13 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = level === 3 ? 'sawtooth' : 'square';
-                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime); 
                 gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + duration);
-
+                
                 beepCount++;
                 if (level < 3 && beepCount >= 10) {
                     clearInterval(alarmInterval);
@@ -925,16 +769,16 @@
 
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 3958.8;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const dLat = (lat2-lat1) * Math.PI / 180;
+            const dLon = (lon2-lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         function getBearing(lat1, lon1, lat2, lon2) {
             const y = Math.sin((lon2 - lon1) * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180);
             const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
-                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos((lon2 - lon1) * Math.PI / 180);
+                      Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos((lon2 - lon1) * Math.PI / 180);
             return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
         }
 
@@ -980,7 +824,7 @@
                 const data = await response.json();
                 processAlerts(data.features || []);
                 document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
-            } catch (err) {
+            } catch (err) { 
                 document.getElementById('lastSync').textContent = "OFFLINE";
             }
         }
@@ -1002,163 +846,163 @@
                 `;
             } else {
                 features.forEach(f => {
-                    const props = f.properties || {};
-                    const description = (props.description || "").toUpperCase();
-                    const text = description + " " + (props.instruction || "").toUpperCase();
-                    const event = (props.event || "").toUpperCase();
+                const props = f.properties || {};
+                const description = (props.description || "").toUpperCase();
+                const text = description + " " + (props.instruction || "").toUpperCase();
+                const event = (props.event || "").toUpperCase();
+                
+                const hasRotation = text.includes("ROTATION") || text.includes("RADAR INDICATED TORNADO") || text.includes("TORNADIC") || text.includes("CIRCULATION") || text.includes("FUNNEL");
+                const hasObserved = text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND") || text.includes("TORNADO...OBSERVED");
+                const hasPossible = text.includes("TORNADO...POSSIBLE") || text.includes("INDICATED TORNADO") || text.includes("DEVELOPING ROTATION");
+                const hasEmergency = text.includes("TORNADO EMERGENCY") || text.includes("PARTICULARLY DANGEROUS SITUATION") || text.includes("PDS") || event.includes("EMERGENCY");
 
-                    const hasRotation = text.includes("ROTATION") || text.includes("RADAR INDICATED TORNADO") || text.includes("TORNADIC") || text.includes("CIRCULATION") || text.includes("FUNNEL");
-                    const hasObserved = text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND") || text.includes("TORNADO...OBSERVED");
-                    const hasPossible = text.includes("TORNADO...POSSIBLE") || text.includes("INDICATED TORNADO") || text.includes("DEVELOPING ROTATION");
-                    const hasEmergency = text.includes("TORNADO EMERGENCY") || text.includes("PARTICULARLY DANGEROUS SITUATION") || text.includes("PDS") || event.includes("EMERGENCY");
+                f.keywords = {
+                    rotation: hasRotation,
+                    observed: hasObserved,
+                    possible: hasPossible,
+                    emergency: hasEmergency,
+                    vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
+                };
 
-                    f.keywords = {
-                        rotation: hasRotation,
-                        observed: hasObserved,
-                        possible: hasPossible,
-                        emergency: hasEmergency,
-                        vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
-                    };
+                let snippet = "";
+                const lines = description.split('\n');
+                const hazardLine = lines.find(l => l.includes('HAZARD...') || l.includes('IMPACT...')) || "";
+                if (hazardLine) snippet = hazardLine.replace(/HAZARD\.\.\.|IMPACT\.\.\./g, '').trim();
 
-                    let snippet = "";
-                    const lines = description.split('\n');
-                    const hazardLine = lines.find(l => l.includes('HAZARD...') || l.includes('IMPACT...')) || "";
-                    if (hazardLine) snippet = hazardLine.replace(/HAZARD\.\.\.|IMPACT\.\.\./g, '').trim();
-
-                    f.snippet = snippet;
-                    f.minDist = 999;
-                    f.isDirectHit = false;
-
-                    if (assets.length > 0) {
-                        if (f.geometry && f.geometry.coordinates) {
-                            let overallMinDist = 9999;
-                            let bestPt = null;
-                            let isInsidePolygon = false;
-                            assets.forEach(a => {
-                                const result = getMinPolygonDistance(a.lat, a.lon, f.geometry.coordinates);
-                                if (result.isInside) isInsidePolygon = true;
-                                if (result.minDist < overallMinDist) {
-                                    overallMinDist = result.minDist;
-                                    bestPt = result.closestPt;
+                f.snippet = snippet;
+                f.minDist = 999;
+                f.isDirectHit = false;
+                
+                if (assets.length > 0) {
+                    if (f.geometry && f.geometry.coordinates) {
+                        let overallMinDist = 9999;
+                        let bestPt = null;
+                        let isInsidePolygon = false;
+                        assets.forEach(a => {
+                            const result = getMinPolygonDistance(a.lat, a.lon, f.geometry.coordinates);
+                            if (result.isInside) isInsidePolygon = true;
+                            if (result.minDist < overallMinDist) {
+                                overallMinDist = result.minDist;
+                                bestPt = result.closestPt;
+                            }
+                        });
+                        
+                        if (isInsidePolygon) {
+                            f.minDist = 0;
+                            f.isDirectHit = true;
+                        } else if (bestPt && overallMinDist < 9999) {
+                            f.minDist = overallMinDist;
+                            if (f.keywords.vector) {
+                                const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
+                                if (stormDir !== undefined) {
+                                    f.headedTowards = assets.some(a => {
+                                        const bearingToAsset = getBearing(bestPt[1], bestPt[0], a.lat, a.lon);
+                                        const diff = Math.abs(stormDir - bearingToAsset);
+                                        return Math.min(diff, 360 - diff) < 45; 
+                                    });
                                 }
-                            });
-
-                            if (isInsidePolygon) {
-                                f.minDist = 0;
-                                f.isDirectHit = true;
-                            } else if (bestPt && overallMinDist < 9999) {
-                                f.minDist = overallMinDist;
-                                if (f.keywords.vector) {
-                                    const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
-                                    if (stormDir !== undefined) {
-                                        f.headedTowards = assets.some(a => {
-                                            const bearingToAsset = getBearing(bestPt[1], bestPt[0], a.lat, a.lon);
-                                            const diff = Math.abs(stormDir - bearingToAsset);
-                                            return Math.min(diff, 360 - diff) < 45;
-                                        });
-                                    }
-                                    if (f.headedTowards) {
-                                        const speedMph = parseInt(f.keywords.vector[2], 10);
-                                        if (speedMph > 0) f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
-                                    }
+                                if (f.headedTowards) {
+                                    const speedMph = parseInt(f.keywords.vector[2], 10);
+                                    if (speedMph > 0) f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
                                 }
                             }
                         }
+                    }
 
-                        // Zone Matching Fallback: If distance calculation fails or you are inside the massive watch polygon
-                        assets.forEach(a => {
-                            // Extract county from asset name (e.g., "CRAWFORD" from "CRAWFORD COUNTY, AR")
-                            const cleanName = a.name.toUpperCase().replace(/ COUNTY/g, '').replace(/ PARISH/g, '');
-                            const parts = cleanName.split(',').map(p => p.trim());
-                            parts.forEach(part => {
-                                // Match if the county name is > 3 letters and appears in the NWS Alert area description
-                                if (part.length > 3 && props.areaDesc && props.areaDesc.toUpperCase().includes(part)) {
-                                    f.isDirectHit = true;
-                                    if (f.minDist > 5) f.minDist = 0; // Force sorting to the top
-                                }
-                            });
+                    // Zone Matching Fallback: If distance calculation fails or you are inside the massive watch polygon
+                    assets.forEach(a => {
+                        // Extract county from asset name (e.g., "CRAWFORD" from "CRAWFORD COUNTY, AR")
+                        const cleanName = a.name.toUpperCase().replace(/ COUNTY/g, '').replace(/ PARISH/g, '');
+                        const parts = cleanName.split(',').map(p => p.trim());
+                        parts.forEach(part => {
+                            // Match if the county name is > 3 letters and appears in the NWS Alert area description
+                            if (part.length > 3 && props.areaDesc && props.areaDesc.toUpperCase().includes(part)) {
+                                f.isDirectHit = true;
+                                if (f.minDist > 5) f.minDist = 0; // Force sorting to the top
+                            }
                         });
-                    }
-                });
+                    });
+                }
+            });
 
-                const uniqueFeatures = features.filter((v, i, a) => a.findIndex(t => (t.properties.id === v.properties.id)) === i);
-                uniqueFeatures.sort((a, b) => a.minDist - b.minDist);
+            const uniqueFeatures = features.filter((v,i,a)=>a.findIndex(t=>(t.properties.id === v.properties.id))===i);
+            uniqueFeatures.sort((a, b) => a.minDist - b.minDist);
 
-                uniqueFeatures.forEach(f => {
-                    const isClose = f.minDist < 25 || f.isDirectHit;
-                    const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || (f.isDirectHit && !f.properties.event.includes('Watch'));
-                    const isDangerous = f.keywords.rotation || f.keywords.observed;
-                    const isEmergency = f.keywords.emergency;
-                    const isDeveloping = f.keywords.possible;
+            uniqueFeatures.forEach(f => {
+                const isClose = f.minDist < 25 || f.isDirectHit;
+                const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || (f.isDirectHit && !f.properties.event.includes('Watch'));
+                const isDangerous = f.keywords.rotation || f.keywords.observed;
+                const isEmergency = f.keywords.emergency;
+                const isDeveloping = f.keywords.possible;
+                
+                let stateClass = '';
+                if (isEmergency && isImminent) {
+                    stateClass = 'card-emergency-pds';
+                    if (audioCtx) highestAlarmLevel = 3;
+                } else if (isDangerous || isDeveloping) {
+                    stateClass = isClose || (f.etaMinutes && f.etaMinutes < 20) ? 'card-emergency' : 'card-rotation-red';
+                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                } 
+                else if (f.properties.event.includes('Warning')) {
+                    stateClass = 'card-warning';
+                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
+                } else if (f.properties.event.includes('Watch')) {
+                    stateClass = 'card-watch';
+                    if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 1);
+                } else {
+                    stateClass = 'card-calm';
+                }
 
-                    let stateClass = '';
-                    if (isEmergency && isImminent) {
-                        stateClass = 'card-emergency-pds';
-                        if (audioCtx) highestAlarmLevel = 3;
-                    } else if (isDangerous || isDeveloping) {
-                        stateClass = isClose || (f.etaMinutes && f.etaMinutes < 20) ? 'card-emergency' : 'card-rotation-red';
-                        if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
-                    }
-                    else if (f.properties.event.includes('Warning')) {
-                        stateClass = 'card-warning';
-                        if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 2);
-                    } else if (f.properties.event.includes('Watch')) {
-                        stateClass = 'card-watch';
-                        if (isImminent && audioCtx) highestAlarmLevel = Math.max(highestAlarmLevel, 1);
+                if (f.properties.event.includes('Warning')) hasActiveWarning = true;
+
+                let distBg = 'bg-slate-100 dark:bg-slate-800 text-slate-500';
+                let distText = f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : 'WATCH AREA';
+                let distSubtext = 'MONITOR SYSTEM';
+
+                if (assets.length === 0) {
+                    distBg = 'bg-blue-600 text-white'; distText = '[SCANNING]'; distSubtext = 'PIN LOCATION TO TRACK';
+                } else if (f.isDirectHit) {
+                    if (f.properties.event.includes('Watch')) {
+                        distText = 'IN YOUR AREA';
+                        distBg = 'bg-amber-500 text-white';
+                        distSubtext = 'BE PREPARED';
                     } else {
-                        stateClass = 'card-calm';
+                        distText = 'TAKE COVER NOW';
+                        distBg = 'bg-red-600 text-white animate-pulse';
+                        distSubtext = 'GO TO BASEMENT OR INTERIOR ROOM';
                     }
+                } else if (isImminent && (isDangerous || isDeveloping)) {
+                    distText = 'IMMINENT THREAT';
+                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'TAKE COVER SOON';
+                } else if (f.minDist <= 50) {
+                    distBg = 'bg-orange-500 text-white'; distSubtext = 'REGIONAL SYSTEM';
+                }
 
-                    if (f.properties.event.includes('Warning')) hasActiveWarning = true;
+                const card = document.createElement('div');
+                card.className = `alert-card ${stateClass}`;
+                
+                let tagsHtml = '';
+                if (f.headedTowards) tagsHtml += '<span class="keyword-tag bg-blue-600 text-white ring-2 ring-blue-400">HEADED TOWARDS YOU</span>';
+                if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag bg-slate-900 text-white">ETA: ${f.etaMinutes} MINS</span>`;
+                if (isEmergency) tagsHtml += '<span class="keyword-tag bg-black text-red-500 animate-bounce">TORNADO EMERGENCY</span>';
+                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
+                if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600 text-white">ROTATION DETECTED</span>';
+                if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
+                if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
 
-                    let distBg = 'bg-slate-100 dark:bg-slate-800 text-slate-500';
-                    let distText = f.minDist < 999 ? f.minDist.toFixed(1) + ' Miles' : 'WATCH AREA';
-                    let distSubtext = 'MONITOR SYSTEM';
-
-                    if (assets.length === 0) {
-                        distBg = 'bg-blue-600 text-white'; distText = '[SCANNING]'; distSubtext = 'PIN LOCATION TO TRACK';
-                    } else if (f.isDirectHit) {
-                        if (f.properties.event.includes('Watch')) {
-                            distText = 'IN YOUR AREA';
-                            distBg = 'bg-amber-500 text-white';
-                            distSubtext = 'BE PREPARED';
-                        } else {
-                            distText = 'TAKE COVER NOW';
-                            distBg = 'bg-red-600 text-white animate-pulse';
-                            distSubtext = 'GO TO BASEMENT OR INTERIOR ROOM';
-                        }
-                    } else if (isImminent && (isDangerous || isDeveloping)) {
-                        distText = 'IMMINENT THREAT';
-                        distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'TAKE COVER SOON';
-                    } else if (f.minDist <= 50) {
-                        distBg = 'bg-orange-500 text-white'; distSubtext = 'REGIONAL SYSTEM';
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = `alert-card ${stateClass}`;
-
-                    let tagsHtml = '';
-                    if (f.headedTowards) tagsHtml += '<span class="keyword-tag bg-blue-600 text-white ring-2 ring-blue-400">HEADED TOWARDS YOU</span>';
-                    if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag bg-slate-900 text-white">ETA: ${f.etaMinutes} MINS</span>`;
-                    if (isEmergency) tagsHtml += '<span class="keyword-tag bg-black text-red-500 animate-bounce">TORNADO EMERGENCY</span>';
-                    if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-700 text-white">CONFIRMED TORNADO</span>';
-                    if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600 text-white">ROTATION DETECTED</span>';
-                    if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
-                    if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
-
-                    let safetyHtml = '';
-                    if (f.isDirectHit && f.properties.event.includes('Warning')) {
-                        safetyHtml = `
+                let safetyHtml = '';
+                if (f.isDirectHit && f.properties.event.includes('Warning')) {
+                    safetyHtml = `
                         <div class="safety-action-box">
                             <p class="text-lg">🚨 TAKE SHELTER NOW 🚨</p>
                             <p class="text-xs mt-1">INTERIOR ROOM / BASEMENT. COVER HEAD. HELMETS ON.</p>
                         </div>
                     `;
-                    }
+                }
 
-                    card.setAttribute('role', 'alert');
-                    card.setAttribute('aria-label', `${f.properties.event} for ${f.properties.areaDesc}`);
-                    card.innerHTML = `
+                card.setAttribute('role', 'alert');
+                card.setAttribute('aria-label', `${f.properties.event} for ${f.properties.areaDesc}`);
+                card.innerHTML = `
                     <div class="alert-bar-top" role="header">${f.properties.event}</div>
                     <div class="alert-inner-container">
                         <div class="w-full text-center p-4 mb-4 rounded-xl flex flex-col ${distBg}" role="status">
@@ -1172,10 +1016,10 @@
                             ${tagsHtml}
                         </div>
                     </div>
-                    <div class="alert-bar-bottom">EXPIRES: ${new Date(f.properties.expires).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div class="alert-bar-bottom">EXPIRES: ${new Date(f.properties.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                 `;
-                    container.appendChild(card);
-                });
+                container.appendChild(card);
+            });
             }
 
             if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel);
@@ -1189,22 +1033,22 @@
         }
 
         async function addAsset() {
-            initAudio();
+            initAudio(); 
             const input = document.getElementById('addrIn');
             const btn = document.getElementById('pinBtn');
             let val = input.value.trim();
             if (!val) return;
-
+            
             const originalBtnText = btn.textContent;
             btn.textContent = "SEARCHING...";
             btn.disabled = true;
-
+            
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us&addressdetails=1&limit=1`);
                 const data = await res.json();
                 if (data.length > 0) {
                     const displayName = formatLocationName(data[0].address, val);
-
+                    
                     currentMapLat = parseFloat(data[0].lat);
                     currentMapLon = parseFloat(data[0].lon);
                     assets.push({ id: Date.now(), name: displayName, lat: currentMapLat, lon: currentMapLon });
@@ -1215,7 +1059,7 @@
                 } else {
                     alert("LOCATION NOT FOUND. PLEASE TRY A ZIP CODE OR FULL CITY NAME.");
                 }
-            } catch (e) {
+            } catch (e) { 
                 console.error(e);
                 alert("SEARCH FAILED. PLEASE CHECK YOUR CONNECTION.");
             } finally {
@@ -1248,7 +1092,7 @@
                     if (err.name !== 'AbortError') console.error('Share failed:', err);
                 }
             }
-
+            
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 document.getElementById('shareBtn').textContent = "LINK COPIED";
@@ -1265,7 +1109,7 @@
         }
 
         window.fetchIntervalTime = 10000;
-        window.fetchInterval = setInterval(fetchAlerts, 10000);
+        window.fetchInterval = setInterval(fetchAlerts, 10000); 
 
         // PWA Installation Logic
         if ('serviceWorker' in navigator) {
@@ -1292,5 +1136,4 @@
         }
     </script>
 </body>
-
 </html>
