@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daisy-v6';
+const CACHE_NAME = 'daisy-v7';
 const ASSETS = [
     'index.html',
     'style.css',
@@ -45,4 +45,4 @@ self.addEventListener('fetch', (event) => {
                 return caches.match(event.request);
             })
     );
-);
+});
