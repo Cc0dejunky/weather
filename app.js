@@ -103,9 +103,21 @@ function updateMap() {
     map.src = 'https://embed.windy.com/embed2.html?lat=' + currentMapLat + '&lon=' + currentMapLon + '&zoom=' + zoom + '&level=surface&overlay=' + currentOverlay + '&product=' + (currentOverlay === 'radar' ? 'radar' : 'wind') + '&message=true';
 }
 
+function activateAudioSystem() {
+    initAudio();
+    const overlay = document.getElementById('audioOverlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 500);
+    }
+}
+
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
     }
 }
 
@@ -448,10 +460,18 @@ function processAlerts(features) {
                 distText = 'IN YOUR AREA';
                 distBg = 'bg-amber-500 text-white';
                 distSubtext = 'BE PREPARED';
-            } else {
+            } else if (event.includes('TORNADO') || isDangerous || isDeveloping) {
                 distText = 'TAKE COVER NOW';
                 distBg = 'bg-red-600 text-white animate-pulse';
                 distSubtext = 'GO TO BASEMENT OR INTERIOR ROOM';
+            } else if (event.includes('WARNING')) {
+                distText = 'PREPARE FOR IMPACT';
+                distBg = 'bg-orange-600 text-white animate-pulse';
+                distSubtext = 'STAY INDOORS / AVOID WINDOWS';
+            } else {
+                distText = 'MONITOR CONDITIONS';
+                distBg = 'bg-blue-600 text-white';
+                distSubtext = 'STORM IN YOUR VICINITY';
             }
         } else if (isImminent && (isDangerous || isDeveloping)) {
             distText = 'IMMINENT THREAT';
@@ -477,12 +497,21 @@ function processAlerts(features) {
 
         let safetyHtml = '';
         if (f.isDirectHit && event.includes('WARNING')) {
-            safetyHtml = `
-                <div class="safety-action-box">
-                    <p class="text-lg">🚨 TAKE SHELTER NOW 🚨</p>
-                    <p class="text-xs mt-1">INTERIOR ROOM / BASEMENT. COVER HEAD. HELMETS ON.</p>
-                </div>
-            `;
+            if (event.includes('TORNADO') || isDangerous || isDeveloping) {
+                safetyHtml = `
+                    <div class="safety-action-box">
+                        <p class="text-lg">🚨 TAKE SHELTER NOW 🚨</p>
+                        <p class="text-xs mt-1">INTERIOR ROOM / BASEMENT. COVER HEAD. HELMETS ON.</p>
+                    </div>
+                `;
+            } else {
+                safetyHtml = `
+                    <div class="safety-action-box bg-orange-600/20 border-orange-500">
+                        <p class="text-lg">💨 HIGH WIND PRECAUTIONS 💨</p>
+                        <p class="text-xs mt-1">STAY AWAY FROM WINDOWS. BRING PETS INSIDE.</p>
+                    </div>
+                `;
+            }
         }
 
         card.setAttribute('role', 'alert');

@@ -1,10 +1,10 @@
-const CACHE_NAME = 'daisy-v7';
+const CACHE_NAME = 'daisy-v9';
 const ASSETS = [
     'index.html',
     'style.css',
     'app.js',
     'manifest.json',
-    'https://cdn.tailwindcss.com'
+    'icon.png'
 ];
 
 self.addEventListener('install', (event) => {
