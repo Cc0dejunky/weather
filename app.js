@@ -390,7 +390,8 @@ function processAlerts(features) {
             emergency: hasEmergency,
             
             destructive: isDestructiveStorm,
-            vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
+            // Enhanced Regex: Handles "MOVING [DIR] AT [SPEED] MPH/KT", with/without spaces
+            vector: text.match(/MOVING\s+([A-Z]+)\s+AT\s+(\d+)\s*(MPH|KT)/)
         };
 
         let snippet = "";
@@ -431,8 +432,12 @@ function processAlerts(features) {
                             });
                         }
                         if (f.headedTowards) {
-                            const speedMph = parseInt(f.keywords.vector[2], 10);
-                            if (speedMph > 0) f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
+                            let speedVal = parseInt(f.keywords.vector[2], 10);
+                            const unit = f.keywords.vector[3].toUpperCase();
+                            // If NWS provides speed in Knots (KT), convert to MPH for consistent math
+                            if (unit === 'KT') speedVal = Math.round(speedVal * 1.15);
+                            
+                            if (speedVal > 0) f.etaMinutes = Math.round((f.minDist / speedVal) * 60);
                         }
                     }
                 }
@@ -557,7 +562,10 @@ function processAlerts(features) {
         if (f.keywords.funnel) tagsHtml += '<span class="keyword-tag bg-amber-700 text-white">FUNNEL CLOUD</span>';
         if (f.keywords.destructive) tagsHtml += '<span class="keyword-tag bg-red-800 text-white">DESTRUCTIVE WINDS</span>';
         if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
-        if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
+        if (f.keywords.vector) {
+            const unit = f.keywords.vector[3].toUpperCase();
+            tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} ${unit}</span>`;
+        }
         if (f.justUpdated) tagsHtml = '<span class="keyword-tag bg-green-500 text-white animate-pulse ring-2 ring-green-300">NEW DETAILS</span> ' + tagsHtml;
 
         let safetyHtml = '';
