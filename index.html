@@ -125,14 +125,14 @@
         </div>
     </main>
 
-    <div id="audioOverlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[200] flex flex-col items-center justify-center p-6 text-center">
+    <div id="audioOverlay" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[200] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
         <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center animate-pulse mb-6 shadow-[0_0_40px_rgba(37,99,235,0.4)]">
             <span class="text-4xl">🔊</span>
         </div>
-        <h2 class="text-2xl font-black text-white mb-2">SYSTEM READY</h2>
-        <p class="text-slate-400 max-w-xs mb-8">Audio alerts are currently blocked by your browser. Tap below to arm the emergency siren system.</p>
-        <button onclick="activateAudioSystem()" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl active:scale-95">
-            ENABLE ALARMS
+        <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-tight">System Armed</h2>
+        <p class="text-slate-400 mb-8 font-bold max-w-xs">Emergency audio monitoring requires activation to sound sirens.</p>
+        <button onclick="activateAudioSystem()" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-10 rounded-2xl transition-all active:scale-95 shadow-lg uppercase tracking-widest">
+            Activate Alarms
         </button>
     </div>
     <script src="app.js"></script>

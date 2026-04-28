@@ -1,5 +1,12 @@
 let assets = [];
-const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning,Severe%20Weather%20Statement,Special%20Weather%20Statement";
+// Granular Filter Settings
+let activeAlertFilters = [
+    'Tornado Warning', 
+    'Tornado Watch', 
+    'Severe Thunderstorm Warning', 
+    'Severe Weather Statement', 
+    'Special Weather Statement'
+];
 
 let audioCtx;
 let alarmTriggered = false;
@@ -40,6 +47,8 @@ function formatLocationName(addr, fallback) {
 }
 
 window.onload = function() {
+    showApologyPopup();
+    
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
             const lat = position.coords.latitude;
@@ -252,7 +261,11 @@ function isPointInPolygon(lat, lon, polygon) {
 
 async function fetchAlerts() {
     try {
-        const response = await fetch(NWS_URL);
+        // Dynamically build URL based on active filters
+        const encodedEvents = activeAlertFilters.map(function(e) { return encodeURIComponent(e); }).join(',');
+        const dynamicUrl = 'https://api.weather.gov/alerts/active?event=' + encodedEvents;
+        
+        const response = await fetch(dynamicUrl);
         if (!response.ok) throw new Error('NWS API Error: ' + response.status);
         const data = await response.json();
         processAlerts(data.features || []);
@@ -283,12 +296,64 @@ function showToast(message) {
     }, 6000);
 }
 
+function showApologyPopup() {
+    if (localStorage.getItem('daisy-v10-onboarding-seen')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[300] flex items-center justify-center p-6 text-center';
+    overlay.id = 'apologyPopup';
+
+    overlay.innerHTML = '<div class="bg-white dark:bg-slate-800 border-2 border-blue-500 rounded-3xl p-8 max-w-lg w-full shadow-[0_0_50px_rgba(37,99,235,0.3)] animate-slide-up">' +
+        '<div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">' +
+            '<span class="text-4xl">🛡️</span>' +
+        '</div>' +
+        '<h2 class="text-3xl font-black mb-4 text-slate-900 dark:text-white uppercase tracking-tight">System Restored</h2>' +
+        '<p class="mb-6 text-slate-600 dark:text-slate-300 font-medium">We apologize for the recent instability. The DAISY Emergency System has been fully hardened with v10 architectural upgrades.</p>' +
+        '<div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl mb-8 text-left">' +
+            '<p class="text-xs font-black text-blue-500 uppercase tracking-widest mb-3">Changelog v10</p>' +
+            '<ul class="space-y-2 text-sm font-bold text-slate-700 dark:text-slate-200">' +
+                '<li class="flex items-start gap-2"><span>✅</span> Eliminated fatal script crashes</li>' +
+                '<li class="flex items-start gap-2"><span>✅</span> Enhanced PWA Offline Reliability</li>' +
+                '<li class="flex items-start gap-2"><span>✅</span> Activated Smart Threat Alerting</li>' +
+                '<li class="flex items-start gap-2"><span>✅</span> Fixed Map Geolocation Permissions</li>' +
+            '</ul>' +
+        '<div class="bg-blue-50 dark:bg-slate-900 border-l-4 border-blue-500 p-4 rounded-lg mb-6 text-sm text-slate-700 dark:text-slate-200">' +
+            '<strong>🚀 Upcoming Features:</strong>' +
+            '<ul class="list-disc pl-5 mt-2 space-y-1">' +
+                '<li>A faster, native interactive radar map to improve performance.</li>' +
+                '<li>More granular control over which weather alerts trigger alarms.</li>' +
+            '</ul>' +
+        '</div>' +
+        '<button onclick="closeApologyPopup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all active:scale-95 shadow-lg uppercase tracking-widest">' +
+            'Arm System & Continue' +
+        '</button>' +
+    '</div>';
+
+    document.body.appendChild(overlay);
+}
+
+window.closeApologyPopup = function() {
+    localStorage.setItem('daisy-v10-onboarding-seen', 'true');
+    activateAudioSystem(); // Also activates audio context
+    const popup = document.getElementById('apologyPopup');
+    if (popup) {
+        popup.style.opacity = '0';
+        popup.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => popup.remove(), 500);
+    }
+};
+
 function processAlerts(features) {
     const container = document.getElementById('alertsContainer');
     container.innerHTML = '';
     let highestAlarmLevel = 0;
     let highestTornadoLevel = 0;
     let hasActiveWarning = false;
+
+    // Client-side interception: Filter out events the user has disabled
+    features = features.filter(function(f) {
+        return activeAlertFilters.indexOf(f.properties.event) !== -1;
+    });
 
     let currentSignatures = new Set();
     let newUpdates = 0;
