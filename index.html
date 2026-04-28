@@ -124,15 +124,27 @@
             border: 2px solid #ccc;
             padding: 20px;
             width: 100%;
-            min-height: 100px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #666;
+            color: #444;
             text-shadow: none;
+        }
+
+        .threat-detail {
+            background: #f8fafc;
+            border-left: 4px solid var(--darkblue);
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e293b;
+            width: 100%;
+            text-align: left;
         }
 
         .card-emergency {
@@ -145,19 +157,20 @@
         .card-rotation-red {
             border-color: #ffcccc !important;
             box-shadow: 0 0 15px var(--danger-red);
+            animation: pulse-subtle-red 3s infinite;
         }
-        .card-rotation-red .alert-bar-top, .card-rotation-red .alert-bar-bottom { background: var(--danger-red) !important; }
-
-        .card-caution {
-            border-color: #ffe4b2 !important;
-            box-shadow: 0 0 10px var(--caution-orange);
-        }
-        .card-caution .alert-bar-top, .card-caution .alert-bar-bottom { background: var(--caution-orange) !important; }
+        .card-rotation-red .alert-bar-top, .card-rotation-red .alert-bar-bottom { background: #991b1b !important; }
 
         @keyframes pulse-red {
             0% { box-shadow: 0 0 10px var(--danger-red); }
             50% { box-shadow: 0 0 30px var(--danger-red); }
             100% { box-shadow: 0 0 10px var(--danger-red); }
+        }
+        
+        @keyframes pulse-subtle-red {
+            0% { border-color: #fca5a5; }
+            50% { border-color: #ef4444; }
+            100% { border-color: #fca5a5; }
         }
 
         .keyword-tag {
@@ -182,9 +195,10 @@
         }
 
         .possible-tag {
-            background-color: var(--caution-orange);
-            color: #000;
-            border: 1px solid #000;
+            background-color: #991b1b;
+            color: #fff;
+            border: 1px solid #fff;
+            animation: blink 0.8s infinite;
         }
 
         @keyframes pulse-indigo {
@@ -334,7 +348,7 @@
 <body>
     <div class="max-w-7xl mx-auto">
         <div id="updateBanner" class="update-banner mb-4">
-            <span class="flex-grow text-center">SYSTEM UPDATE: THE RECURSIVE POLYGON DISTANCE CALCULATION BUG FOR LARGE ALERTS HAS BEEN COMPLETELY FIXED.</span>
+            <span class="flex-grow text-center">SYSTEM UPDATE: THREAT SNIPPETS ADDED. "TORNADO POSSIBLE" NOW TRIGGERS ROTATION ALERTS.</span>
             <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl hover:text-pink-400">&times;</button>
         </div>
 
@@ -354,16 +368,6 @@
                 </div>
             </div>
         </header>
-
-        <div class="brand-border bg-blue-50">
-            <h3 class="text-xl mb-2 underline">SYSTEM INSTRUCTIONS</h3>
-            <p class="text-xs font-bold text-center mb-4 uppercase text-purple-800">If you input your information and don't see anything, there are no active weather alerts for your location.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm font-bold w-full">
-                <div class="p-3 border border-blue-200 shadow-sm bg-white">1. PIN your location to enable distance tracking.</div>
-                <div class="p-3 border border-blue-200 shadow-sm bg-white">2. WATCH the map. Red flashing indicates local threat.</div>
-                <div class="p-3 border border-blue-200 shadow-sm bg-white">3. ALARM triggers for rotation within 20 miles.</div>
-            </div>
-        </div>
 
         <div class="brand-border overflow-hidden h-[350px] md:h-[450px] mb-8 p-0 w-full" id="mapContainer">
             <div class="map-wrapper">
@@ -400,25 +404,16 @@
             <div class="w-full max-w-4xl space-y-4">
                 <div class="accordion-item border-b-2 border-darkblue pb-2">
                     <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
-                        Where does this data come from?
+                        Threat Detection Logic
                         <span class="text-2xl leading-none">+</span>
                     </div>
                     <div class="accordion-content text-sm font-bold p-4 bg-white">
-                        DAISY pulls live data directly from the National Weather Service (NWS) and NOAA APIs covering the entire United States.
+                        DAISY scans NWS descriptions for rotation keywords. We prioritize "Tornado Possible" tags in Thunderstorm Warnings to give earlier warnings for developing systems.
                     </div>
                 </div>
                 <div class="accordion-item border-b-2 border-darkblue pb-2">
                     <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
-                        Predictive Logic & Tiers
-                        <span class="text-2xl leading-none">+</span>
-                    </div>
-                    <div class="accordion-content text-sm font-bold p-4 bg-white">
-                        DAISY calculates threat tiers based on distance from your pins. Under 20 miles is IMMINENT. Under 100 miles is REGIONAL. Over 100 miles is DISTANT. She also parses vectors to provide an Estimated Time of Arrival (ETA).
-                    </div>
-                </div>
-                <div class="accordion-item border-b-2 border-darkblue pb-2">
-                    <div class="accordion-header font-black text-lg py-3 uppercase" onclick="this.parentElement.classList.toggle('active')">
-                        Disclaimer & Ownership
+                        Disclaimer
                         <span class="text-2xl leading-none">+</span>
                     </div>
                     <div class="accordion-content text-sm font-bold p-4 bg-white text-red-700">
@@ -431,7 +426,7 @@
 
     <script>
         let assets = [];
-        const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning";
+        const NWS_URL = "https://api.weather.gov/alerts/active?event=Tornado%20Warning,Tornado%20Watch,Severe%20Thunderstorm%20Warning,Severe%20Weather%20Statement,Special%20Weather%20Statement";
         
         let audioCtx;
         let alarmTriggered = false;
@@ -452,9 +447,7 @@
                     if (map) {
                         map.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&zoom=6&level=surface&overlay=radar&product=radar&message=true`;
                     }
-                }, () => {
-                    // Fallback handled automatically by Windy
-                });
+                }, () => {});
             }
             fetchAlerts();
         };
@@ -513,41 +506,41 @@
         function getMinPolygonDistance(assetLat, assetLon, geometryCoordinates) {
             let minDist = 9999;
             let closestPt = null;
-
             function traverse(arr) {
                 if (!Array.isArray(arr)) return;
                 if (arr.length >= 2 && typeof arr[0] === 'number' && typeof arr[1] === 'number') {
                     const d = getDistance(assetLat, assetLon, arr[1], arr[0]);
-                    if (d < minDist) {
-                        minDist = d;
-                        closestPt = arr;
-                    }
+                    if (d < minDist) { minDist = d; closestPt = arr; }
                 } else {
-                    for (let i = 0; i < arr.length; i++) {
-                        traverse(arr[i]);
-                    }
+                    for (let i = 0; i < arr.length; i++) { traverse(arr[i]); }
                 }
             }
-
             traverse(geometryCoordinates);
             return { minDist, closestPt };
         }
 
         async function fetchAlerts() {
-            try {
-                const response = await fetch(NWS_URL, { headers: { 'User-Agent': 'DAISY_Emergency_System_v2' } });
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+            let attempts = 0;
+            const maxAttempts = 3;
+            const backoff = [1000, 2000, 4000];
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(NWS_URL);
+                    if (!response.ok) throw new Error(`NWS API Error: ${response.status}`);
+                    const data = await response.json();
+                    if (!data || !data.features) throw new Error("Invalid NWS data format");
+                    processAlerts(data.features);
+                    document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
+                    return;
+                } catch (err) { 
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        document.getElementById('lastSync').textContent = `RETRYING...`;
+                        await new Promise(r => setTimeout(r, backoff[attempts-1]));
+                    } else {
+                        document.getElementById('lastSync').textContent = "OFFLINE";
+                    }
                 }
-                const data = await response.json();
-                if (!data || !data.features) {
-                    throw new Error("Invalid NWS data format");
-                }
-                processAlerts(data.features);
-                document.getElementById('lastSync').textContent = "LIVE: " + new Date().toLocaleTimeString();
-            } catch (err) { 
-                console.error("Data Fetch Error:", err);
-                document.getElementById('lastSync').textContent = "OFFLINE - RETRYING..."; 
             }
         }
 
@@ -563,25 +556,37 @@
 
             features.forEach(f => {
                 const props = f.properties || {};
-                const description = props.description || "";
-                const instruction = props.instruction || "";
-                const text = (description + " " + instruction).toUpperCase();
+                const description = (props.description || "").toUpperCase();
+                const instruction = (props.instruction || "").toUpperCase();
+                const text = description + " " + instruction;
                 const eventTitle = props.event || "UNKNOWN ALERT";
                 const areaDesc = props.areaDesc || "UNKNOWN AREA";
                 const expires = props.expires ? new Date(props.expires).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "UNKNOWN";
                 
+                // Enhanced keyword scanning
+                const hasRotation = text.includes("ROTATION") || text.includes("RADAR INDICATED TORNADO") || text.includes("TORNADIC");
+                const hasObserved = text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND");
+                const hasPossible = text.includes("TORNADO...POSSIBLE") || text.includes("INDICATED TORNADO") || text.includes("DEVELOPING ROTATION");
+
                 f.keywords = {
-                    rotation: text.includes("ROTATION"),
-                    observed: text.includes("OBSERVED") || text.includes("CONFIRMED") || text.includes("TORNADO ON THE GROUND"),
-                    possible: text.includes("TORNADO...POSSIBLE") || text.includes("RADAR INDICATED"),
+                    rotation: hasRotation,
+                    observed: hasObserved,
+                    possible: hasPossible,
                     vector: text.match(/MOVING (\w+) AT (\d+) MPH/)
                 };
+
+                // Extract a "Threat Detail" snippet
+                let snippet = "";
+                const lines = description.split('\n');
+                const threatLine = lines.find(l => l.includes('HAZARD...') || l.includes('IMPACT...')) || "";
+                if (threatLine) snippet = threatLine.replace('HAZARD...', '').replace('IMPACT...', '').trim();
+
+                f.snippet = snippet;
                 
                 if (assets.length > 0) {
                     if (f.geometry && f.geometry.coordinates) {
                         let overallMinDist = 9999;
                         let bestPt = null;
-
                         assets.forEach(a => {
                             const result = getMinPolygonDistance(a.lat, a.lon, f.geometry.coordinates);
                             if (result.minDist < overallMinDist) {
@@ -589,10 +594,8 @@
                                 bestPt = result.closestPt;
                             }
                         });
-
                         if (bestPt && overallMinDist < 9999) {
                             f.minDist = overallMinDist;
-                            
                             if (f.keywords.vector) {
                                 const stormDir = cardinalMap[f.keywords.vector[1].toUpperCase()];
                                 if (stormDir !== undefined) {
@@ -603,42 +606,36 @@
                                         return normalizedDiff < 45; 
                                     });
                                 }
-
-                                if (f.headedTowards && f.minDist < 999) {
+                                if (f.headedTowards) {
                                     const speedMph = parseInt(f.keywords.vector[2], 10);
-                                    if (speedMph > 0) {
-                                        f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
-                                    }
+                                    if (speedMph > 0) f.etaMinutes = Math.round((f.minDist / speedMph) * 60);
                                 }
                             }
-                        } else {
-                            f.minDist = 999;
-                        }
-                    } else {
-                        f.minDist = 999;
-                    }
-                } else { 
-                    f.minDist = 999; 
-                }
+                        } else { f.minDist = 999; }
+                    } else { f.minDist = 999; }
+                } else { f.minDist = 999; }
                 
                 f.displayEvent = eventTitle;
                 f.displayArea = areaDesc;
                 f.displayExpires = expires;
             });
 
-            features.sort((a, b) => a.minDist - b.minDist);
+            const uniqueFeatures = features.filter((v,i,a)=>a.findIndex(t=>(t.properties.id === v.properties.id))===i);
+            uniqueFeatures.sort((a, b) => a.minDist - b.minDist);
 
-            features.forEach(f => {
-                const isClose = f.minDist < 20;
-                const isImminentThreat = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
-                const isDangerousUpdate = f.keywords.rotation || f.keywords.observed;
+            uniqueFeatures.forEach(f => {
+                const isClose = f.minDist < 25;
+                const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || isClose;
+                const isDangerous = f.keywords.rotation || f.keywords.observed;
+                const isDeveloping = f.keywords.possible;
                 
                 let stateClass = '';
-                if (f.displayEvent.includes('Tornado Warning') && isDangerousUpdate) {
-                    stateClass = isClose || (f.etaMinutes && f.etaMinutes < 30) ? 'card-emergency' : 'card-rotation-red';
-                    if (isImminentThreat && audioCtx) shouldSoundAlarm = true;
+                // Upgrade to Red Card if rotation is detected OR if tornado is listed as possible
+                if (isDangerous || isDeveloping) {
+                    stateClass = isClose || (f.etaMinutes && f.etaMinutes < 20) ? 'card-emergency' : 'card-rotation-red';
+                    if (isImminent && audioCtx) shouldSoundAlarm = true;
                 } 
-                else if (f.displayEvent.includes('Severe Thunderstorm Warning') || f.displayEvent.includes('Tornado Watch') || f.displayEvent.includes('Tornado Warning')) {
+                else if (f.displayEvent.includes('Severe Thunderstorm Warning') || f.displayEvent.includes('Tornado Watch')) {
                     stateClass = 'card-caution';
                 }
 
@@ -647,18 +644,13 @@
                 let distSubtext = 'DISTANT - NO IMMEDIATE THREAT';
 
                 if (assets.length === 0) {
-                    distBg = 'bg-indigo-900 text-white';
-                    distText = '[NATIONAL SCAN]';
-                    distSubtext = 'PIN LOCATION TO TRACK DISTANCE';
+                    distBg = 'bg-indigo-900 text-white'; distText = '[NATIONAL SCAN]'; distSubtext = 'PIN LOCATION TO TRACK';
                 } else if (f.minDist === 999) {
-                    distBg = 'bg-orange-400 text-black';
-                    distSubtext = 'BROAD REGIONAL ALERT - MONITOR';
-                } else if (f.minDist < 20 || (f.etaMinutes && f.etaMinutes <= 30)) {
-                    distBg = 'bg-red-600 text-white animate-pulse';
-                    distSubtext = 'IMMINENT LOCAL THREAT';
+                    distBg = 'bg-orange-400 text-black'; distSubtext = 'REGIONAL ALERT';
+                } else if (isImminent && (isDangerous || isDeveloping)) {
+                    distBg = 'bg-red-600 text-white animate-pulse'; distSubtext = 'IMMINENT THREAT';
                 } else if (f.minDist <= 100) {
-                    distBg = 'bg-orange-500 text-black';
-                    distSubtext = 'REGIONAL SYSTEM - MONITOR';
+                    distBg = 'bg-orange-500 text-black'; distSubtext = 'REGIONAL SYSTEM';
                 }
 
                 const card = document.createElement('div');
@@ -667,7 +659,7 @@
                 let tagsHtml = '';
                 if (f.headedTowards) tagsHtml += '<span class="keyword-tag headed-tag">HEADED TOWARDS YOU</span>';
                 if (f.etaMinutes !== undefined) tagsHtml += `<span class="keyword-tag eta-tag">ETA: ${f.etaMinutes} MINS</span>`;
-                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-600">CONFIRMED</span>';
+                if (f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-red-600">CONFIRMED TORNADO</span>';
                 if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600">ROTATION DETECTED</span>';
                 if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag possible-tag">TORNADO POSSIBLE</span>';
                 if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-blue-900">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
@@ -679,16 +671,16 @@
                             <span class="text-2xl md:text-3xl">${distText}</span>
                             <span class="text-xs md:text-sm uppercase tracking-wider mt-1">${distSubtext}</span>
                         </div>
-                        <div class="notification-box text-sm md:text-base">${f.displayArea}</div>
+                        <div class="notification-box">${f.displayArea}</div>
+                        ${f.snippet ? `<div class="threat-detail">HAZARD: ${f.snippet}</div>` : ''}
                         <div class="mt-4 flex flex-wrap justify-center gap-2">
                             ${tagsHtml}
                         </div>
                     </div>
-                    <div class="alert-bar-bottom text-sm md:text-base">ENDS AT: ${f.displayExpires}</div>
+                    <div class="alert-bar-bottom">ENDS AT: ${f.displayExpires}</div>
                 `;
                 container.appendChild(card);
             });
-
             if (shouldSoundAlarm) playAlarm();
         }
 
@@ -696,54 +688,29 @@
             initAudio(); 
             const input = document.getElementById('addrIn');
             const btn = document.getElementById('pinBtn');
-            const val = input.value.trim();
+            let val = input.value.trim();
             if (!val) return;
+            if (!val.includes(',') && !val.toUpperCase().includes(' AR')) val += ', AR';
             
-            const originalBtnText = btn.textContent;
             btn.textContent = "SEARCHING...";
-            
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}`, {
-                    headers: { 'User-Agent': 'DAISY_Emergency_System_v2' }
-                });
-                
-                if (!res.ok) {
-                    throw new Error("Search provider error");
-                }
-                
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&countrycodes=us`);
                 const data = await res.json();
                 if (Array.isArray(data) && data.length > 0) {
                     const nameParts = data[0].display_name.split(',');
                     let displayName = val.toUpperCase();
-                    if (nameParts.length >= 2) {
-                        displayName = (nameParts[0] + ',' + nameParts[1]).trim().toUpperCase();
-                    }
-                    
+                    if (nameParts.length >= 2) displayName = (nameParts[0] + ',' + nameParts[1]).trim().toUpperCase();
                     const newLat = parseFloat(data[0].lat);
                     const newLon = parseFloat(data[0].lon);
-                    
                     assets.push({ id: Date.now(), name: displayName, lat: newLat, lon: newLon });
                     input.value = '';
                     input.placeholder = "ADDRESS, CITY, OR ZIP CODE";
-                    
                     const map = document.getElementById('radarMap');
-                    if (map) {
-                        map.src = `https://embed.windy.com/embed2.html?lat=${newLat}&lon=${newLon}&zoom=8&level=surface&overlay=radar&product=radar&message=true`;
-                    }
-                    
+                    if (map) map.src = `https://embed.windy.com/embed2.html?lat=${newLat}&lon=${newLon}&zoom=8&level=surface&overlay=radar&product=radar&message=true`;
                     renderAssets();
                     fetchAlerts();
-                } else {
-                    input.value = '';
-                    input.placeholder = "NOT FOUND - TRY ADDING STATE";
-                }
-            } catch (e) { 
-                console.error("Search Error:", e); 
-                input.value = '';
-                input.placeholder = "SEARCH ERROR";
-            } finally {
-                btn.textContent = originalBtnText;
-            }
+                } else { input.placeholder = "NOT FOUND"; }
+            } catch (e) { console.error(e); } finally { btn.textContent = "PIN & ARM ALARM"; }
         }
 
         function renderAssets() {
@@ -757,29 +724,17 @@
         }
 
         async function shareApp() {
-            const shareData = {
-                title: 'DAISY Emergency System',
-                text: 'Track real-time severe weather proximity alerts and calculate exact time-to-impact for your location.',
-                url: window.location.href
-            };
-
-            const btn = document.getElementById('shareBtn');
-            const originalText = btn.textContent;
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    await navigator.clipboard.writeText(window.location.href);
-                    btn.textContent = "LINK COPIED";
-                    setTimeout(() => { btn.textContent = originalText; }, 2000);
-                }
-            } catch (err) {
-                console.error('Sharing failed or cancelled:', err);
-            }
+            const el = document.createElement('textarea');
+            el.value = window.location.href;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            document.getElementById('shareBtn').textContent = "LINK COPIED";
+            setTimeout(() => { document.getElementById('shareBtn').textContent = "SHARE DAISY"; }, 2000);
         }
 
-        setInterval(fetchAlerts, 60000);
+        setInterval(fetchAlerts, 20000); 
     </script>
 </body>
 </html>
