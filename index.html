@@ -488,8 +488,8 @@
     <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌓</button>
 
     <div class="main-container">
-        <div id="updateBanner" class="bg-blue-600 text-white p-3 rounded-lg mb-6 flex justify-between items-center shadow-lg">
-            <span class="font-bold text-sm">SYSTEM UPDATE: ZONE MATCHING ENABLED. WATCHES FOR YOUR PINNED COUNTIES NOW FLOAT TO THE TOP.</span>
+        <div id="updateBanner" class="bg-red-600 border-2 border-red-400 text-white p-3 rounded-lg mb-6 flex justify-between items-center shadow-lg animate-pulse">
+            <span class="font-bold text-sm">SYSTEM UPDATE: LIVE ALERT TRACKING ENABLED. YOU WILL NOW BE NOTIFIED INSTANTLY WHEN NWS UPDATES STORM DETAILS.</span>
             <button onclick="document.getElementById('updateBanner').style.display='none'" class="ml-4 font-bold text-xl">&times;</button>
         </div>
 
@@ -829,6 +829,27 @@
             }
         }
 
+        if (typeof window.isFirstLoad === 'undefined') window.isFirstLoad = true;
+        if (typeof window.previousAlertSignatures === 'undefined') window.previousAlertSignatures = new Set();
+
+        function showToast(message) {
+            const t = document.createElement('div');
+            t.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-full font-black text-sm shadow-[0_0_20px_rgba(37,99,235,0.5)] z-[100] flex items-center gap-3 border-2 border-blue-400 transition-all duration-500 -translate-y-20 opacity-0';
+            t.innerHTML = `<span>🔄</span> ${message}`;
+            document.body.appendChild(t);
+            
+            setTimeout(() => {
+                t.classList.remove('-translate-y-20', 'opacity-0');
+                t.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+            
+            setTimeout(() => {
+                t.classList.remove('translate-y-0', 'opacity-100');
+                t.classList.add('-translate-y-20', 'opacity-0');
+                setTimeout(() => t.remove(), 500);
+            }, 6000);
+        }
+
         function processAlerts(features) {
             const container = document.getElementById('alertsContainer');
             container.innerHTML = '';
@@ -928,7 +949,21 @@
             const uniqueFeatures = features.filter((v,i,a)=>a.findIndex(t=>(t.properties.id === v.properties.id))===i);
             uniqueFeatures.sort((a, b) => a.minDist - b.minDist);
 
+            let currentSignatures = new Set();
+            let newUpdates = 0;
+
             uniqueFeatures.forEach(f => {
+                const sig = f.properties.id + '-' + (f.minDist < 999 ? f.minDist.toFixed(1) : 'NA') + '-' + (f.snippet || '');
+                currentSignatures.add(sig);
+                
+                f.justUpdated = false;
+                if (!window.isFirstLoad && !window.previousAlertSignatures.has(sig)) {
+                    if (f.isDirectHit || f.minDist < 50) {
+                        f.justUpdated = true;
+                        newUpdates++;
+                    }
+                }
+
                 const isClose = f.minDist < 25 || f.isDirectHit;
                 const isImminent = (f.etaMinutes !== undefined && f.etaMinutes <= 45) || (f.isDirectHit && !f.properties.event.includes('Watch'));
                 const isDangerous = f.keywords.rotation || f.keywords.observed;
@@ -989,6 +1024,7 @@
                 if (f.keywords.rotation) tagsHtml += '<span class="keyword-tag bg-orange-600 text-white">ROTATION DETECTED</span>';
                 if (f.keywords.possible && !f.keywords.observed) tagsHtml += '<span class="keyword-tag bg-amber-600 text-white">TORNADO POSSIBLE</span>';
                 if (f.keywords.vector) tagsHtml += `<span class="keyword-tag bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${f.keywords.vector[1]} @ ${f.keywords.vector[2]} MPH</span>`;
+                if (f.justUpdated) tagsHtml = '<span class="keyword-tag bg-green-500 text-white animate-pulse ring-2 ring-green-300">NEW DETAILS</span> ' + tagsHtml;
 
                 let safetyHtml = '';
                 if (f.isDirectHit && f.properties.event.includes('Warning')) {
@@ -1020,6 +1056,16 @@
                 `;
                 container.appendChild(card);
             });
+            }
+
+            window.previousAlertSignatures = currentSignatures;
+            window.isFirstLoad = false;
+            
+            if (newUpdates > 0) {
+                showToast(`${newUpdates} ALERT${newUpdates > 1 ? 'S' : ''} UPDATED WITH NEW NWS DATA`);
+                if (navigator.vibrate && document.getElementById('prefVibrate').checked) {
+                    navigator.vibrate([200, 100, 200]);
+                }
             }
 
             if (highestAlarmLevel > 0) playAlarm(highestAlarmLevel);
